@@ -10,13 +10,28 @@ class Datum {
   }
 }
 
-abstract class Graph {
+public abstract class Graph {
+  public abstract class DatumView {
+    protected final Datum datum;
+    protected final Rect bounds;
+    
+    public DatumView(Datum datum, Rect bounds) {
+      this.datum = datum;
+      this.bounds = bounds;
+    }
+    
+    public abstract void renderDatum();
+  
+    // renders the tooltip if 
+    public abstract void renderTooltip(); 
+  }
+  
   private final ArrayList<Datum> data;
+  private ArrayList<DatumView> views;
  
   public final color BLACK = color(0, 0, 0);
   public final color WHITE = color(255, 255, 255);
    
-//  public final float PERCENT_PADDING = 0.15;
   public final float PADDING_LEFT = 0.15;
   public final float PADDING_RIGHT = 0.15;
   public final float PADDING_TOP = 0.1;
@@ -28,59 +43,79 @@ abstract class Graph {
   public final int THICKNESS = 3;
   public final int TICK_THICKNESS = 1;
   public final int TICK_WIDTH = 10;
-  public final int NUMBER_OF_TICKS = 10; 
+  public final int TARGET_NUMBER_OF_TICKS = 11; 
   
   public final float AXIS_NAME_PERCENT_FONT_SIZE = 0.05;
   public final float AXIS_LABEL_PERCENT_FONT_SIZE = AXIS_NAME_PERCENT_FONT_SIZE / 1.5;
   
+  public final int tickCount;
   public final float maxY;
+  
   public final String xLabel;
   public final String yLabel;
   
   // TODO: label X axis *below* the axis, not to the right, so that there is more room for long names
   public Graph(ArrayList<Datum> data, String xLabel, String yLabel) {
     this.data = data;
-    maxY = getMaxY();
-    
+//    maxY = getMaxY();    
     this.xLabel = xLabel;
     this.yLabel = yLabel;
+    
+    // compute the scale for the Y axis
+    float actualMaxY = getMaxY(); 
+    int interval = (int)(actualMaxY / TARGET_NUMBER_OF_TICKS);
+    
+    // tickCount = how many times you need to add interval to get something >= actualMaxY
+    int ticks = TARGET_NUMBER_OF_TICKS;
+    while (ticks * interval < actualMaxY) {
+      ticks++;
+    }
+    tickCount = ticks;
+    maxY = tickCount * interval;
   }
   
   public void render() {
-    renderDatums();
     drawAxes();
-    labelAxes();
+    labelAxes(); 
+    renderContents();
+  }
+  
+  protected void renderContents() {
+    createDatumViews();
+    renderDatums();
+    renderTooltips();
+  }
+  
+  protected void createDatumViews() {
+    views = new ArrayList<DatumView>(data.size());
     
-  }
-  
-  private float getMaxY() {
-    float max = data.get(0).value;
-   
-    for (int i = 1; i < data.size(); i++) {
-      float v = data.get(i).value;
-      if (v > max) {
-        max = v;
-      } 
-    }
-   
-    return max; 
-  }
-  
-  private void renderDatums() {
     int uw = (getLR().x - getO().x) / data.size();
     int uh = getUL().y - getO().x;
     int y = getUL().y;
-    int bottomY = getLR().y;
+    int bottomY = getLR().y - THICKNESS / 2;
     
     for (int i = 0; i < data.size(); i++) {
       int x = i * uw + getO().x;
       int nextX = (i + 1) * uw + getO().x;
       Rect bounds = new Rect(new Point(x, y), new Point(nextX, bottomY));
       Rect adjustedBounds = bounds.scale(0.5, 1);
-      renderDatum(data.get(i), adjustedBounds);
+      
+      views.add(createDatumView(data.get(i), adjustedBounds));
     }
   }
   
+  protected void renderDatums() {
+    for (int i = 0; i < data.size(); i++) {
+      views.get(i).renderDatum();
+    }
+  }
+  
+  protected void renderTooltips() {
+    for (int i = 0; i < data.size(); i++) {
+      views.get(i).renderTooltip();
+    }
+  }
+
   private void drawAxes() {
        stroke(color(0, 0, 0));
        drawLine(getO(), getLR(), THICKNESS);
@@ -140,14 +175,14 @@ abstract class Graph {
   
   private void labelY() {
     int lineHeight = getO().y - getUL().y;
-    int intHeight = round(lineHeight / float(NUMBER_OF_TICKS));
+    int intHeight = round(lineHeight / float(tickCount));
     
     // the center of the tick marks
     int x = getO().x;
     int offset = TICK_WIDTH / 2;
     
     percentTextSize(AXIS_LABEL_PERCENT_FONT_SIZE);
-    for (int i = 0; i < NUMBER_OF_TICKS; i++) {
+    for (int i = 0; i < tickCount; i++) {
       int y = getUL().y + i * intHeight;
       
       // draw the tick mark
@@ -157,7 +192,7 @@ abstract class Graph {
      
       // label the tick mark
       // value is NOT pixels, its in the units of the Y axis
-      int value = round(maxY - i * (maxY / NUMBER_OF_TICKS));
+      int value = round(maxY - i * (maxY / tickCount));
       
       textAlign(RIGHT, CENTER);
       text(value, x - offset - 2, y);
@@ -174,8 +209,8 @@ abstract class Graph {
     textSize(percent * height);
   }
   
-  // override to render a single datum
-  protected abstract void renderDatum(Datum d, Rect boundingRect);
+  // lets the subclass determines the type of DatumView used
+  protected abstract DatumView createDatumView(Datum data, Rect bounds);
   
   protected void drawRect(Rect r, color stroke, color fill) {
      stroke(stroke);
@@ -202,4 +237,18 @@ abstract class Graph {
      fill(BLACK);
      text(s, x, y);
    }
+   
+   private float getMaxY() {
+    float max = data.get(0).value;
+   
+    for (int i = 1; i < data.size(); i++) {
+      float v = data.get(i).value;
+      if (v > max) {
+        max = v;
+      } 
+    }
+   
+    return max; 
+  }
 }
+
