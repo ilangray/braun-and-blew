@@ -17,7 +17,7 @@ class Line extends Graph {
       diameter = DIAMETER_PERCENT * rect.w;
       
       // used to position label
-      hitbox = new Rect(rect.x, rect.y + heightDiff, rect.w, newHeight);
+      hitbox = new Rect(rect.x, yCoord, rect.w, newHeight);
       
       // Is mouse in point?
       hit = center.distFrom(new Point(mouseX, mouseY)) < diameter / 2;
