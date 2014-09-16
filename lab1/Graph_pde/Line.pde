@@ -1,6 +1,7 @@
 class Line extends Graph {
   private class LineView extends Graph.DatumView {
     private final boolean hit;
+    private final Rect hitbox;
     private final float DIAMETER_PERCENT = 0.3;
     private final float diameter; 
     public final Point center;
@@ -15,6 +16,9 @@ class Line extends Graph {
       center = new Point(xCoord, yCoord);
       diameter = DIAMETER_PERCENT * rect.w;
       
+      // used to position label
+      hitbox = new Rect(rect.x, rect.y + heightDiff, rect.w, newHeight);
+      
       // Is mouse in point?
       hit = center.distFrom(new Point(mouseX, mouseY)) < diameter / 2;
     }
@@ -23,11 +27,16 @@ class Line extends Graph {
       color fill = hit ? HIGHLIGHTED_FILL : NORMAL_FILL;
       strokeWeight(0);
       fill(fill);
-      //Point UL = center.offset(new Point(-diameter/2, -diameter/2));
       ellipse(center.x, center.y, diameter, diameter);
     }
     
     void renderTooltip() {
+      if (hit) {
+         String s = "(" + datum.key + ", " + datum.value + ")";
+         renderLabel(hitbox, s);
+         
+//         new Rect(bounds.x, bounds.y, bounds.w, 0), s);
+       }
     }
     
   }
