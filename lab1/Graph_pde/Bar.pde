@@ -1,8 +1,5 @@
 class Bar extends Graph {
- 
-   private final color HIGHLIGHTED_FILL = color(237, 119, 0);
-   private final color NORMAL_FILL = color(0, 0, 200);
- 
+
    private class BarView extends Graph.DatumView {
     
      private final Rect hitbox; 

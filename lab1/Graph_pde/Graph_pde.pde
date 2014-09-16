@@ -25,9 +25,10 @@ public abstract class Graph {
     // renders the tooltip if 
     public abstract void renderTooltip(); 
   }
-  
-  private final ArrayList<Datum> data;
-  private ArrayList<DatumView> views;
+  protected final color HIGHLIGHTED_FILL = color(237, 119, 0);
+  protected final color NORMAL_FILL = color(0, 0, 200);
+  protected final ArrayList<Datum> data;
+  protected ArrayList<DatumView> views;
  
   public final color BLACK = color(0, 0, 0);
   public final color WHITE = color(255, 255, 255);
@@ -56,14 +57,16 @@ public abstract class Graph {
   
   // TODO: label X axis *below* the axis, not to the right, so that there is more room for long names
   public Graph(ArrayList<Datum> data, String xLabel, String yLabel) {
-    this.data = data;
-//    maxY = getMaxY();    
+    this.data = data;    
     this.xLabel = xLabel;
     this.yLabel = yLabel;
     
     // compute the scale for the Y axis
     float actualMaxY = getMaxY(); 
     int interval = (int)(actualMaxY / TARGET_NUMBER_OF_TICKS);
+    if (interval == 0) {
+      interval++;
+    }
     
     // tickCount = how many times you need to add interval to get something >= actualMaxY
     int ticks = TARGET_NUMBER_OF_TICKS;

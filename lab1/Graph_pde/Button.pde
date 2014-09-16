@@ -10,6 +10,17 @@ class Point {
   public Point(float x, float y) {
     this(round(x), round(y));
   }
+  
+  public Point offset(Point other) {
+    return new Point(other.x + x, other.y + y);
+  }
+  
+  public float distFrom(Point other) {
+    float dx = (other.x - x);
+    float dy = (other.y - y);
+    
+    return sqrt(dx*dx + dy*dy);
+  }
 }
 
 class Rect {

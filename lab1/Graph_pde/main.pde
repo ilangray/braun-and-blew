@@ -12,11 +12,12 @@ void setup() {
   frame.setResizable(true);
   
   Data data = readData("data.csv");
-  g = new Bar(data.datums, data.xLabel, data.yLabel);
-//  g = new Bar(readData(), "Time", "Y");
+  g = new Line(data.datums, data.xLabel, data.yLabel);
+  println("I made a graph");
 }
 
 void draw() {
+  //println("I am drawing");
   background(255);
   g.render();
 }
