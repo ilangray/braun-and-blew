@@ -33,10 +33,10 @@ public abstract class Graph {
   public final color BLACK = color(0, 0, 0);
   public final color WHITE = color(255, 255, 255);
    
-  public final float PADDING_LEFT = 0.15;
-  public final float PADDING_RIGHT = 0.15;
-  public final float PADDING_TOP = 0.1;
-  public final float PADDING_BOTTOM = 0.2;
+  public static final float PADDING_LEFT = 0.15;
+  public static final float PADDING_RIGHT = 0.15;
+  public static final float PADDING_TOP = 0.1;
+  public static final float PADDING_BOTTOM = 0.2;
   
   public final float LABEL_PERCENT_FONT_SIZE = 0.03;
   public final float LABEL_PERCENT_OFFSET = 0.5 * LABEL_PERCENT_FONT_SIZE;
