@@ -13,7 +13,4 @@ class Datum {
   public boolean isLeaf() {
     // implement me!!!! 
   }
-  
-  
-  
 }
