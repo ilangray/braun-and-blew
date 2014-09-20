@@ -53,6 +53,13 @@ class Rect {
     return y;
   }
   
+  public float getAspectRatio() {
+    float widthOHeight = float(w) / h;
+    float heightOWidth = float(h) / w;
+    
+    return (widthOHeight > heightOWidth ? widthOHeight : heightOWidth);
+  }
+  
   public Rect scale(float sx, float sy) {
     float newWidth = w * sx;
     float newHeight = h * sy;

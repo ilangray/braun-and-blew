@@ -1,4 +1,3 @@
-
 // main
 
 // constants 
@@ -20,9 +19,6 @@ void setup() {
   tm = new SQTM(bounds, root);
 }
 
-void draw() {
-  tm.render();
-}
 
 void onClick() {
   if (mouseButton == LEFT) {
@@ -31,3 +27,4 @@ void onClick() {
     tm.zoomOut(); 
   }
 }
+
