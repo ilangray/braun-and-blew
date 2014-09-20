@@ -1,15 +1,15 @@
 class Point {
-  public final int x;
-  public final int y;
+  public final float x;
+  public final float y;
   
-  public Point(int x, int y) {
+  public Point(float x, float y) {
     this.x = x;
     this.y = y;
   }
   
-  public Point(float x, float y) {
-    this(round(x), round(y));
-  }
+//  public Point(float x, float y) {
+//    this(round(x), round(y));
+//  }
   
   public Point offset(Point other) {
     return new Point(other.x + x, other.y + y);
@@ -24,18 +24,18 @@ class Point {
 }
 
 class Rect {
-  int x, y, w, h;
+  public final float x, y, w, h;
   
-  Rect(int x, int y, int w, int h) {
+  Rect(float x, float y, float w, float h) {
     this.x = x;
     this.y = y;
     this.w = w;
     this.h = h;
   }
   
-  Rect(float x, float y, float w, float h) {
-    this(round(x), round(y), round(w), round(h));
-  }
+//  Rect(float x, float y, float w, float h) {
+//    this(round(x), round(y), round(w), round(h));
+//  }
   
   Rect(Point ul, Point lr) {
     this(ul.x, ul.y, lr.x - ul.x, lr.y - ul.y);
@@ -49,13 +49,13 @@ class Rect {
     return new Point(x + w/2, y + h/2);    
   }
   
-  public int getMinY() {
+  public float getMinY() {
     return y;
   }
   
   public float getAspectRatio() {
-    float widthOHeight = float(w) / h;
-    float heightOWidth = float(h) / w;
+    float widthOHeight = w / h;
+    float heightOWidth = h / w;
     
     return (widthOHeight > heightOWidth ? widthOHeight : heightOWidth);
   }
@@ -69,15 +69,15 @@ class Rect {
     return new Rect(x + widthDiff/2, y + heightDiff/2, newWidth, newHeight);
   }
   
-  boolean containsPoint(int x, int y) {
+  boolean containsPoint(float x, float y) {
     return containsX(x) && containsY(y);
   }
   
-  boolean containsX(int x) {
+  boolean containsX(float x) {
     return (x >= this.x) && x <= (this.x + w);
   }
     
-  boolean containsY(int y) {
+  boolean containsY(float y) {
     return (y >= this.y) && y <= (this.y + h);
   }
 }
