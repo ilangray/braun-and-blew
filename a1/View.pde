@@ -2,12 +2,12 @@
 // owned by ben
 class View {
   
-  private final Datum datum;
-  private final Rect bounds;
-  private final ArrayList<View> subviews;
+  public final float area;
+  public final Rect bounds;
+  public final ArrayList<View> subviews;
   
-  public View(Datum datum, Rect bounds, ArrayList<View> subviews) {
-    this.datum = datum;
+  public View(float area, Rect bounds, ArrayList<View> subviews) {
+    this.area = area;
     this.bounds = bounds;
     this.subviews = subviews;
   }

@@ -140,6 +140,5 @@ class Reader {
       ss[i] = list[start + i];
     } 
     return ss;
-  }
-  
+  }  
 }
