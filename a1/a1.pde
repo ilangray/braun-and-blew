@@ -2,7 +2,7 @@
 // main
 
 // constants 
-String FILENAME = "data.shf";
+String FILENAME = "hierarchy2.shf";
 
 // globals
 SQTM tm;
@@ -15,6 +15,8 @@ void setup() {
   Rect bounds = new Rect(0, 0, width, height);
   Datum root = new Reader(FILENAME).read();
   
+  println("root = " + root);
+  
   tm = new SQTM(bounds, root);
 }
 
@@ -23,9 +25,9 @@ void draw() {
 }
 
 void onClick() {
-  // check whether left or right click
-  
-  // if left: tell the SQTM to zoom IN (and where)
-  
-  // if right: tell the SQTM to zoom OUT
+  if (mouseButton == LEFT) {
+    tm.zoomIn(new Point(mouseX, mouseY));
+  } else {
+    tm.zoomOut(); 
+  }
 }

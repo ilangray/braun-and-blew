@@ -21,6 +21,6 @@ class View {
   // returns the view that should be zoomed in on for a click at point p, 
   // or null if none exists
   public View monkey_turkey_chicken(Point p) {
-    
+    return null;
   }
 }
