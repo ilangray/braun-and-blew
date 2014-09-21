@@ -11,13 +11,12 @@ class Layout {
     private Boolean shortIsWidth;  // Which side is the short side?
 
     // The floats are the unscaled area
-    private ArrayList<Number> remRects;  // Rectangles to be placed
-
+    private ArrayList<Datum> remRects;  // Rectangles to be placed
     private ArrayList<Rect> currentRects;  // Rectangles in current row
     private ArrayList<View> finalViews;  // Final view for the level -- exported by class
 
 
-      public Algorithm(View parent, float canvLong, float canvShort, ArrayList<Number> startingVals, Point realUL, Boolean shortIsWidth) {
+    public Algorithm(View parent, float canvLong, float canvShort, ArrayList<Datum> startingVals, Point realUL, Boolean shortIsWidth) {
       this.parent = parent;
       this.canvLong = canvLong;
       this.canvShort = canvShort;
@@ -187,17 +186,17 @@ class Layout {
       return shortSideRect;
     }
     
-    private void testPrintRectArray(ArrayList<Rect> a) {
-      for (int i = 0; i < a.size(); i++) {
-        println(a.get(i).toString());
-      }
-    }
+//    private void testPrintRectArray(ArrayList<Rect> a) {
+//      for (int i = 0; i < a.size(); i++) {
+//        println(a.get(i).toString());
+//      }
+//    }
 
     private float getLargestRemaining() {
       float max = 0;
       float current = 0;
       for (int i = 0; i < remRects.size (); i++) {
-        current = remRects.get(i).floatValue();
+        current = remRects.get(i).getValueF();
         if (current > max) {
           max = current;
         }
@@ -208,11 +207,11 @@ class Layout {
     // Cannot be called on empty remRects array
     // NOTE: remRects is an ArrayList of Numbers
     private int getIndexLargestRemaining() {
-      float max = remRects.get(0).floatValue();
+      float max = remRects.get(0).getValueF();
       int maxInd = 0;
 
       for (int i = 1; i < remRects.size (); i++) {
-        float current = remRects.get(i).floatValue();
+        float current = remRects.get(i).getValueF();
         if (current > max) {
           max = current;
           maxInd = i;
@@ -225,7 +224,7 @@ class Layout {
     private float getSumOfRects() {
       float sum = 0;
       for (int i = 0; i < remRects.size (); i++) {
-        sum += remRects.get(i).floatValue();
+        sum += remRects.get(i).getValueF();
       }
       return sum;
     }
@@ -262,19 +261,18 @@ class Layout {
 
 
   // Gets all children whose parents are level 
-  private ArrayList<Number> getChildren(int level) {
-    ArrayList<Number> saveList = new ArrayList();
+  private ArrayList<Datum> getChildren(int level) {
+    ArrayList<Datum> saveList = new ArrayList();
     recurGetChildren(root, 0, level + 1, saveList);
     return saveList;
   }
 
   // Cannot be called on null pointer
   // 10Q: http://stackoverflow.com/questions/13349853/find-all-nodes-in-a-binary-tree-on-a-specific-level-interview-query
-  private void recurGetChildren(Datum node, int currentLev, int targetLev, ArrayList<Number> saveList) {
+  private void recurGetChildren(Datum node, int currentLev, int targetLev, ArrayList<Datum> saveList) {
     // Target case
     if (currentLev == targetLev) {
-      Number toAdd = node.value;
-      saveList.add(toAdd);
+      saveList.add(node);
     }
 
     // Base case
@@ -283,7 +281,7 @@ class Layout {
     }
 
     // Recursion case
-    for (int i = 0; i < node.children.size (); i++) {
+    for (int i = 0; i < node.children.size(); i++) {
       recurGetChildren(node.children.get(i), currentLev + 1, targetLev, saveList);
     }
   }

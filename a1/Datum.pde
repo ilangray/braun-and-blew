@@ -36,6 +36,11 @@ class Datum {
     } 
   }
   
+  public float getValueF()
+  {
+    return (float)value;
+  }
+  
   public String toString() {
     return "Datum{id = " + id + ", value = " + value + ", isLeaf = " + isLeaf + ", kids = " + children + "}"; 
   }
