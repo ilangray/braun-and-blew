@@ -25,7 +25,9 @@ class Reader {
     ArrayList<Datum> parents = parseRelationships(leaves, slice(lines, start+1, relCount));
     
     // find the parent that is the root
-    return findRoot(leaves, parents);
+    Datum root = findRoot(leaves, parents);
+    root.calculateValue();
+    return root;
   }
   
   private ArrayList<Datum> parseRelationships(ArrayList<Datum> leaves, String[] input) {
