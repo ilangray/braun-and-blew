@@ -4,11 +4,12 @@ class Layout {
   private class Algorithm {
     View parent;  // Parent view
     private Point realUL;  // The actual coordinate of the UL point of canvas
-    private float worstAR;  // Current worst aspect ratio
+//    private float worstAR;  // Current worst aspect ratio
     private float canvLong;  // Length of long side of canvas
     private float canvShort;  // Length of short side of canvas
     private float sumOfRects;  // Sum of rects to be placed
     private float scale;  // To scale up to dimenssions of the screen
+    private Boolean shortIsWidth;  // Which side is the short side?
     
     // The floats are the unscaled area
     private ArrayList<Number> remRects;  // Rectangles to be placed
@@ -22,7 +23,7 @@ class Layout {
       this.canvLong = canvLong;
       this.canvShort = canvShort;
       this.remRects = startingVals;
-      this.currentRects = new ArrayList();
+      this.currentRects = null;
       this.finalViews = new ArrayList();
       this.realUL = realUL;
       this.sumOfRects = 0;
@@ -31,44 +32,158 @@ class Layout {
     }
     
     private void squarify() {
-      sumOfRects = getSumOfRects();
-      scale = canvShort * canLong / sumOfRects;
-      
-      // Calculate first rectangle on canvas
-      float areaCurrent = getLargestRemaining();
-      float longCurrent = areaCurrent / canvShort * scale;
-      
-      // Short side isn't necessarily width or height, constructing rectangle changes based on this
-      if (shortIsWidth) {
-        currentRects.add(new Rect(realUl.x, realUL.y, canvShort, longCurrent));
-      } else {   // The height is the short side
-        currentRects.add(new Rect(realUL.x, realUL.y, longCurrent, canvShort));
+//      println(remRects.size());
+      // A Base case -- no remaining rects to place
+      if (remRects.isEmpty()) {
+        return;
       }
-     
-     while (true) {
+      
+      currentRects = new ArrayList();  // Need clean list every time
+      
+      sumOfRects = getSumOfRects();
+      scale = canvShort * canvLong / sumOfRects;
+      
+      addFirstRect();
+//      println("Num rem Rect Before Remove");
+//      println(remRects.size());
+      // Rect added, so need to delete it from remaining rects
+      println(getIndexLargestRemaining());
+     remRects.remove(getIndexLargestRemaining());
+//      println("Num rem Rect After remove");
+//      println(remRects.size());
+//      System.exit(2);
+
+      
+      
+     // Loop invariant: All rectangles already in remRects have been scaled
+     // to fit the screen
+     while (!remRects.isEmpty()) {
+//       println("In While Loop");
+       float oldWorstAR = getWorstAR(currentRects);
        // Get next rectangle
        float areaCurrent = getLargestRemaining();
        
        // Calculate length of shared long side
        float sharedLong = 0;
        for (int i = 0; i < currentRects.size(); i++) {
+//         println("In while for loop");
          sharedLong += currentRects.get(i).getArea();
        }
+//       println("Exit for loop");
        sharedLong += areaCurrent;
        sharedLong /= (currentRects.size() + 1);
-       
-       ArrayList<Rect> tempRects;
+        
+       ArrayList<Rect> tempRects = new ArrayList();
+       float shortAreaUsedUp = 0;  // Used for placing the rectangles
        for (int i = 0; i < currentRects.size(); i++) {
+//         println("In for loop 2");
           Rect cRect = currentRects.get(i);
-          // TODO:CHANGE cRect
-          tempRects.add(cRect);
+          shortAreaUsedUp += addNewRectToTemp(tempRects, cRect, sharedLong, shortAreaUsedUp);
        }
-       
-       // If next rectange would improve aspect ratio, add it in
+//       println("Exit forLoop 2");
+       float newWorstAR = getWorstAR(tempRects);
        // If next rectangle makes things worse, then GTFO
-       break;
+       
+       if (newWorstAR >= oldWorstAR) {
+         println("Breaking out of Loop");
+         break;
+       }       
+       // If next rectange would improve aspect ratio, add it in
+       currentRects = tempRects;  // Yah Garbage collection
+       // Need to remove the largest one
+       println("Removing largest remRect");
+       remRects.remove(getIndexLargestRemaining());
      } 
+     // Update pointUL and longSide of the canvas
+     // Update canvas dims
+     if (shortIsWidth) {
+       float longShared = currentRects.get(0).h;
+       realUL = realUL.offset(new Point(0, longShared));
+       canvLong -= longShared;
+       
+     } else {
+       float longShared = currentRects.get(0).w;
+       realUL = realUL.offset(new Point(longShared, 0));
+       canvLong -= longShared;
+     }
+     
+     // Check if the short and long sides have swapped
+     if  (canvLong < canvShort) {  
+       shortIsWidth = !shortIsWidth;
+       float temp = canvLong;
+       canvLong = canvShort;
+       canvShort = temp;
+     } 
+     
+     // Recurse!
+     addViews();
+     squarify();
+    }
+    
+    private void addViews() {
+      for (int i = 0; i < currentRects.size(); i++) {
+        Rect toAddRect = currentRects.get(i);
+        // DATUM needs to be scaled back down. Assume no chil'un
+        View toAddView = new View(toAddRect.getArea() / scale, toAddRect, null);
+      }
+    }
+    
+    private void addFirstRect() {
+      // Calculate first rectangle on canvas
+      float areaCurrent = getLargestRemaining();
+      float longCurrent = areaCurrent / canvShort * scale;
       
+      // Short side isn't necessarily width or height, constructing rectangle changes based on this
+      // NOTE: rectange added in is already scaled
+      if (shortIsWidth) {
+        currentRects.add(new Rect(realUL.x, realUL.y, canvShort, longCurrent));
+      } else {   // The height is the short side
+        currentRects.add(new Rect(realUL.x, realUL.y, longCurrent, canvShort));
+      }
+    }
+    
+    // Returns the worst aspect ratio in an ArayList of Rects
+    // Cann't be called on empty ArrayList  -- it will explode
+    private float getWorstAR(ArrayList<Rect> inputList) {
+      float worstAR = inputList.get(0).getAspectRatio();
+      
+      for (int i = 1; i < inputList.size(); i++) {
+        float currentAR = inputList.get(i).getAspectRatio();
+        if (currentAR > worstAR) {
+          worstAR = currentAR;
+        }
+      }
+      
+      return worstAR;
+    }
+    
+    // Adds in a newRect and returns the amount of the short side that was used
+    private float addNewRectToTemp(ArrayList<Rect> tempRects, Rect cRect, float sharedLong, float shortAreaUsedUp) {
+      float areaRect = cRect.w * cRect.h;  // Calculate area
+          
+      // Area of rectangle has already been scaled
+      float shortSideRect = areaRect / sharedLong;
+       
+       Rect newRect;
+      if (shortIsWidth) {
+        float xCoord = realUL.x + shortAreaUsedUp;
+        float yCoord = realUL.y;
+        float rectWidth = shortSideRect;
+        float rectHeight = sharedLong;
+        newRect = new Rect(xCoord, yCoord, rectWidth, rectHeight);
+        
+      } else {  // Short side is the height
+        float xCoord = realUL.x;
+        float yCoord = realUL.y + shortAreaUsedUp;
+        float rectWidth = sharedLong;
+        float rectHeight = shortSideRect;
+        newRect = new Rect(xCoord, yCoord, rectWidth, rectHeight);
+        }
+        
+        tempRects.add(newRect);
+        
+        return shortSideRect;
+        
     }
     
     private float getLargestRemaining() {
@@ -81,6 +196,23 @@ class Layout {
         }
       }
       return max;
+    }
+    
+    // Cannot be called on empty remRects array
+    // NOTE: remRects is an ArrayList of Numbers
+    private int getIndexLargestRemaining() {
+      float max = remRects.get(0).floatValue();
+      int maxInd = 0;
+      
+      for (int i = 1; i < remRects.size(); i++) {
+        float current = remRects.get(i).floatValue();
+        if (current > max) {
+          max = current;
+          maxInd = i;
+        }
+      }
+      
+      return maxInd;
     }
     
     private float getSumOfRects() {
@@ -104,8 +236,12 @@ class Layout {
   
   public View solve() {
      for (int i = 0;  i < (numLevels - 1); i++) {
-       Algorithm a = new Algorithm(new View(root, null, null), width, height, getChildren(i), new Point(0, 0));
-       testPrintNumArray(a.remRects);
+       // TODO: Shouldn't be true -- should be determined here
+       Algorithm a = new Algorithm(new View(float(root.value), null, null), float(width), float(height), getChildren(i), new Point(0, 0), true);
+       a.squarify();
+       for (int ind = 0; ind < a.finalViews.size(); ind++) {
+         println(a.finalViews.get(ind).toString());
+       }
      }
      
      return null;
