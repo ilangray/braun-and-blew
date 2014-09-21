@@ -50,6 +50,18 @@ class Datum {
      return sum;
   }
   
+  public void print() {
+    println("id = " + id + ", value = " + value);
+    
+    if (children == null) {
+      return;
+    }
+   
+    for (Datum d : children) {
+      d.print();
+    } 
+  }
+  
   public float getValueF()
   {
     return (float)value;
