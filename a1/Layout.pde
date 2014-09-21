@@ -34,7 +34,7 @@ class Layout {
 
     private void squarify() {
       // A Base case -- no remaining rects to place
-      if (remRects.isEmpty()) {
+      if (remRects == null || remRects.isEmpty()) {
         return;
       }
 
@@ -84,10 +84,10 @@ class Layout {
 //        testPrintRectArray(tempRects);
 //        println("END");
         
-        print("New Worst AR: ");
-        println(newWorstAR);
-        print("Old Worst AR: ");
-        println(oldWorstAR);
+//        print("New Worst AR: ");
+//        println(newWorstAR);
+//        print("Old Worst AR: ");
+//        println(oldWorstAR);
         // If next rectangle makes things worse, then GTFO
         if (newWorstAR >= oldWorstAR) {
           break;
@@ -242,17 +242,14 @@ class Layout {
   }
 
   public final Datum root;
-  public int numLevels;  // Used to know how many times to instantiate an algorithm
-
 
   public Layout(Datum root) {
     this.root = root;
-    this.numLevels = findLongestPath(root);
   }
 
   private View recurSolve(View node, int currentLevel) {
-    Boolean shortIsWidth = height > width ? true : false; 
-    Algorithm a = new Algorithm(node, node.bounds.w, node.bounds.h, getChildren(currentLevel), new Point(node.bounds.x, node.bounds.y), shortIsWidth);
+    Boolean shortIsWidth = node.bounds.h > node.bounds.w ? true : false; 
+    Algorithm a = new Algorithm(node, node.bounds.w, node.bounds.h, node.datum.children, new Point(node.bounds.x, node.bounds.y), shortIsWidth);
     a.squarify();
     
     for (View v : a.finalViews) {
@@ -272,22 +269,16 @@ class Layout {
 
     return viewRoot;
   }
-//
-//  public View solve() {
-//    View viewRoot = new View(root, new Rect(0, 0, width, height));
-//    for (int i = 0; i < (numLevels - 1); i++) {
-//      Boolean shortIsWidth = height > width ? true : false; 
-//      Algorithm a = new Algorithm(viewRoot, float(width), float(height), getChildren(i), new Point(0, 0), shortIsWidth);
-//      a.squarify();
-//      
-//      for (View v : a.finalViews) {
-//        viewRoot.subviews.add(v);
-//      }
-//      
-//    }
-//
-//    return null;
-//  }
+  
+  public void printTree(View node) {
+    print(node.datum.id);
+    print(": ");
+    println(node.bounds.toString());
+    
+    for (View v : node.subviews) {
+      printTree(v); 
+    }
+  }
 
   public void testPrintNumArray(ArrayList<Number> arr) {
     for (int i = 0; i < arr.size (); i++) {
@@ -320,30 +311,6 @@ class Layout {
     for (int i = 0; i < node.children.size(); i++) {
       recurGetChildren(node.children.get(i), currentLev + 1, targetLev, saveList);
     }
-  }
-
-
-
-  private int findLongestPath(Datum node) {
-    // Base cases
-    if (node == null) {
-      return 0;
-    }
-    if (node.children == null) {
-      return 1;
-    }
-
-    int maxPath = 0;
-    int current;
-    for (int i = 0; i < root.children.size (); i++) {
-      current = 1 + findLongestPath(root.children.get(i));
-
-      if (current > maxPath) {
-        maxPath = current;
-      }
-    }
-
-    return maxPath;
   }
 }
 
