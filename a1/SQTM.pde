@@ -28,6 +28,7 @@ class SQTM {
     View temp = current.viewSelected(p);
     if(temp != null){
       zoomOutStack.push(current);
+      //current = new Layout(temp.datum).solve();
       current = temp;
     }
   }

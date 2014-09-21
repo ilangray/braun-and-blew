@@ -249,8 +249,11 @@ class Layout {
   }
 
   private View recurSolve(View node, int currentLevel) {
-    Boolean shortIsWidth = node.bounds.h > node.bounds.w ? true : false; 
-    Algorithm a = new Algorithm(node, node.bounds.w, node.bounds.h, node.datum.children, new Point(node.bounds.x, node.bounds.y), shortIsWidth);
+    Boolean shortIsWidth = node.bounds.h > node.bounds.w;
+    float canvShort = shortIsWidth ? node.bounds.w : node.bounds.h;     
+    float canvLong = shortIsWidth ? node.bounds.h : node.bounds.w;
+    //This part used to assume that the width was always the long side of the view
+    Algorithm a = new Algorithm(node, canvLong, canvShort, node.datum.children, new Point(node.bounds.x, node.bounds.y), shortIsWidth);
     a.squarify();
     
     for (View v : a.finalViews) {
