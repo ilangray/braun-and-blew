@@ -2,15 +2,16 @@
 // owned by ben
 class View {
   
-  public final float area;
+  public final Datum datum;
   public final Rect bounds;
   public final ArrayList<View> subviews;
   
-  public View(float area, Rect bounds, ArrayList<View> subviews) {
-    this.area = area;
+  public View(Datum datum, Rect bounds) {
+    this.datum = datum;
     this.bounds = bounds;
-    this.subviews = subviews;
+    this.subviews = new ArrayList();
   }
+  
  
   // rendering a view also renders all subviews
   // bounds for subviews must already be specified
