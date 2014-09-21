@@ -37,7 +37,7 @@ class View {
 //         println(" -- parent telling subview to render");
          subview.render(); 
        }
-       
+       stroke(strokeWidth);
        strokeRect(bounds, STROKE_COLOR);
     }
   } 

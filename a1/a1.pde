@@ -1,7 +1,7 @@
 // main
 
 // constants 
-String FILENAME = "hierarchy.shf";
+String FILENAME = "hierarchy2.shf";
 
 // globals
 SQTM tm;
@@ -25,11 +25,12 @@ void draw() {
   tm.render(); 
 }
 
-void onClick() {
+
+void mousePressed() {
   if (mouseButton == LEFT) {
     tm.zoomIn(new Point(mouseX, mouseY));
   } else {
-    tm.zoomOut(); 
+    tm.zoomOut();
   }
 }
 

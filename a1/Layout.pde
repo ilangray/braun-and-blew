@@ -143,8 +143,9 @@ class Layout {
     // Adds largest datum to currentRect and currentDatum
     private void addFirstRect() {
       Datum toAdd = getLargestRemaining();
-      float areaCurrent = toAdd.getValueF();
-      float longCurrent = areaCurrent / canvShort * scale;
+      float areaCurrent = toAdd.getValueF() * scale;
+      float longCurrent = areaCurrent / canvShort;
+      // Added extra multiplication by scale cause 2D
 
       // Short side isn't necessarily width or height, constructing rectangle changes based on this
       // NOTE: rectange added in is already scaled

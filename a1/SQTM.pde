@@ -24,6 +24,7 @@ class SQTM {
   // p determines which rectangle to zoom in on
   // NOTE: what happens if p is not inside the bounds of the receiving SQTM
   public void zoomIn(Point p) {
+    println("zoom in");
     View temp = current.viewSelected(p);
     if(temp != null){
       zoomOutStack.push(current);
