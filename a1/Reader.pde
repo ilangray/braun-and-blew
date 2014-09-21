@@ -11,7 +11,7 @@ class Reader {
   public Reader(String filename) {
     this.filename = filename;
   }
-  
+ 
   public Datum read() {
     String[] lines = loadStrings(filename);
     

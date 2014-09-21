@@ -86,3 +86,9 @@ class Rect {
     return (y >= this.y) && y <= (this.y + h);
   }
 }
+
+  void drawRect(Rect r, color stroke, color fill) {
+     stroke(stroke);
+     fill(fill);
+     rect(r.x, r.y, r.w, r.h);
+  }
