@@ -250,20 +250,27 @@ class Layout {
     this.numLevels = findLongestPath(root);
   }
 
+  private View recurSolve(View node, int currentLevel) {
+    Boolean shortIsWidth = height > width ? true : false; 
+    Algorithm a = new Algorithm(node, node.bounds.w, node.bounds.h, getChildren(currentLevel), new Point(node.bounds.x, node.bounds.y), shortIsWidth);
+    a.squarify();
+    
+    for (View v : a.finalViews) {
+        node.subviews.add(v);
+      }
+    
+    for (View v : node.subviews) {
+      recurSolve(v, currentLevel + 1);
+    }
+    
+    return node;
+  }
+  
   public View solve() {
     View viewRoot = new View(root, new Rect(0, 0, width, height));
-    for (int i = 0; i < (numLevels - 1); i++) {
-      Boolean shortIsWidth = height > width ? true : false; 
-      Algorithm a = new Algorithm(viewRoot, float(width), float(height), getChildren(i), new Point(0, 0), shortIsWidth);
-      a.squarify();
-      
-      for (View v : a.finalViews) {
-        viewRoot.subviews.add(v);
-      }
-      
-    }
-
-    return null;
+    recurSolve(viewRoot, 0);
+    
+    return viewRoot;
   }
 
   public void testPrintNumArray(ArrayList<Number> arr) {
@@ -321,10 +328,6 @@ class Layout {
     }
 
     return maxPath;
-  }
-
-  public View layout() {
-    return null;
   }
 }
 
