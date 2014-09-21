@@ -269,9 +269,25 @@ class Layout {
   public View solve() {
     View viewRoot = new View(root, new Rect(0, 0, width, height));
     recurSolve(viewRoot, 0);
-    
+
     return viewRoot;
   }
+//
+//  public View solve() {
+//    View viewRoot = new View(root, new Rect(0, 0, width, height));
+//    for (int i = 0; i < (numLevels - 1); i++) {
+//      Boolean shortIsWidth = height > width ? true : false; 
+//      Algorithm a = new Algorithm(viewRoot, float(width), float(height), getChildren(i), new Point(0, 0), shortIsWidth);
+//      a.squarify();
+//      
+//      for (View v : a.finalViews) {
+//        viewRoot.subviews.add(v);
+//      }
+//      
+//    }
+//
+//    return null;
+//  }
 
   public void testPrintNumArray(ArrayList<Number> arr) {
     for (int i = 0; i < arr.size (); i++) {
