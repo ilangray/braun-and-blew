@@ -19,7 +19,7 @@ class View {
   // rendering a view also renders all subviews
   // bounds for subviews must already be specified
   public void render() {
-    if(datum.isLeaf()) {
+    if(datum.isLeaf) {
       color viewFill = bounds.containsPoint(mouseX, mouseY) ? HIGHLIGHTED_FILL : REGULAR_FILL;
       drawRect(bounds, STROKE_COLOR, viewFill);
     } else {

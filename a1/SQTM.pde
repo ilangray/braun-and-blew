@@ -15,7 +15,7 @@ class SQTM {
   public SQTM(Rect bounds, Datum root) {
     this.bounds = bounds;
     this.root = root;
-    this.current = new View(root, bounds, null);
+    this.current = new View(root, bounds);
     this.zoomOutStack = new Stack<View>();
   }
   

@@ -67,12 +67,7 @@ class Datum {
     return (float)value;
   }
   
-<<<<<<< HEAD
-  public boolean isLeaf() {
-    return true;
-=======
   public String toString() {
     return "Datum{id = " + id + ", value = " + value + ", isLeaf = " + isLeaf + ", kids = " + children + "}"; 
->>>>>>> master
   }
 }
