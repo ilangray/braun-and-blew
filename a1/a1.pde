@@ -11,10 +11,15 @@ void setup() {
   // general canvas setup
   // ...
   
-  // init SQTM
-  Rect bounds = new Rect(0, 0, width, height);
-  Datum root = new Reader(FILENAME).read();
+  size(400, 300);
+  frame.setResizable(true);
   
+  // init SQTM
+  //Rect bounds = new Rect(0, 0, width, height);
+  //Datum root = new Reader(FILENAME).read();
+  
+  Rect bounds = new Rect(5, 5, width - 10, height - 10);
+  Datum root = new Datum(4, null);
   tm = new SQTM(bounds, root);
 }
 

@@ -11,7 +11,7 @@ class Reader {
   }
   
   Datum read() {
-    // implement me!! 
+    return null; 
   }
   
 }
