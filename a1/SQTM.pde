@@ -15,8 +15,10 @@ class SQTM {
   public SQTM(Rect bounds, Datum root) {
     this.bounds = bounds;
     this.root = root;
-    this.current = new View(root, bounds);
     this.zoomOutStack = new Stack<View>();
+    
+    current = new Layout(root).solve();
+    current.calculateStrokes();
   }
   
   // p determines which rectangle to zoom in on
@@ -30,8 +32,9 @@ class SQTM {
   }
    
   public void zoomOut() {
-    if(!zoomOutStack.isEmpty())
+    if(!zoomOutStack.isEmpty()) {
       current = zoomOutStack.pop();
+    }
   } 
   
   // calls render on the root view

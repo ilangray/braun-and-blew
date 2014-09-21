@@ -9,6 +9,10 @@ class View {
   private final Rect bounds;
   private final ArrayList<View> subviews;
   
+  private int depth;
+  private int maxDepth = 0;
+  private int strokeWidth;
+  
   public View(Datum datum, Rect bounds) {
     this.datum = datum;
     this.bounds = bounds;
@@ -18,17 +22,29 @@ class View {
  
   // rendering a view also renders all subviews
   // bounds for subviews must already be specified
-  public void render() {
+ public void render() {
+    stroke(strokeWidth);
     if(datum.isLeaf) {
+//      println("rendering leaf");
       color viewFill = bounds.containsPoint(mouseX, mouseY) ? HIGHLIGHTED_FILL : REGULAR_FILL;
       drawRect(bounds, STROKE_COLOR, viewFill);
+      textAlign(CENTER, CENTER);
+      text(datum.id, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2 );
     } else {
-       drawRect(bounds, STROKE_COLOR, REGULAR_FILL);
+//       println("rendering parent");
+       
+       for (View subview : subviews) {
+//         println(" -- parent telling subview to render");
+         subview.render(); 
+       }
+       
+       strokeRect(bounds, STROKE_COLOR);
     }
   } 
   
   // returns the view that should be zoomed in on for a click at point p, 
   // or null if none exists
+
   public View viewSelected(Point p) {
     if(!bounds.containsPoint(p.x, p.y))
       return null;
@@ -38,6 +54,27 @@ class View {
         return subviews.get(i);
     }
     return null; //it should never get here, but just in case
+  }
+  
+  public void calculateStrokes() {
+    calculateStrokes(0);
+  }
+  
+  private int calculateStrokes(int currDepth){
+    depth = currDepth + 1;
+    if(datum.isLeaf){
+      maxDepth = depth;
+      strokeWidth = 1;// maxDepth - depth + 1;
+      return depth;
+    }
+    else{
+      for(int i = 0; i < subviews.size(); i++){
+        maxDepth = Math.max(maxDepth, subviews.get(i).calculateStrokes(depth));
+      }
+      strokeWidth = (maxDepth - depth + 1) + 10;
+      println("Stroke w = " + strokeWidth);
+      return maxDepth;
+    }
   }
   
 }

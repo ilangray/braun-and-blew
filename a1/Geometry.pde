@@ -92,3 +92,9 @@ class Rect {
      fill(fill);
      rect(r.x, r.y, r.w, r.h);
   }
+  
+  void strokeRect(Rect r, color stroke) {
+    noFill();
+    stroke(stroke);
+    rect(r.x, r.y, r.w, r.h); 
+  }

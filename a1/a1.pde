@@ -1,15 +1,13 @@
 // main
 
 // constants 
-String FILENAME = "hierarchy2.shf";
+String FILENAME = "hierarchy.shf";
 
 // globals
 SQTM tm;
 
 void setup() {
   // general canvas setup
-  // ...
-  
   size(400, 300);
   frame.setResizable(true);
   
@@ -22,6 +20,10 @@ void setup() {
   tm = new SQTM(bounds, root);
 }
 
+
+void draw() {
+  tm.render(); 
+}
 
 void onClick() {
   if (mouseButton == LEFT) {
