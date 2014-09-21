@@ -17,7 +17,7 @@ class Layout {
     private ArrayList<View> finalViews;  // Final view for the level -- exported by class
     
     
-    public Algorithm(View parent, float canvLong, float canvShort, ArrayList<Number> startingVals, Point realUL){
+    public Algorithm(View parent, float canvLong, float canvShort, ArrayList<Number> startingVals, Point realUL, Boolean shortIsWidth){
       this.parent = parent;
       this.canvLong = canvLong;
       this.canvShort = canvShort;
@@ -25,8 +25,62 @@ class Layout {
       this.currentRects = new ArrayList();
       this.finalViews = new ArrayList();
       this.realUL = realUL;
-      this.sumOfRects = getSumOfRects();
-      this.scale = canvShort * canvLong / this.sumOfRects;
+      this.sumOfRects = 0;
+      this.scale = 0;
+      this.shortIsWidth = shortIsWidth;
+    }
+    
+    private void squarify() {
+      sumOfRects = getSumOfRects();
+      scale = canvShort * canLong / sumOfRects;
+      
+      // Calculate first rectangle on canvas
+      float areaCurrent = getLargestRemaining();
+      float longCurrent = areaCurrent / canvShort * scale;
+      
+      // Short side isn't necessarily width or height, constructing rectangle changes based on this
+      if (shortIsWidth) {
+        currentRects.add(new Rect(realUl.x, realUL.y, canvShort, longCurrent));
+      } else {   // The height is the short side
+        currentRects.add(new Rect(realUL.x, realUL.y, longCurrent, canvShort));
+      }
+     
+     while (true) {
+       // Get next rectangle
+       float areaCurrent = getLargestRemaining();
+       
+       // Calculate length of shared long side
+       float sharedLong = 0;
+       for (int i = 0; i < currentRects.size(); i++) {
+         sharedLong += currentRects.get(i).getArea();
+       }
+       sharedLong += areaCurrent;
+       sharedLong /= (currentRects.size() + 1);
+       
+       ArrayList<Rect> tempRects;
+       for (int i = 0; i < currentRects.size(); i++) {
+          Rect cRect = currentRects.get(i);
+          // TODO:CHANGE cRect
+          tempRects.add(cRect);
+       }
+       
+       // If next rectange would improve aspect ratio, add it in
+       // If next rectangle makes things worse, then GTFO
+       break;
+     } 
+      
+    }
+    
+    private float getLargestRemaining() {
+      float max = 0;
+      float current = 0;
+      for (int i = 0; i < remRects.size(); i++) {
+        current = remRects.get(i).floatValue();
+        if (current > max) {
+          max = current;
+        }
+      }
+      return max;
     }
     
     private float getSumOfRects() {

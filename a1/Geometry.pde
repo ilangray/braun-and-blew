@@ -60,6 +60,10 @@ class Rect {
     return (widthOHeight > heightOWidth ? widthOHeight : heightOWidth);
   }
   
+  public float getArea() {
+    return w * h;
+  }
+  
   public Rect scale(float sx, float sy) {
     float newWidth = w * sx;
     float newHeight = h * sy;
