@@ -2,9 +2,9 @@
 // owned by ben
 class View {
   
-  private final float area;
-  private final Rect bounds;
-  private final ArrayList<View> subviews;
+  public final float area;
+  public final Rect bounds;
+  public final ArrayList<View> subviews;
   
   public View(float area, Rect bounds, ArrayList<View> subviews) {
     this.area = area;

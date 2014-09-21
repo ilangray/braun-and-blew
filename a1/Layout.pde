@@ -4,7 +4,6 @@ class Layout {
   private class Algorithm {
     View parent;  // Parent view
     private Point realUL;  // The actual coordinate of the UL point of canvas
-//    private float worstAR;  // Current worst aspect ratio
     private float canvLong;  // Length of long side of canvas
     private float canvShort;  // Length of short side of canvas
     private float sumOfRects;  // Sum of rects to be placed
@@ -44,21 +43,14 @@ class Layout {
       scale = canvShort * canvLong / sumOfRects;
       
       addFirstRect();
-//      println("Num rem Rect Before Remove");
-//      println(remRects.size());
       // Rect added, so need to delete it from remaining rects
-      println(getIndexLargestRemaining());
      remRects.remove(getIndexLargestRemaining());
-//      println("Num rem Rect After remove");
-//      println(remRects.size());
-//      System.exit(2);
 
       
       
      // Loop invariant: All rectangles already in remRects have been scaled
      // to fit the screen
      while (!remRects.isEmpty()) {
-//       println("In While Loop");
        float oldWorstAR = getWorstAR(currentRects);
        // Get next rectangle
        float areaCurrent = getLargestRemaining();
@@ -66,32 +58,27 @@ class Layout {
        // Calculate length of shared long side
        float sharedLong = 0;
        for (int i = 0; i < currentRects.size(); i++) {
-//         println("In while for loop");
          sharedLong += currentRects.get(i).getArea();
        }
-//       println("Exit for loop");
+       
        sharedLong += areaCurrent;
        sharedLong /= (currentRects.size() + 1);
         
        ArrayList<Rect> tempRects = new ArrayList();
        float shortAreaUsedUp = 0;  // Used for placing the rectangles
        for (int i = 0; i < currentRects.size(); i++) {
-//         println("In for loop 2");
           Rect cRect = currentRects.get(i);
           shortAreaUsedUp += addNewRectToTemp(tempRects, cRect, sharedLong, shortAreaUsedUp);
        }
-//       println("Exit forLoop 2");
        float newWorstAR = getWorstAR(tempRects);
-       // If next rectangle makes things worse, then GTFO
        
+       // If next rectangle makes things worse, then GTFO
        if (newWorstAR >= oldWorstAR) {
-         println("Breaking out of Loop");
          break;
        }       
        // If next rectange would improve aspect ratio, add it in
        currentRects = tempRects;  // Yah Garbage collection
        // Need to remove the largest one
-       println("Removing largest remRect");
        remRects.remove(getIndexLargestRemaining());
      } 
      // Update pointUL and longSide of the canvas
@@ -125,6 +112,7 @@ class Layout {
         Rect toAddRect = currentRects.get(i);
         // DATUM needs to be scaled back down. Assume no chil'un
         View toAddView = new View(toAddRect.getArea() / scale, toAddRect, null);
+        finalViews.add(toAddView);
       }
     }
     
@@ -240,7 +228,8 @@ class Layout {
        Algorithm a = new Algorithm(new View(float(root.value), null, null), float(width), float(height), getChildren(i), new Point(0, 0), true);
        a.squarify();
        for (int ind = 0; ind < a.finalViews.size(); ind++) {
-         println(a.finalViews.get(ind).toString());
+         println(a.finalViews.get(ind).area);
+         println(a.finalViews.get(ind).bounds.toString());
        }
      }
      
