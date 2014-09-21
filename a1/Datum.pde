@@ -45,6 +45,8 @@ class Datum {
      for (Datum d : children) {
        sum += d.calculateValue();
      }
+     
+     this.value = sum;
      return sum;
   }
   
