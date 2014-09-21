@@ -1,3 +1,4 @@
+// This is a point
 class Point {
   public final float x;
   public final float y;
