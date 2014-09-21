@@ -5,7 +5,7 @@ class Datum {
   public final static int INVALID_VALUE = -1;
   
   public final int id;
-  public final int value;
+  public int value;
   public final ArrayList<Datum> children;
   public final boolean isLeaf;
   
