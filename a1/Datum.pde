@@ -36,6 +36,18 @@ class Datum {
     } 
   }
   
+  public int calculateValue() {
+     if (value != INVALID_VALUE) {
+       return value;
+     }
+     
+     int sum = 0;
+     for (Datum d : children) {
+       sum += d.calculateValue();
+     }
+     return sum;
+  }
+  
   public float getValueF()
   {
     return (float)value;
