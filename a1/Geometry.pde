@@ -85,6 +85,10 @@ class Rect {
   boolean containsY(float y) {
     return (y >= this.y) && y <= (this.y + h);
   }
+  
+  public Rect inset(int amount) {
+   return new Rect(x + amount, y + amount, w - 2 * amount, h - 2 * amount);
+  }
 }
 
   void drawRect(Rect r, color stroke, color fill) {
@@ -98,3 +102,4 @@ class Rect {
     stroke(stroke);
     rect(r.x, r.y, r.w, r.h); 
   }
+ 

@@ -25,16 +25,14 @@ class View {
  public void render() {
     stroke(strokeWidth);
     if(datum.isLeaf) {
-//      println("rendering leaf");
       color viewFill = bounds.containsPoint(mouseX, mouseY) ? HIGHLIGHTED_FILL : REGULAR_FILL;
       drawRect(bounds, STROKE_COLOR, viewFill);
       textAlign(CENTER, CENTER);
+      fill(color(0, 0, 0));
       text(datum.id, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2 );
     } else {
-//       println("rendering parent");
-       
+    
        for (View subview : subviews) {
-//         println(" -- parent telling subview to render");
          subview.render(); 
        }
        stroke(strokeWidth);

@@ -8,7 +8,7 @@ SQTM tm;
 
 void setup() {
   // general canvas setup
-  size(400, 300);
+  size(600, 400);
   frame.setResizable(true);
   
   // init SQTM

@@ -2,6 +2,7 @@
 // owned by phil
 class Layout {
   private class Algorithm {
+    private final int INSET_AMOUNT = 2;
     View parent;  // Parent view
     private Point realUL;  // The actual coordinate of the UL point of canvas
     private float canvLong;  // Length of long side of canvas
@@ -134,7 +135,7 @@ class Layout {
     private void addViews() {
       for (int i = 0; i < currentRects.size (); i++) {
         Datum toAddDatum = currentDatums.get(i);
-        Rect toAddRect = currentRects.get(i);
+        Rect toAddRect = currentRects.get(i).inset(INSET_AMOUNT);
         View toAddView = new View(toAddDatum, toAddRect);
         finalViews.add(toAddView);
       }
@@ -257,8 +258,8 @@ class Layout {
     a.squarify();
     
     for (View v : a.finalViews) {
-        node.subviews.add(v);
-      }
+      node.subviews.add(v);
+    }
     
     for (View v : node.subviews) {
       recurSolve(v, currentLevel + 1);
