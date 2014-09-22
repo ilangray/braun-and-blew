@@ -56,31 +56,17 @@ class Transmogifier {
   private Datum makeLeaf(Entry e) {
     return new Datum(getNextId(), (int)e.funding, e);    
   }
-
-  //Takes in a Node and fills the datum with the proper children and fills
-  ArrayList<Datum> groupByDept(ArrayList<Entry> entries) {
-    ArrayList<Datum> toReturn = new ArrayList<Datum>();
-    
-    Map<String, ArrayList<Entry>> groupedByDept = new Grouper(entries).by(EntryGroupings.BY_DEPT);
-    
-    //null; //TODO: use the Grouper + EntryGroupings classes
-    
-    for(ArrayList<Entry> deptGroup : groupedByDept.values()) {
-      Datum d = new Datum(getNextId());
-      Property p = Property.DEPT;
-
-      // recurse to get + add the kiddies
-      ArrayList<Datum> sponsors = null;//groupBySponsor(deptGroup);
-      d.children.addAll(sponsors);
-      
-      toReturn.add(d);
-    }
-    
-    return toReturn;
-  }
   
   private int getNextId() {
     return id++;
+  }
+  
+  private Function<Entry, String> getGrouper(String propertyName) {
+    return new Function<Entry, String>() {
+      public String apply(Entry e) {
+        return null; //e.get(propertyName); 
+      }
+    };
   }
   
   private Function<Entry, String> getGrouper(Property p) {

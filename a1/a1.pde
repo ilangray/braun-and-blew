@@ -42,7 +42,6 @@ void setup() {
   return toReturn;
 }
 
-
 void draw() {
   background(color(255, 255, 255));
   ArrayList<GDatum> gds = new Transmogifier().groupBy(ENTRIES, ORDERS.get(indORDERS));
@@ -51,23 +50,19 @@ void draw() {
   float butWidth = g.PADDING_RIGHT / 1.2 * width;
   float butHeight = g.PADDING_TOP / 2.5 * height;
   float offset = butWidth / 10;
+  
   toggle = new Button(new Rect(width - butWidth - offset, offset, butWidth, butHeight), color(0, 0, 0), "Toggle", color(255, 255, 255));
   toggle.render();
+  
+  // render the current order of properties
+  textSize(15);
+  textAlign(CENTER, CENTER);
+  fill(color(0, 0, 0));
+  text(ORDERS.get(indORDERS).toString(), width/2, offset + butHeight/2);
 }
-
-/*
-void mousePressed() {
-  if (mouseButton == LEFT) {
-    tm.zoomIn(new Point(mouseX, mouseY));
-  } else {
-    tm.zoomOut();
-  }
-}
-*/
 
 void mouseClicked() {
   if (toggle.frame.containsPoint(mouseX, mouseY)){
     indORDERS = (1 + indORDERS) % ORDERS.size();
   }
-
 }

@@ -30,7 +30,6 @@ class Grouper <K, V> {
     ArrayList<V> vs = groups.get(k);
     
     if (vs == null) {
-      println("Making a new list of values for key = " + k);
       vs = new ArrayList<V>();
       groups.put(k, vs);
     }
