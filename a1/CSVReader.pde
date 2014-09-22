@@ -6,9 +6,9 @@ class Entry {
   private final String dept;
   private final String sponsor;
   private final String year;
-  private final long funding;
+  private final int funding;
   
-  public Entry(String dept, String sponsor, String year, long funding) {
+  public Entry(String dept, String sponsor, String year, int funding) {
     this.dept = dept;
     this.sponsor = sponsor;
     this.year = year;
@@ -55,7 +55,7 @@ class CSVReader {
     String dept = comps[0];
     String sponsor = comps[1];
     String year = comps[2];
-    Long money = Long.parseLong(comps[3]);
+    int money = Integer.parseInt(comps[3]);
     
     return new Entry(dept, sponsor, year, money);
   }
