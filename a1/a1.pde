@@ -10,6 +10,16 @@ float Y_OFFSET = 10;
 // globals
 SQTM tm;
 Datum root;
+int indORDERS = 0;
+ArrayList<ArrayList<Property>> ORDERS = makeList(
+  makeList(Property.DEPT, Property.SPONSOR, Property.YEAR),
+  makeList(Property.DEPT, Property.YEAR, Property.SPONSOR),
+  makeList(Property.SPONSOR, Property.DEPT, Property.YEAR),
+  makeList(Property.SPONSOR, Property.YEAR, Property.DEPT),
+  makeList(Property.YEAR, Property.DEPT, Property.SPONSOR),
+  makeList(Property.YEAR, Property.SPONSOR, Property.DEPT)
+);
+ArrayList<Entry> ENTRIES = null; 
 
 Graph g; 
 
@@ -17,25 +27,24 @@ void setup() {
   // general canvas setup
   size(600, 800);
   frame.setResizable(true);
-  
-  // init SQTM
-  Rect bounds = new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET);
-  ArrayList<Entry> es = new CSVReader().read(FILENAME);
-  ArrayList<Property> ps = new ArrayList<Property>();
-  ps.add(Property.DEPT);
-  ps.add(Property.SPONSOR);
-  ps.add(Property.YEAR);
-  
-  ArrayList<GDatum> gds = new Transmogifier().groupBy(es, ps);
+  ENTRIES = new CSVReader().read(FILENAME);
+}
 
-  g = new SQTMBar(gds, "X axis", "Y axis");
+<T> ArrayList<T> makeList(T... ts) {
+  ArrayList<T> toReturn = new ArrayList();
+  
+  for (T t : ts) {
+    toReturn.add(t);
+  }
+  
+  return toReturn;
 }
 
 
 void draw() {
   background(color(255, 255, 255));
-//  tm.setBounds(new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET));
-//  tm.render();
+  ArrayList<GDatum> gds = new Transmogifier().groupBy(ENTRIES, ORDERS.get(indORDERS));
+  g = new SQTMBar(gds, ORDERS.get(indORDERS).get(0).name, "Funding");
   g.render();
 }
 
@@ -48,3 +57,7 @@ void mousePressed() {
   }
 }
 */
+
+void mouseClicked() {
+  indORDERS = (1 + indORDERS) % ORDERS.size();
+}

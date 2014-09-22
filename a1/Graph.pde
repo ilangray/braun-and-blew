@@ -44,7 +44,7 @@ public abstract class Graph {
   public static final float PADDING_TOP = 0.1;
   public static final float PADDING_BOTTOM = 0.2;
   
-  public final float LABEL_PERCENT_FONT_SIZE = 0.03;
+  public final float LABEL_PERCENT_FONT_SIZE = 0.01;
   public final float LABEL_PERCENT_OFFSET = 0.5 * LABEL_PERCENT_FONT_SIZE;
   
   public final int THICKNESS = 3;
@@ -52,7 +52,7 @@ public abstract class Graph {
   public final int TICK_WIDTH = 10;
   public final int TARGET_NUMBER_OF_TICKS = 11; 
   
-  public final float AXIS_NAME_PERCENT_FONT_SIZE = 0.05;
+  public final float AXIS_NAME_PERCENT_FONT_SIZE = 0.02;
   public final float AXIS_LABEL_PERCENT_FONT_SIZE = AXIS_NAME_PERCENT_FONT_SIZE / 1.5;
   
   public final int tickCount;
