@@ -22,10 +22,12 @@ ArrayList<ArrayList<Property>> ORDERS = makeList(
 ArrayList<Entry> ENTRIES = null; 
 
 Graph g; 
+Button toggle;
 
 void setup() {
   // general canvas setup
   size(600, 800);
+  toggle = new Button(new Rect(0, 0, 60, 30), color(0, 0, 0), "Toggle", color(255, 255, 255));
   frame.setResizable(true);
   ENTRIES = new CSVReader().read(FILENAME);
 }
@@ -46,6 +48,7 @@ void draw() {
   ArrayList<GDatum> gds = new Transmogifier().groupBy(ENTRIES, ORDERS.get(indORDERS));
   g = new SQTMBar(gds, ORDERS.get(indORDERS).get(0).name, "Funding");
   g.render();
+  toggle.render();
 }
 
 /*
@@ -59,5 +62,8 @@ void mousePressed() {
 */
 
 void mouseClicked() {
-  indORDERS = (1 + indORDERS) % ORDERS.size();
+  if (toggle.frame.containsPoint(mouseX, mouseY)){
+    indORDERS = (1 + indORDERS) % ORDERS.size();
+  }
+
 }
