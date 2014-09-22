@@ -9,8 +9,7 @@ class Layout {
     private float canvShort;  // Length of short side of canvas
     private float sumOfRects;  // Sum of rects to be placed
     private float scale;  // To scale up to dimenssions of the screen
-    private Boolean shortIsWidth;  // Which side is the short side?
-    // TODO: Change to boolean
+    private boolean shortIsWidth;  // Which side is the short side?
 
     // The floats are the unscaled area
     private ArrayList<Datum> remRects;  // Rectangles to be placed
@@ -19,7 +18,7 @@ class Layout {
     private ArrayList<View> finalViews;  // Final view for the level -- exported by class
 
 
-    public Algorithm(View parent, float canvLong, float canvShort, ArrayList<Datum> startingVals, Point realUL, Boolean shortIsWidth) {
+    public Algorithm(View parent, float canvLong, float canvShort, ArrayList<Datum> startingVals, Point realUL, boolean shortIsWidth) {
       this.parent = parent;
       this.canvLong = canvLong;
       this.canvShort = canvShort;
@@ -67,9 +66,7 @@ class Layout {
 
         sharedLong += areaCurrent;
         sharedLong /= canvShort;
-//        println("Shared Long");
-//        println(sharedLong);
-
+        
         ArrayList<Rect> tempRects = new ArrayList();
         ArrayList<Datum> tempDatums = new ArrayList();
         float shortAreaUsedUp = 0;  // Used for placing the rectangles
@@ -81,14 +78,7 @@ class Layout {
         }
         addNewRectToTemp(tempRects, areaCurrent, tempDatums, nodeToConsider, sharedLong, shortAreaUsedUp); 
         float newWorstAR = getWorstAR(tempRects);
-//        println("TEMPARR");
-//        testPrintRectArray(tempRects);
-//        println("END");
-        
-//        print("New Worst AR: ");
-//        println(newWorstAR);
-//        print("Old Worst AR: ");
-//        println(oldWorstAR);
+
         // If next rectangle makes things worse, then GTFO
         if (newWorstAR >= oldWorstAR) {
           break;
@@ -103,12 +93,10 @@ class Layout {
       // Update pointUL and longSide of the canvas
       // Update canvas dims
       if (shortIsWidth) {
-//        println("shortIsWidth");
         float longShared = currentRects.get(0).h;
         realUL = realUL.offset(new Point(0, longShared));
         canvLong -= longShared;
       } else {
-//        println("Long is width");
         float longShared = currentRects.get(0).w;
         realUL = realUL.offset(new Point(longShared, 0));
         canvLong -= longShared;
@@ -121,12 +109,7 @@ class Layout {
         canvLong = canvShort;
         canvShort = temp;
       } 
-//      print("New UL: (");
-//      print(realUL.x);
-//      print(", ");
-//      print(realUL.y);
-//      println(")");
-
+      
       // Recurse!
       addViews();
       squarify();
@@ -198,12 +181,6 @@ class Layout {
 
       return shortSideRect;
     }
-    
-//    private void testPrintRectArray(ArrayList<Rect> a) {
-//      for (int i = 0; i < a.size(); i++) {
-//        println(a.get(i).toString());
-//      }
-//    }
 
     private Datum getLargestRemaining() {
       Datum max = remRects.get(0);
@@ -260,7 +237,7 @@ class Layout {
   }
 
   private View recurSolve(View node) {
-    Boolean shortIsWidth = node.bounds.h > node.bounds.w;
+    boolean shortIsWidth = node.bounds.h > node.bounds.w;
     float canvShort = shortIsWidth ? node.bounds.w : node.bounds.h;     
     float canvLong = shortIsWidth ? node.bounds.h : node.bounds.w;
     //This part used to assume that the width was always the long side of the view
@@ -299,33 +276,6 @@ class Layout {
   public void testPrintNumArray(ArrayList<Number> arr) {
     for (int i = 0; i < arr.size (); i++) {
       println(arr.get(i).floatValue());
-    }
-  }
-
-
-  // Gets all children whose parents are level 
-  private ArrayList<Datum> getChildren(int level) {
-    ArrayList<Datum> saveList = new ArrayList();
-    recurGetChildren(root, 0, level + 1, saveList);
-    return saveList;
-  }
-
-  // Cannot be called on null pointer
-  // 10Q: http://stackoverflow.com/questions/13349853/find-all-nodes-in-a-binary-tree-on-a-specific-level-interview-query
-  private void recurGetChildren(Datum node, int currentLev, int targetLev, ArrayList<Datum> saveList) {
-    // Target case
-    if (currentLev == targetLev) {
-      saveList.add(node);
-    }
-
-    // Base case
-    if (node.children == null) {
-      return;
-    }
-
-    // Recursion case
-    for (int i = 0; i < node.children.size(); i++) {
-      recurGetChildren(node.children.get(i), currentLev + 1, targetLev, saveList);
     }
   }
 }
