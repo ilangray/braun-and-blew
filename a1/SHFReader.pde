@@ -4,11 +4,11 @@ import java.util.*;
 // reads a file with a given name and returns a 
 // tree of Datums representing the contents
 // owned by ilan
-class Reader {
+class SHFReader {
   
   private final String filename;
   
-  public Reader(String filename) {
+  public SHFReader(String filename) {
     this.filename = filename;
   }
  
