@@ -18,7 +18,7 @@ void setup() {
   
   // init SQTM
   Rect bounds = new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET);
-  root = new Reader(FILENAME).read();
+  root = new SHFReader(FILENAME).read();
   
   //println("root = " + root);
  
