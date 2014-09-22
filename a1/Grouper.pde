@@ -2,8 +2,8 @@
 
 import java.util.*;
 
-public interface Function<K, V> {
-  K apply(V value);  
+public interface Function<F, T> {
+  T apply(F value);  
 }
 
 class Grouper <K, V> {  
@@ -16,7 +16,7 @@ class Grouper <K, V> {
     this.groups = new HashMap<K, ArrayList<V>>(); 
   }
   
-  public Map<K, ArrayList<V>> by(Function<K, V> f) {
+  public Map<K, ArrayList<V>> by(Function<V, K> f) {
     
     for (V value : input) {
        K key = f.apply(value);
