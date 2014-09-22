@@ -9,9 +9,6 @@ class View {
   private final Rect bounds;
   private final ArrayList<View> subviews;
   
-  private int depth;
-  private int maxDepth = 0;
-  private int strokeWidth;
   
   public View(Datum datum, Rect bounds) {
     this.datum = datum;
@@ -23,7 +20,6 @@ class View {
   // rendering a view also renders all subviews
   // bounds for subviews must already be specified
  public void render() {
-    stroke(strokeWidth);
     if(datum.isLeaf) {
       color viewFill = bounds.containsPoint(mouseX, mouseY) ? HIGHLIGHTED_FILL : REGULAR_FILL;
       drawRect(bounds, STROKE_COLOR, viewFill);
@@ -35,7 +31,6 @@ class View {
        for (View subview : subviews) {
          subview.render(); 
        }
-       stroke(strokeWidth);
        strokeRect(bounds, STROKE_COLOR);
     }
   } 
@@ -44,35 +39,16 @@ class View {
   // or null if none exists
 
   public View viewSelected(Point p) {
-    if(!bounds.containsPoint(p.x, p.y))
+    if(!bounds.containsPoint(p.x, p.y)) {
       return null;
+    }
       
     for(int i = 0; i < subviews.size(); i ++) {
-      if(subviews.get(i).bounds.containsPoint(p.x, p.y))
+      if(subviews.get(i).bounds.containsPoint(p.x, p.y)) {
         return subviews.get(i);
+      }
     }
     return null; //it should never get here, but just in case
-  }
-  
-  public void calculateStrokes() {
-    calculateStrokes(0);
-  }
-  
-  private int calculateStrokes(int currDepth){
-    depth = currDepth + 1;
-    if(datum.isLeaf){
-      maxDepth = depth;
-      strokeWidth = 1;// maxDepth - depth + 1;
-      return depth;
-    }
-    else{
-      for(int i = 0; i < subviews.size(); i++){
-        maxDepth = Math.max(maxDepth, subviews.get(i).calculateStrokes(depth));
-      }
-      strokeWidth = (maxDepth - depth + 1) + 10;
-      println("Stroke w = " + strokeWidth);
-      return maxDepth;
-    }
   }
   
 }

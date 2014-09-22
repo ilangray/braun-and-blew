@@ -22,6 +22,7 @@ void setup() {
 
 
 void draw() {
+  background(color(255, 255, 255));
   tm.render(); 
 }
 

@@ -249,12 +249,20 @@ class Layout {
     this.root = root;
   }
 
+  private ArrayList<Datum> copy(ArrayList<Datum> ds) {
+    if (ds == null) {
+      return null;
+    }
+    
+    return new ArrayList<Datum>(ds);
+  }
+
   private View recurSolve(View node, int currentLevel) {
     Boolean shortIsWidth = node.bounds.h > node.bounds.w;
     float canvShort = shortIsWidth ? node.bounds.w : node.bounds.h;     
     float canvLong = shortIsWidth ? node.bounds.h : node.bounds.w;
     //This part used to assume that the width was always the long side of the view
-    Algorithm a = new Algorithm(node, canvLong, canvShort, node.datum.children, new Point(node.bounds.x, node.bounds.y), shortIsWidth);
+    Algorithm a = new Algorithm(node, canvLong, canvShort, copy(node.datum.children), new Point(node.bounds.x, node.bounds.y), shortIsWidth);
     a.squarify();
     
     for (View v : a.finalViews) {
@@ -270,8 +278,9 @@ class Layout {
   
   public View solve() {
     View viewRoot = new View(root, new Rect(0, 0, width, height));
-    recurSolve(viewRoot, 0);
-
+    if(root.children != null && !root.children.isEmpty()) {
+      recurSolve(viewRoot, 0);
+    }
     return viewRoot;
   }
   
