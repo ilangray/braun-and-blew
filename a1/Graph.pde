@@ -37,7 +37,8 @@ public abstract class Graph {
  
   public final color BLACK = color(0, 0, 0);
   public final color WHITE = color(255, 255, 255);
-   
+  
+  public static final float INTERBAR_PERCENT_PADDING = 0.9;
   public static final float PADDING_LEFT = 0.15;
   public static final float PADDING_RIGHT = 0.15;
   public static final float PADDING_TOP = 0.1;
@@ -106,7 +107,7 @@ public abstract class Graph {
       float x = i * uw + getO().x;
       float nextX = (i + 1) * uw + getO().x;
       Rect bounds = new Rect(new Point(x, y), new Point(nextX, bottomY));
-      Rect adjustedBounds = bounds.scale(0.5, 1);
+      Rect adjustedBounds = bounds.scale(INTERBAR_PERCENT_PADDING, 1);
       
       views.add(createDatumView(data.get(i), adjustedBounds));
     }

@@ -48,7 +48,16 @@ class SQTM {
   // calls render on the root view
   public void render() {
    currentView = new Layout(currentDatum, bounds).solve();
-   currentView.render();
+   currentView.render(levelsToRender(), 0);
+  }
+  
+  private int levelsToRender() {
+    float percentHeight = bounds.h / height;
+    
+    if (percentHeight < .05) {
+      return 0;
+    }
+    return 2;
   }
 }
 

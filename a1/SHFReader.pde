@@ -91,7 +91,8 @@ class SHFReader {
       int id = Integer.parseInt(comps[0]);
       int value = Integer.parseInt(comps[1]);
       
-      ds.add(new Datum(id, value));
+      // No entry that created datum since it is not csv file
+      ds.add(new Datum(id, value, null));
     }
     
     return ds;

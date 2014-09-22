@@ -39,7 +39,7 @@ void draw() {
   g.render();
 }
 
-
+/*
 void mousePressed() {
   if (mouseButton == LEFT) {
     tm.zoomIn(new Point(mouseX, mouseY));
@@ -47,4 +47,4 @@ void mousePressed() {
     tm.zoomOut();
   }
 }
-
+*/

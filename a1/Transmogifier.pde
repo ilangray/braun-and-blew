@@ -4,13 +4,22 @@ class Transmogifier {
 
   private int id = 0;
  
-  public Datum groupBy(ArrayList<Entry> entries, ArrayList<Property> ps) {
-    Datum d = new Datum(getNextId());
-    d.children.addAll(groupBy(entries, ps, 0));
+  public ArrayList<GDatum> groupBy(ArrayList<Entry> entries, ArrayList<Property> ps) {
+    // Build the Datum tree
+    Datum root = new Datum(getNextId());
+    root.children.addAll(groupBy(entries, ps, 0));
+    root.calculateValue();
     
-    d.calculateValue();
+    //
+    ArrayList<GDatum> toReturn = new ArrayList();
+    for (Datum d : root.children) {
+      // Create Gdatums for the top level of Datums
+      String newKey = getGrouper(ps.get(0)).apply(d.getAnyLeaf().entry);
+      GDatum newGDatum = new GDatum(newKey, d.value, d);
+      toReturn.add(newGDatum);
+    }
     
-    return d;
+    return toReturn;
   }
   private ArrayList<Datum> groupBy(ArrayList<Entry> entries, ArrayList<Property> ps, int i) {
     if(i >= ps.size()) {
@@ -45,7 +54,7 @@ class Transmogifier {
   }
   
   private Datum makeLeaf(Entry e) {
-    return new Datum(getNextId(), (int)e.funding);    
+    return new Datum(getNextId(), (int)e.funding, e);    
   }
 
   //Takes in a Node and fills the datum with the proper children and fills

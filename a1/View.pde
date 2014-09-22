@@ -19,22 +19,32 @@ class View {
  
   // rendering a view also renders all subviews
   // bounds for subviews must already be specified
- public void render() {
-    if(datum.isLeaf) {
-      boolean hit = bounds.containsPoint(mouseX, mouseY);
-      color viewFill = hit ? HIGHLIGHTED_FILL : REGULAR_FILL;
-      drawRect(bounds, STROKE_COLOR, viewFill);
-      textAlign(CENTER, CENTER);
-      fill(hit ? color(255, 255, 255) : color(0, 0, 0));
-      text(datum.id, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2 );
+ public void render(int targetLevel, int currentLevel) {
+    if (currentLevel == targetLevel) {
+      doRender();
     } else {
-    
-       for (View subview : subviews) {
-         subview.render(); 
-       }
-       strokeRect(bounds, STROKE_COLOR);
+      for (View subview : subviews) {
+        subview.render(targetLevel, currentLevel + 1); 
+      }
+      strokeRect(bounds, STROKE_COLOR);
     }
+     
+     
   } 
+  
+  private void doRender() {
+    boolean hit = bounds.containsPoint(mouseX, mouseY);
+    color viewFill = hit ? HIGHLIGHTED_FILL : REGULAR_FILL;
+    drawRect(bounds, STROKE_COLOR, viewFill);
+    textAlign(CENTER, CENTER);
+    fill(hit ? color(255, 255, 255) : color(0, 0, 0));
+    
+    if(datum.isLeaf) {
+      text(datum.id, bounds.x + bounds.w / 2, bounds.y + bounds.h / 2 );
+    } 
+    
+  }
+  
   
   // returns the view that should be zoomed in on for a click at point p, 
   // or null if none exists
