@@ -67,7 +67,7 @@ class SHFReader {
       } 
     }
     
-    println("WARNING: could not find the datum w/ id = " + id);
+    //println("WARNING: could not find the datum w/ id = " + id);
     return null;
   }
   

@@ -18,9 +18,9 @@ void setup() {
   
   // init SQTM
   Rect bounds = new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET);
-  root = new Reader(FILENAME).read();
+  root = new SHFReader(FILENAME).read();
   
-  println("root = " + root);
+  //println("root = " + root);
  
   tm = new SQTM(bounds, root);
 }
@@ -28,7 +28,7 @@ void setup() {
 
 void draw() {
   background(color(255, 255, 255));
-  tm = new SQTM(new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET), root);
+  tm.setBounds(new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET));
   tm.render(); 
   
 }
