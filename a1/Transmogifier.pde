@@ -7,6 +7,9 @@ class Transmogifier {
   public Datum groupBy(ArrayList<Entry> entries, ArrayList<Property> ps) {
     Datum d = new Datum(getNextId());
     d.children.addAll(groupBy(entries, ps, 0));
+    
+    d.calculateValue();
+    
     return d;
   }
   private ArrayList<Datum> groupBy(ArrayList<Entry> entries, ArrayList<Property> ps, int i) {
