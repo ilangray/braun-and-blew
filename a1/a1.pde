@@ -27,7 +27,7 @@ Button toggle;
 void setup() {
   // general canvas setup
   size(600, 800);
-  toggle = new Button(new Rect(0, 0, 60, 30), color(0, 0, 0), "Toggle", color(255, 255, 255));
+
   frame.setResizable(true);
   ENTRIES = new CSVReader().read(FILENAME);
 }
@@ -48,6 +48,10 @@ void draw() {
   ArrayList<GDatum> gds = new Transmogifier().groupBy(ENTRIES, ORDERS.get(indORDERS));
   g = new SQTMBar(gds, ORDERS.get(indORDERS).get(0).name, "Funding");
   g.render();
+  float butWidth = g.PADDING_RIGHT / 1.2 * width;
+  float butHeight = g.PADDING_TOP / 2.5 * height;
+  float offset = butWidth / 10;
+  toggle = new Button(new Rect(width - butWidth - offset, offset, butWidth, butHeight), color(0, 0, 0), "Toggle", color(255, 255, 255));
   toggle.render();
 }
 
