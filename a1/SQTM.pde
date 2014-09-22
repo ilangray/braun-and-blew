@@ -43,7 +43,7 @@ class SQTM {
   
   // calls render on the root view
   public void render() {
-   currentView = new Layout(currentDatum).solve();
+   currentView = new Layout(currentDatum, bounds).solve();
    currentView.render();
   }
 }

@@ -2,18 +2,23 @@
 
 // constants 
 String FILENAME = "hierarchy2.shf";
+float STARTING_X = 5;
+float STARTING_Y = 5;
+float X_OFFSET = 10;
+float Y_OFFSET = 10;
 
 // globals
 SQTM tm;
+Datum root;
 
 void setup() {
   // general canvas setup
-  size(600, 400);
+  size(600, 800);
   frame.setResizable(true);
   
   // init SQTM
-  Rect bounds = new Rect(5, 5, width - 10, height - 10);
-  Datum root = new Reader(FILENAME).read();
+  Rect bounds = new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET);
+  root = new Reader(FILENAME).read();
   
   println("root = " + root);
  
@@ -23,7 +28,9 @@ void setup() {
 
 void draw() {
   background(color(255, 255, 255));
+  tm = new SQTM(new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET), root);
   tm.render(); 
+  
 }
 
 
