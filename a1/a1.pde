@@ -11,6 +11,8 @@ float Y_OFFSET = 10;
 SQTM tm;
 Datum root;
 
+Graph g; 
+
 void setup() {
   // general canvas setup
   size(600, 800);
@@ -24,16 +26,17 @@ void setup() {
   ps.add(Property.SPONSOR);
   ps.add(Property.YEAR);
   
-  root = new Transmogifier().groupBy(es, ps);
-  println("root = " + root);
-  tm = new SQTM(bounds, root);
+  ArrayList<GDatum> gds = new Transmogifier().groupBy(es, ps);
+
+  g = new SQTMBar(gds, "X axis", "Y axis");
 }
 
 
 void draw() {
   background(color(255, 255, 255));
-  tm.setBounds(new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET));
-  tm.render(); 
+//  tm.setBounds(new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET));
+//  tm.render();
+  g.render();
 }
 
 
