@@ -3,7 +3,7 @@
 // displays a squarified tree map
 class SQTM {
   
-  private final Rect bounds; 
+  private Rect bounds; 
 //  private final Datum root;
   
   // holds the views that we zoomed through
@@ -33,6 +33,10 @@ class SQTM {
   //    println(current.bounds);
      //urrent = temp;
     }
+  }
+  
+  public void setBounds(Rect newBounds) {
+    this.bounds = newBounds;
   }
    
   public void zoomOut() {
