@@ -244,9 +244,11 @@ class Layout {
   }
 
   public final Datum root;
+  public final Rect bounds;
 
-  public Layout(Datum root) {
+  public Layout(Datum root, Rect bounds) {
     this.root = root;
+    this.bounds = bounds;
   }
 
   private ArrayList<Datum> copy(ArrayList<Datum> ds) {
@@ -257,7 +259,7 @@ class Layout {
     return new ArrayList<Datum>(ds);
   }
 
-  private View recurSolve(View node, int currentLevel) {
+  private View recurSolve(View node) {
     Boolean shortIsWidth = node.bounds.h > node.bounds.w;
     float canvShort = shortIsWidth ? node.bounds.w : node.bounds.h;     
     float canvLong = shortIsWidth ? node.bounds.h : node.bounds.w;
@@ -270,16 +272,16 @@ class Layout {
     }
     
     for (View v : node.subviews) {
-      recurSolve(v, currentLevel + 1);
+      recurSolve(v);
     }
     
     return node;
   }
   
   public View solve() {
-    View viewRoot = new View(root, new Rect(0, 0, width, height));
+    View viewRoot = new View(root, new Rect(bounds.x, bounds.y, bounds.w, bounds.h));
     if(root.children != null && !root.children.isEmpty()) {
-      recurSolve(viewRoot, 0);
+      recurSolve(viewRoot);
     }
     return viewRoot;
   }
