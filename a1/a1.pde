@@ -1,7 +1,7 @@
 // main
 
 // constants 
-String FILENAME = "hierarchy2.shf";
+String FILENAME = "soe-funding.csv";
 float STARTING_X = 5;
 float STARTING_Y = 5;
 float X_OFFSET = 10;
@@ -18,8 +18,14 @@ void setup() {
   
   // init SQTM
   Rect bounds = new Rect(STARTING_X, STARTING_Y, width - X_OFFSET, height - Y_OFFSET);
-  root = new SHFReader(FILENAME).read();
- 
+  ArrayList<Entry> es = new CSVReader().read(FILENAME);
+  ArrayList<Property> ps = new ArrayList<Property>();
+  ps.add(Property.DEPT);
+  ps.add(Property.SPONSOR);
+  ps.add(Property.YEAR);
+  
+  root = new Transmogifier().groupBy(es, ps);
+  println("root = " + root);
   tm = new SQTM(bounds, root);
 }
 
