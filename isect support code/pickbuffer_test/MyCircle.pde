@@ -44,10 +44,20 @@ class MyCircle {
     ellipse(posx, posy, radius*2, radius*2);      
   }
   
-  boolean isect () {
+  boolean isect (PGraphics pg) {
 
-    //TODO: Fill in this function
-
-    return false;
+    int act = pg.get(mouseX, mouseY);
+    
+    float actR = red(act);
+    float actG = green(act);
+    float actB = blue(act);
+    
+    float expR = red(id);
+    float expG = green(id); 
+    float expB = blue(id);
+    
+    println("exp = " + expR + ", " + expG + ", " + expB + ", act = " + actR + ", " + actG + ", " + actB); 
+    
+    return actR == expR && actG == expG && actB == expB;
   }
 }
