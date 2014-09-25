@@ -14,7 +14,7 @@ void setup() {
     int posx = (int)random(radius, width-radius);
     int posy = (int)random(radius, height-radius);
 
-    circles[i] = new MyCircle(i*10000, posx, posy, radius);
+    circles[i] = new MyCircle((i+1)*10000, posx, posy, radius);
     
     int r = (int)random(0, 255);
     int g = (int)random(0, 255);
