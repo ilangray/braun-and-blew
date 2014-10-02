@@ -27,4 +27,4 @@ Attempt 4:
 Attempt 5:
 	changed: blue --> purply blue
 
-	resulted in lower avg and lower stdev. WIN!
+	resulted in lower avg (BAD) and lower stdev (WIN!). Net effect? Hard to tell the difference between the two colors schemes. New one looks slightly more asthetically pleasing.
