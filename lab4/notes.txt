@@ -1,0 +1,30 @@
+Attempt 1:
+	picked 7 colors at extreme of RGB scale. would have picked 8, but we couldnt come up with a last one.
+	
+	turns out that the 6th color (orangy) is too close to the red, but other than that this attempt is 
+	an improvement over teh rainbow (larger distances when eyeballed from about 2 feet away)
+
+Attempt 2:
+	changed color[6] from orange to gray, and color[7] to black.
+
+	looks like distances improved, as gray is not similar to red, and black is relatively far from 
+	everything else.
+
+	however, yellow (5) + green (3) are a bit too close for comfort. gray and black are also similar
+
+Attempt 3:
+	changed pinkish/purpley to a darker pink, which is really close to red, but resulted in a higher average
+	and lower SD overall, so that sounds like a win.
+
+	problems: blue and yellow are similar to each other, but they are both extremely far from blue, so trade offs.
+	would we rather trade some of their distances from blue for some distance between them?
+
+Attempt 4:
+	changed: darkened yellow
+
+	resulted in lower stdev, but also a lower average. Not sure if worth it.
+
+Attempt 5:
+	changed: blue --> purply blue
+
+	resulted in lower avg and lower stdev. WIN!
