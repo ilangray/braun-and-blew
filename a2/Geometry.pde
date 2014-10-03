@@ -34,10 +34,6 @@ class Rect {
     this.h = h;
   }
   
-//  Rect(float x, float y, float w, float h) {
-//    this(round(x), round(y), round(w), round(h));
-//  }
-  
   Rect(Point ul, Point lr) {
     this(ul.x, ul.y, lr.x - ul.x, lr.y - ul.y);
   }
@@ -65,6 +61,7 @@ class Rect {
     return w * h;
   }
   
+  // maintains previous center while scaling
   public Rect scale(float sx, float sy) {
     float newWidth = w * sx;
     float newHeight = h * sy;
@@ -73,7 +70,7 @@ class Rect {
     
     return new Rect(x + widthDiff/2, y + heightDiff/2, newWidth, newHeight);
   }
-  
+
   boolean containsPoint(float x, float y) {
     return containsX(x) && containsY(y);
   }
@@ -106,4 +103,24 @@ void strokeRect(Rect r, color stroke) {
   stroke(stroke);
   rect(r.x, r.y, r.w, r.h); 
 }
+
+float clamp(float val, float min, float max) {
+  if (val < min) {
+    return min;
+  }
+  if (val > max) {
+    return max;
+  } 
+  
+  return val;
+}
  
+<T> ArrayList<T> makeList(T... values) {
+  ArrayList<T> ts = new ArrayList<T>();
+  
+  for (T v : values) {
+    ts.add(v); 
+  }
+  
+  return ts; 
+}

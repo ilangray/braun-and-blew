@@ -2,8 +2,8 @@ class HeightGraph extends Graph {
 
    private class HeightView extends Graph.DatumView {
      
-     private final Point top;
-     private final Point bottom;
+     public Point top;
+     public Point bottom;
      
      public HeightView(Datum d, Rect r) {
        super(d, r);
@@ -22,6 +22,12 @@ class HeightGraph extends Graph {
      }
      
      void renderTooltip() {}
+     
+     
+   }
+  
+   public HeightGraph(CSVData data) {
+     super(data); 
    }
   
    public HeightGraph(ArrayList<Datum> d, String xLabel, String yLabel) {

@@ -41,6 +41,10 @@ class Scatterplot extends Graph {
   
   public final int LINE_THICKNESS = 2;
   
+  public Scatterplot(CSVData data) {
+    super(data); 
+  }
+  
   public Scatterplot(ArrayList<Datum> d, String xLabel, String yLabel) {
     super(d, xLabel, yLabel);
   }

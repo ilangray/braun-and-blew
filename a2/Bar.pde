@@ -2,11 +2,16 @@ class Bar extends Graph {
 
    private class BarView extends Graph.DatumView {
     
-     private final Rect hitbox; 
-     private final boolean hit;
+     private Rect hitbox; 
+     private boolean hit;
      
      public BarView(Datum d, Rect r) {
        super(d, r);
+     }
+     
+     protected void onBoundsChange() {
+       Rect r = bounds;
+       Datum d = datum;
        
        float newHeight = (d.value / maxY) * r.h;
        float heightDiff = r.h - newHeight;
@@ -27,6 +32,10 @@ class Bar extends Graph {
          renderLabel(hitbox, s);
        }
      }
+   }
+  
+   public Bar(CSVData data) {
+     super(data);
    }
   
    public Bar(ArrayList<Datum> d, String xLabel, String yLabel) {

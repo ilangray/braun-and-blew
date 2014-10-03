@@ -13,12 +13,19 @@ class Datum {
 public abstract class Graph {
   public abstract class DatumView {
     protected final Datum datum;
-    protected final Rect bounds;
+    protected Rect bounds;
     
     public DatumView(Datum datum, Rect bounds) {
       this.datum = datum;
-      this.bounds = bounds;
+      setBounds(bounds);
     }
+    
+    public final void setBounds(Rect bounds) {
+      this.bounds = bounds;
+      onBoundsChange();
+    }
+    
+    protected void onBoundsChange() {}
     
     public abstract void renderDatum();
   
@@ -54,6 +61,10 @@ public abstract class Graph {
   
   public final String xLabel;
   public final String yLabel;
+  
+  public Graph(CSVData data) {
+    this(data.datums, data.xLabel, data.yLabel); 
+  }
   
   // TODO: label X axis *below* the axis, not to the right, so that there is more room for long names
   public Graph(ArrayList<Datum> data, String xLabel, String yLabel) {
