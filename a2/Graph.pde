@@ -119,14 +119,24 @@ public abstract class Graph {
   }
   
   protected void renderDatums() {
+    if (views == null) {
+      return;
+    }
+    
     for (int i = 0; i < data.size(); i++) {
-      views.get(i).renderDatum();
+      DatumView dv = views.get(i);
+      if (dv != null) {
+        dv.renderDatum(); 
+      }
     }
   }
   
   protected void renderTooltips() {
     for (int i = 0; i < data.size(); i++) {
-      views.get(i).renderTooltip();
+      DatumView dv = views.get(i);
+      if (dv != null) {
+        dv.renderTooltip(); 
+      }
     }
   }
 

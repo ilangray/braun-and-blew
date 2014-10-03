@@ -4,8 +4,8 @@ class BarHeightGA extends GraphAnimator {
   
   private final Bar bar;
   
-  public BarHeightGA(Bar bar, float percentStart, float percentEnd) {
-    super(bar, percentStart, percentEnd, 2);
+  public BarHeightGA(Bar bar, float duration, float percentStart, float percentEnd) {
+    super(bar, duration, percentStart, percentEnd);
     
     // save bar specifically
     this.bar = bar;

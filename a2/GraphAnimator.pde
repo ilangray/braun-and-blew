@@ -13,7 +13,7 @@ abstract class GraphAnimator extends Graph {
   protected Continuation cont;
   private float percent;
   
-  protected GraphAnimator(Graph g, float percentStart, float percentEnd, float duration) {
+  protected GraphAnimator(Graph g, float duration, float percentStart, float percentEnd) {
     super(g.data, g.xLabel, g.yLabel);
     
     this.g = g;
@@ -25,15 +25,22 @@ abstract class GraphAnimator extends Graph {
     return this;
   }
   
-  void render() {
-    // calculate current percent
+  protected void updateCurrentPercent() {
     this.percent = calculateCurrentPercent();
-    
-    super.render();
-    
+  }
+  
+  protected void checkIfCompleted() {
     if (percent == interpolator.end) {
       cont.onContinue();
-    }
+    } 
+  }
+  
+  void render() {
+    updateCurrentPercent();
+    
+    super.render();
+   
+    checkIfCompleted();
   }
   
   // returns a value in [0,1]
@@ -43,6 +50,10 @@ abstract class GraphAnimator extends Graph {
 //    println("percent progress = " + percent);
     
     return clamp(p, 0, 1);
+  }
+  
+  protected float getCurrentPercent() {
+    return percent; 
   }
   
   protected Graph.DatumView createDatumView(Datum d, Rect bounds) {
@@ -77,6 +88,8 @@ class GraphSequenceAnimator extends GraphAnimator {
       return; 
     }
     
+    println("Starting animator at index = " + i);
+    
     // move to the next animator
     current = animators.get(i);
     current.interpolator.start();
@@ -85,6 +98,9 @@ class GraphSequenceAnimator extends GraphAnimator {
         setCurrent(i+1); 
       }
     });
+    
+    println("initial percent = " + current.interpolator.getInterpolatedValue());
+    
   }
   
   public void render() {
@@ -101,44 +117,50 @@ class GraphSequenceAnimator extends GraphAnimator {
  */
  
 // BAR <--> HEIGHTGRAPH
-Graph animate(Bar bg, HeightGraph hg, Continuation cont) {
-  GraphAnimator g = new BarHeightGA(bg, 1, 0).setContinuation(cont);
-  g.interpolator.start();
-  return g;
+GraphAnimator animate(Bar bg, HeightGraph hg, float duration) {
+  return new BarHeightGA(bg, duration, 1, 0);
 }
-Graph animate(HeightGraph hb, Bar bg, Continuation cont) {
-  GraphAnimator anim = new BarHeightGA(bg, 0, 1).setContinuation(cont);
-  
-  GraphAnimator seq = new GraphSequenceAnimator(makeList(anim));
-  seq.setContinuation(cont);
-  return seq;
+GraphAnimator animate(HeightGraph hb, Bar bg, float duration) {
+  return new BarHeightGA(bg, duration, 0, 1);
 }
 
 // HEIGHTGRAPH <--> SCATTERPLOT
-GraphAnimator animate(HeightGraph hg, Scatterplot scat, Continuation cont) {
-  return new HeightScatterGA(hg, 1, 0).setContinuation(cont);
+GraphAnimator animate(HeightGraph hg, Scatterplot scat, float duration) {
+  return new HeightScatterGA(hg, duration, 1, 0);
 }
-GraphAnimator animate(Scatterplot scat, HeightGraph hg, Continuation cont) {
-  return new HeightScatterGA(hg, 0, 1).setContinuation(cont);
+GraphAnimator animate(Scatterplot scat, HeightGraph hg, float duration) {
+  return new HeightScatterGA(hg, duration, 0, 1);
+}
+
+// SCATPLOT <--> LINE
+GraphAnimator animate(Scatterplot scat, Line lg, float duration) {
+  return new ScatLineGA(lg, duration, 0, 1);
+}
+GraphAnimator animate(Line lg, Scatterplot scat, float duration) {
+  return new ScatLineGA(lg, duration, 1, 0);
 }
 
 // MULTIPART ANIMATIONS
-GraphAnimator animate(Bar bg, Scatterplot scat, Continuation cont) {
+GraphAnimator animate(Bar bg, Line lg, Continuation cont) {
   
   HeightGraph hg = new HeightGraph(bg.data, bg.xLabel, bg.yLabel);
+  Scatterplot scat = new Scatterplot(bg.data, bg.xLabel, bg.yLabel);
   
   return new GraphSequenceAnimator(makeList(
-      (GraphAnimator)animate(bg, hg, null),
-      (GraphAnimator)animate(hg, scat, null)
+      animate(bg, hg, 1.0f),
+      animate(hg, scat, 1.0f),
+      animate(scat, lg, 1.0f)
   )).setContinuation(cont);
 }
 
-GraphAnimator animate(Scatterplot scat, Bar bg, Continuation cont) {
-  
+GraphAnimator animate(Line lg, Bar bg, Continuation cont) {
+ 
   HeightGraph hg = new HeightGraph(bg.data, bg.xLabel, bg.yLabel);
+  Scatterplot scat = new Scatterplot(bg.data, bg.xLabel, bg.yLabel);
   
   return new GraphSequenceAnimator(makeList(
-      (GraphAnimator)animate(scat, hg, null),
-      (GraphAnimator)animate(hg, bg, null)
+      animate(lg, scat, 1.0f),
+      animate(scat, hg, 1.0f),
+      animate(hg, bg, 1.0f)
   )).setContinuation(cont);
 }

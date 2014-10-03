@@ -4,8 +4,8 @@ class HeightScatterGA extends GraphAnimator {
   
   private final HeightGraph hg;
   
-  public HeightScatterGA(HeightGraph hg, float percentStart, float percentEnd) {
-    super(hg, percentStart, percentEnd, 1);
+  public HeightScatterGA(HeightGraph hg, float duration, float percentStart, float percentEnd) {
+    super(hg, duration, percentStart, percentEnd);
     
     // save bar specifically
     this.hg = hg;

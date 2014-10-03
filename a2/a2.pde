@@ -20,13 +20,14 @@ void setup() {
   println("root = " + data);
   
   final Bar bg = new Bar(data);
-//  final HeightGraph hg = new HeightGraph(data);
+  final HeightGraph hg = new HeightGraph(data);
   final Scatterplot scat = new Scatterplot(data);
+  final Line lg = new Line(data);
   
-  current = animate(bg, scat, new Continuation() {
+  current = animate(bg, lg, new Continuation() {
     public void onContinue() {
       println("YOLO");
-      current = scat;
+      current = lg;
     }
   });
 }

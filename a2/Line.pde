@@ -32,16 +32,21 @@ class Line extends Graph {
     
     void renderTooltip() {
       if (hit) {
-         String s = "(" + datum.key + ", " + datum.value + ")";
-         renderLabel(hitbox, s);
-         
-//         new Rect(bounds.x, bounds.y, bounds.w, 0), s);
-       }
+        String s = "(" + datum.key + ", " + datum.value + ")";
+        renderLabel(hitbox, s);
+      }
     }
     
   }
   
   public final int LINE_THICKNESS = 2;
+  
+  // the percent of the lines to draw
+  public float linePercent = 1.0;
+  
+  public Line(CSVData data) {
+    this(data.datums, data.xLabel, data.yLabel); 
+  }
   
   public Line(ArrayList<Datum> d, String xLabel, String yLabel) {
     super(d, xLabel, yLabel);
@@ -55,8 +60,8 @@ class Line extends Graph {
   }
  
   protected DatumView createDatumView(Datum datum, Rect bounds) {
-     return new LineView(datum, bounds);
-   }
+    return new LineView(datum, bounds);
+  }
    
   private void connectDatums() {
     for (int i = 0; i < views.size() - 1; i++) {
@@ -70,6 +75,10 @@ class Line extends Graph {
   
   private void drawLine(Point p, Point q) {
     stroke(LINE_THICKNESS);
-    line(p.x, p.y, q.x, q.y);
+    
+    float endX = lerp(p.x, q.x, linePercent);
+    float endY = lerp(p.y, q.y, linePercent);
+    
+    line(p.x, p.y, endX, endY);
   }
 }
