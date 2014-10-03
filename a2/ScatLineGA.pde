@@ -9,13 +9,9 @@ class ScatLineGA extends GraphAnimator {
   }
   
   void render() {
-//    super.render();
     super.updateCurrentPercent();
     
-    println("current percent = " + getCurrentPercent());
-    
     lg.linePercent = getCurrentPercent();
-    println("linePercent = " + lg.linePercent);
     lg.render(); 
     
     super.checkIfCompleted();

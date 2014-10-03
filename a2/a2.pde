@@ -20,14 +20,40 @@ void setup() {
   println("root = " + data);
   
   final Bar bg = new Bar(data);
-  final HeightGraph hg = new HeightGraph(data);
-  final Scatterplot scat = new Scatterplot(data);
+//  final HeightGraph hg = new HeightGraph(data);
+//  final Scatterplot scat = new Scatterplot(data);
   final Line lg = new Line(data);
   
-  current = animate(bg, lg, new Continuation() {
+  /*
+  current = animate(lg, bg, new Continuation() {
     public void onContinue() {
       println("YOLO");
-      current = lg;
+      current = bg;
+      
+      current = animate(bg, lg, new Continuation() {
+        public void onContinue() {
+          current = lg;
+        }
+      });
+    }
+  });
+  */
+  
+  transition(bg, lg);
+}
+
+void transition(final Bar bg, final Line lg) {
+  current = animate(bg, lg, new Continuation() {
+    public void onContinue() {
+      transition(lg, bg); 
+    }
+  });
+}
+
+void transition(final Line lg, final Bar bg) {
+  current = animate(lg, bg, new Continuation() {
+    public void onContinue() {
+      transition(bg, lg); 
     }
   });
 }

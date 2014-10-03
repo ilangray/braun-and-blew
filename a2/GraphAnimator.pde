@@ -88,8 +88,6 @@ class GraphSequenceAnimator extends GraphAnimator {
       return; 
     }
     
-    println("Starting animator at index = " + i);
-    
     // move to the next animator
     current = animators.get(i);
     current.interpolator.start();
@@ -98,9 +96,6 @@ class GraphSequenceAnimator extends GraphAnimator {
         setCurrent(i+1); 
       }
     });
-    
-    println("initial percent = " + current.interpolator.getInterpolatedValue());
-    
   }
   
   public void render() {
