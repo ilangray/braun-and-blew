@@ -25,6 +25,7 @@ public abstract class Graph {
       onBoundsChange();
     }
     
+    // called when bounds change. override for fun
     protected void onBoundsChange() {}
     
     public abstract void renderDatum();
@@ -89,9 +90,13 @@ public abstract class Graph {
   }
   
   public void render() {
+    renderAxes();
+    renderContents();
+  }
+  
+  protected renderAxes() {
     drawAxes();
     labelAxes(); 
-    renderContents();
   }
   
   protected void renderContents() {
