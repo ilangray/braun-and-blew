@@ -63,6 +63,10 @@ public abstract class Graph {
   public final String xLabel;
   public final String yLabel;
   
+  public Graph() {
+    this(new ArrayList<Datum>(), "", ""); 
+  }
+  
   public Graph(CSVData data) {
     this(data.datums, data.xLabel, data.yLabel); 
   }
@@ -287,16 +291,20 @@ public abstract class Graph {
    }
    
    private float getMaxY() {
-    float max = data.get(0).value;
+     if (data.isEmpty()) {
+       return 0; 
+     }
+     
+     float max = data.get(0).value;
    
-    for (int i = 1; i < data.size(); i++) {
-      float v = data.get(i).value;
-      if (v > max) {
-        max = v;
-      } 
-    }
+     for (int i = 1; i < data.size(); i++) {
+       float v = data.get(i).value;
+       if (v > max) {
+         max = v;
+       }  
+     }
    
-    return max; 
+     return max; 
   }
 }
 

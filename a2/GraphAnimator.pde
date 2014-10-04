@@ -156,3 +156,24 @@ GraphAnimator animate(Line lg, Bar bg, Continuation cont) {
       animate(hg, bg, 1.0f)
   )).setContinuation(cont);
 }
+
+GraphAnimator animate(PieChart pc, Bar bg, Continuation cont) {
+  
+  final PathGraph pcApprox = new PathGraph(pc);
+  final PathGraph bgApprox = new PathGraph(bg);
+  
+  return new GraphSequenceAnimator(makeList(
+      (GraphAnimator)new PathGA(pcApprox, bgApprox, 5, 0, 1)
+  )).setContinuation(cont);
+  
+}
+GraphAnimator animate(Bar bg, PieChart pc, Continuation cont) {
+  
+  final PathGraph bgApprox = new PathGraph(bg);
+  final PathGraph pcApprox = new PathGraph(pc);
+  
+  return new GraphSequenceAnimator(makeList(
+      (GraphAnimator)new PathGA(pcApprox, bgApprox, 30, 1, 0)
+  )).setContinuation(cont);
+  
+}
