@@ -7,8 +7,10 @@ class Scatterplot extends Graph {
     private final float diameter; 
     public final Point center;
     
-    public ScatterplotView(Datum datum, Rect rect) {
-      super(datum, rect);
+    public ScatterplotView(Datum datum, Shape shape) {
+      super(datum, shape);
+      
+      Rect rect = (Rect)shape;
       
       float newHeight = (datum.value / maxY) * rect.h;
       float yCoord = rect.h - newHeight + rect.y;
@@ -55,7 +57,7 @@ class Scatterplot extends Graph {
     renderTooltips();
   }
  
-  protected DatumView createDatumView(Datum datum, Rect bounds) {
+  protected DatumView createDatumView(Datum datum, Shape bounds) {
     return new ScatterplotView(datum, bounds);
   }
 }

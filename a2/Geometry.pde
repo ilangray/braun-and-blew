@@ -1,3 +1,7 @@
+
+// marker interface for shapes
+public interface Shape {}
+
 // This is a point
 class Point {
   public final float x;
@@ -8,23 +12,72 @@ class Point {
     this.y = y;
   }
   
-//  public Point(float x, float y) {
-//    this(round(x), round(y));
-//  }
-  
   public Point offset(Point other) {
     return new Point(other.x + x, other.y + y);
   }
   
   public float distFrom(Point other) {
-    float dx = (other.x - x);
-    float dy = (other.y - y);
+    float dx = dx(other);
+    float dy = dy(other);
     
     return sqrt(dx*dx + dy*dy);
   }
+  
+  public float dx(Point other) {
+    return other.x - x;
+  }
+  
+  public float dy(Point other) {
+    return other.y - y;
+  }
+  
+  public float angleBetween(Point other) {
+    float dx = dx(other);
+    float dy = dy(other);
+   
+    return atan2(dy, dx); 
+  }
+  
+  public String toString() {
+    return "Point{x = " + x + ", y = " + y + "}"; 
+  }
 }
 
-class Rect {
+class Wedge implements Shape {
+  
+  public final Point center;
+  public final float radius;
+  public final float startAngle;
+  public final float endAngle;
+  
+  public Wedge(Point center, float radius, float startAngle, float endAngle) {
+    this.center = center;
+    this.radius = radius;
+    this.startAngle = startAngle;
+    this.endAngle = endAngle;
+  } 
+  
+  public boolean containsPoint(Point p) {
+    float dist = center.distFrom(p);
+    
+    float angle = center.angleBetween(p);
+    if (angle < 0) {
+      angle = TWO_PI + angle;
+    }
+    
+    return dist <= radius && angle > startAngle && angle < endAngle;
+  }
+  
+  public float getMiddleAngle() {
+    return (startAngle + endAngle)/2.0f; 
+  }
+  
+  public String toString() {
+    return "Wedge{center = " + center + ", radius = " + radius + ", startAngle = " + startAngle + ", endAngle = " + endAngle + "}";
+  }
+}
+
+class Rect implements Shape {
   public final float x, y, w, h;
   
   Rect(float x, float y, float w, float h) {

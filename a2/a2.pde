@@ -3,7 +3,6 @@
 // constants 
 String FILENAME = "ds1.csv";
 
-
 Graph current;
 
 void setup() {
@@ -20,9 +19,9 @@ void setup() {
   println("root = " + data);
   
   final Bar bg = new Bar(data);
-//  final HeightGraph hg = new HeightGraph(data);
-//  final Scatterplot scat = new Scatterplot(data);
   final Line lg = new Line(data);
+  
+  final PieChart pc = new PieChart(data);
   
   /*
   current = animate(lg, bg, new Continuation() {
@@ -39,7 +38,8 @@ void setup() {
   });
   */
   
-  transition(bg, lg);
+//  transition(bg, lg);
+  current = pc;
 }
 
 void transition(final Bar bg, final Line lg) {

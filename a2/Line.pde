@@ -6,8 +6,10 @@ class Line extends Graph {
     private final float diameter; 
     public final Point center;
     
-    public LineView(Datum datum, Rect rect) {
-      super(datum, rect);
+    public LineView(Datum datum, Shape s) {
+      super(datum, s);
+      
+      Rect rect = (Rect)s;
       
       float newHeight = (datum.value / maxY) * rect.h;
       float yCoord = rect.h - newHeight + rect.y;
@@ -59,7 +61,7 @@ class Line extends Graph {
     renderTooltips();
   }
  
-  protected DatumView createDatumView(Datum datum, Rect bounds) {
+  protected DatumView createDatumView(Datum datum, Shape bounds) {
     return new LineView(datum, bounds);
   }
    

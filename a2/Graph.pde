@@ -13,14 +13,14 @@ class Datum {
 public abstract class Graph {
   public abstract class DatumView {
     protected final Datum datum;
-    protected Rect bounds;
+    protected Shape bounds;
     
-    public DatumView(Datum datum, Rect bounds) {
+    public DatumView(Datum datum, Shape bounds) {
       this.datum = datum;
       setBounds(bounds);
     }
     
-    public final void setBounds(Rect bounds) {
+    public final void setBounds(Shape bounds) {
       this.bounds = bounds;
       onBoundsChange();
     }
@@ -67,7 +67,6 @@ public abstract class Graph {
     this(data.datums, data.xLabel, data.yLabel); 
   }
   
-  // TODO: label X axis *below* the axis, not to the right, so that there is more room for long names
   public Graph(ArrayList<Datum> data, String xLabel, String yLabel) {
     this.data = data;    
     this.xLabel = xLabel;
@@ -94,7 +93,7 @@ public abstract class Graph {
     renderContents();
   }
   
-  protected renderAxes() {
+  protected void renderAxes() {
     drawAxes();
     labelAxes(); 
   }
@@ -108,20 +107,27 @@ public abstract class Graph {
   protected void createDatumViews() {
     views = new ArrayList<DatumView>(data.size());
     
+    for (int i = 0; i < data.size(); i++) {   
+      Datum d = data.get(i);
+      views.add(createDatumView(d, getDatumViewBounds(d, i, views)));
+    }
+  }
+  
+  // returns the bounds for the given datum view
+  protected Shape getDatumViewBounds(Datum d, int i, ArrayList<DatumView> previous) {
     float uw = (getLR().x - getO().x) / data.size();
     float uh = getUL().y - getO().x;
     float y = getUL().y;
     float bottomY = getLR().y - THICKNESS / 2;
     
-    for (int i = 0; i < data.size(); i++) {
-      float x = i * uw + getO().x;
-      float nextX = (i + 1) * uw + getO().x;
-      Rect bounds = new Rect(new Point(x, y), new Point(nextX, bottomY));
-      Rect adjustedBounds = bounds.scale(0.5, 1);
-      
-      views.add(createDatumView(data.get(i), adjustedBounds));
-    }
+    float x = i * uw + getO().x;
+    float nextX = (i + 1) * uw + getO().x;
+    Rect bounds = new Rect(new Point(x, y), new Point(nextX, bottomY));
+    return bounds.scale(0.5, 1);
   }
+  
+  // lets the subclass determines the type of DatumView used
+  protected abstract DatumView createDatumView(Datum data, Shape bounds);
   
   protected void renderDatums() {
     if (views == null) {
@@ -238,9 +244,6 @@ public abstract class Graph {
     textSize(percent * height);
   }
   
-  // lets the subclass determines the type of DatumView used
-  protected abstract DatumView createDatumView(Datum data, Rect bounds);
-  
   protected void drawRect(Rect r, color stroke, color fill) {
      stroke(stroke);
      fill(fill);
@@ -252,6 +255,22 @@ public abstract class Graph {
      float x = hitbox.getCenter().x;
      float y = hitbox.getMinY() - LABEL_PERCENT_OFFSET * height;
     
+     // set font size because text measurements depend on it
+     percentTextSize(LABEL_PERCENT_FONT_SIZE);
+     
+     // bounding rectangle
+     float w = textWidth(s) * 1.1;
+     float h = LABEL_PERCENT_FONT_SIZE * height * 1.3;
+     Rect r = new Rect(x - w/2, y - h, w, h);
+     drawRect(r, BLACK, WHITE);
+     
+     // text 
+     textAlign(CENTER, BOTTOM);
+     fill(BLACK);
+     text(s, x, y);
+   }
+   
+   protected void renderLabel(float x, float y, String s) {
      // set font size because text measurements depend on it
      percentTextSize(LABEL_PERCENT_FONT_SIZE);
      

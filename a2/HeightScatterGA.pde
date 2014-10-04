@@ -15,7 +15,9 @@ class HeightScatterGA extends GraphAnimator {
     return new Rect(r.x, r.y, r.w, r.h * percent);
   }
   
-  protected Graph.DatumView createDatumView(Datum d, Rect r, float percent) {
+  protected Graph.DatumView createDatumView(Datum d, Shape s, float percent) { 
+    Rect r = (Rect)s;
+    
     HeightGraph.HeightView dv = (HeightGraph.HeightView) hg.createDatumView(d, r);
     
     float y = percent * (dv.bottom.y - dv.top.y) + dv.top.y;

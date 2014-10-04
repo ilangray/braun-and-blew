@@ -45,10 +45,7 @@ abstract class GraphAnimator extends Graph {
   
   // returns a value in [0,1]
   private float calculateCurrentPercent() {
-    float p = interpolator.getInterpolatedValue();
-    
-//    println("percent progress = " + percent);
-    
+    float p = interpolator.getInterpolatedValue();  
     return clamp(p, 0, 1);
   }
   
@@ -56,12 +53,12 @@ abstract class GraphAnimator extends Graph {
     return percent; 
   }
   
-  protected Graph.DatumView createDatumView(Datum d, Rect bounds) {
+  protected Graph.DatumView createDatumView(Datum d, Shape bounds) {
     return createDatumView(d, bounds, this.percent);
   }
   
   // returns a DatumView with bounds adjusted for the current percent
-  protected Graph.DatumView createDatumView(Datum d, Rect bounds, float percent) {
+  protected Graph.DatumView createDatumView(Datum d, Shape bounds, float percent) {
     return null; 
   }
 }
@@ -102,7 +99,7 @@ class GraphSequenceAnimator extends GraphAnimator {
     current.render(); 
   }
   
-  protected final Graph.DatumView createDatumView(Datum d, Rect bounds) {
+  protected final Graph.DatumView createDatumView(Datum d, Shape bounds) {
     return current.createDatumView(d, bounds);
   }
 }

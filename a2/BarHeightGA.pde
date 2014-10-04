@@ -15,7 +15,7 @@ class BarHeightGA extends GraphAnimator {
     return r.scale(percent, 1.0f);
   }
   
-  protected Graph.DatumView createDatumView(Datum d, Rect r, float percent) {
-    return bar.createDatumView(d, getScaledRect(r, percent));
+  protected Graph.DatumView createDatumView(Datum d, Shape r, float percent) {
+    return bar.createDatumView(d, getScaledRect((Rect)r, percent));
   }
 }

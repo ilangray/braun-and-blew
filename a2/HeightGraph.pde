@@ -5,8 +5,10 @@ class HeightGraph extends Graph {
      public Point top;
      public Point bottom;
      
-     public HeightView(Datum d, Rect r) {
-       super(d, r);
+     public HeightView(Datum d, Shape s) {
+       super(d, s);
+       
+       Rect r = (Rect)s;
        
        float newHeight = (d.value / maxY) * r.h;
        float heightDiff = r.h - newHeight;
@@ -34,7 +36,7 @@ class HeightGraph extends Graph {
      super(d, xLabel, yLabel);
    }
    
-   protected DatumView createDatumView(Datum datum, Rect bounds) {
+   protected DatumView createDatumView(Datum datum, Shape bounds) {
      return new HeightView(datum, bounds);
    }
 }

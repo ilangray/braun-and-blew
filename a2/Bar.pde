@@ -10,7 +10,7 @@ class Bar extends Graph {
      }
      
      protected void onBoundsChange() {
-       Rect r = bounds;
+       Rect r = (Rect)bounds;
        Datum d = datum;
        
        float newHeight = (d.value / maxY) * r.h;
@@ -42,7 +42,7 @@ class Bar extends Graph {
      super(d, xLabel, yLabel);
    }
    
-   protected DatumView createDatumView(Datum datum, Rect bounds) {
-     return new BarView(datum, bounds);
+   protected DatumView createDatumView(Datum datum, Shape bounds) {
+     return new BarView(datum, (Rect)bounds);
    }
 }
