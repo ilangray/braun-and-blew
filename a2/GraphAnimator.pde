@@ -159,8 +159,8 @@ GraphAnimator animate(Line lg, Bar bg, Continuation cont) {
 
 GraphAnimator animate(PieChart pc, Bar bg, Continuation cont) {
   
-  final PathGraph pcApprox = new PathGraph(pc);
-  final PathGraph bgApprox = new PathGraph(bg);
+  final PathGraph pcApprox = new PathGraph(pc, null);
+  final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(pc));
   
   return new GraphSequenceAnimator(makeList(
       (GraphAnimator)new PathGA(pcApprox, bgApprox, 5, 0, 1)
@@ -169,11 +169,22 @@ GraphAnimator animate(PieChart pc, Bar bg, Continuation cont) {
 }
 GraphAnimator animate(Bar bg, PieChart pc, Continuation cont) {
   
-  final PathGraph bgApprox = new PathGraph(bg);
-  final PathGraph pcApprox = new PathGraph(pc);
+  final PathGraph pcApprox = new PathGraph(pc, null);
+  final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(pc));
   
   return new GraphSequenceAnimator(makeList(
-      (GraphAnimator)new PathGA(bgApprox, pcApprox, 30, 0, 1)
+      (GraphAnimator)new PathGA(bgApprox, pcApprox, 5, 0, 1)
   )).setContinuation(cont);
   
+}
+
+InterpolateHelper getInterpolateHelper(final PieChart pc) {
+  return new InterpolateHelper() {
+    public boolean shouldInterpolateLeft(int i) {
+      Wedge w = (Wedge)pc.views.get(i).bounds;
+      float mid = w.getMiddleAngle();
+      
+      return mid > HALF_PI && mid < PI + HALF_PI;
+    } 
+  };
 }

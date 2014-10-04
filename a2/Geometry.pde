@@ -62,8 +62,8 @@ class Path implements Shape {
   public Path(Rect r, boolean interpolateLeft) {
     if (interpolateLeft) {
       // fancy edge is LEFT
-      Point start = r.getLL();
-      Point end = r.getUL();
+      Point start = r.getUL();
+      Point end = r.getLL();
       
       // NB: start is added when i = 0
       for (int i = 0; i < NUM_PTS; i++) {
@@ -71,12 +71,12 @@ class Path implements Shape {
       }
       
       points.add(end);
-      points.add(r.getUR());
       points.add(r.getLR());
+      points.add(r.getUR());
     } else {
       // fancy edge is RIGHT
-      Point start = r.getUR();
-      Point end = r.getLR();
+      Point start = r.getLR();
+      Point end = r.getUR();
       
       // NB: start is added when i = 0
       for (int i = 0; i < NUM_PTS; i++) {
@@ -85,8 +85,8 @@ class Path implements Shape {
       
       // add the other three corners
       points.add(end);
-      points.add(r.getLL());
       points.add(r.getUL());
+      points.add(r.getLL());
     }
   }
   

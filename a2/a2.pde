@@ -22,9 +22,13 @@ void setup() {
   final PieChart pc = new PieChart(data);
 //  final Line lg = new Line(data);
  
+// current = pc;
   transition(bg, pc);
   
 //  transition(bg, lg);
+
+  background(color(255, 255, 255)); 
+  current.render();
 }
 
 void transition(final Bar bg, final Line lg) {
@@ -45,7 +49,7 @@ void transition(final Line lg, final Bar bg) {
 
 void transition(final PieChart pc, final Bar bg) {
   current = animate(pc, bg, new Continuation() {
-    public void onContinue() {
+    public void onContinue() {      
       transition(bg, pc); 
     }
   });
@@ -62,4 +66,6 @@ void draw() {
   background(color(255, 255, 255)); 
   current.render();
 }
+
+
 

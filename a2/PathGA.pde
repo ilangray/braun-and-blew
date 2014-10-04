@@ -1,4 +1,8 @@
 
+interface InterpolateHelper {
+  boolean shouldInterpolateLeft(int i); 
+}
+
 class PathGraph extends Graph {
   public class PathView extends Graph.DatumView {
     
@@ -19,15 +23,13 @@ class PathGraph extends Graph {
   
   // the graph to approximate with a path
   private final Graph g;
+  private final InterpolateHelper interpHelper;
   
-  public PathGraph(Graph g) {
+  public PathGraph(Graph g, InterpolateHelper interpHelper) {
     super(g.data, g.xLabel, g.yLabel);
     
-    assert g != null;
-    
-    println("setting g = " + g);
-    
     this.g = g;
+    this.interpHelper = interpHelper;
     
     // must explicitly tell g to create its datum views
     g.createDatumViews();
@@ -39,7 +41,8 @@ class PathGraph extends Graph {
     if (g instanceof Bar) {
       Bar.BarView bv = (Bar.BarView)toApprox;
       Rect bounds = (Rect)bv.hitbox;
-      approxed = new Path(bounds, shouldInterpolateLeft(i));
+//      approxed = new Path(bounds, shouldInterpolateLeft(i));
+      approxed = new Path(bounds, interpHelper.shouldInterpolateLeft(i));
     } 
     else if (g instanceof PieChart) {
       Wedge bounds = (Wedge)toApprox.bounds;
@@ -52,7 +55,8 @@ class PathGraph extends Graph {
       Point bottom = dv.bottom;
       
       Rect bounds = new Rect(top.x, top.y, 0, bottom.y - top.y);
-      approxed = new Path(bounds, shouldInterpolateLeft(i));
+//      approxed = new Path(bounds, shouldInterpolateLeft(i));
+      approxed = new Path(bounds, interpHelper.shouldInterpolateLeft(i));
     } 
     else {
       throw new IllegalArgumentException(); 
@@ -63,8 +67,17 @@ class PathGraph extends Graph {
   
   // returns true iff the Path should interpolate the left side, otherwise the right.
   private boolean shouldInterpolateLeft(int i) {
-    return i < data.size() / 2;
+    return i > data.size() / 2;
   }    
+  
+  private boolean shouldInterpolateLeft(Wedge w) {
+    float midAngle = w.getMiddleAngle();
+    
+    if (midAngle > HALF_PI && midAngle < PI + HALF_PI) {
+      return true;
+    }
+    return false;
+  }
 
   
   protected DatumView createDatumView(Datum d, Shape s) {

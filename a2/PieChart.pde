@@ -19,7 +19,11 @@ class PieChart extends Graph {
        stroke(color(0,0,0));
        ellipseMode(RADIUS);
        fill(color(255, 255, 255));
-       arc(w.center.x, w.center.y, w.radius, w.radius, w.startAngle, w.endAngle, PIE);
+       
+       float start = Math.min(w.startAngle, w.endAngle);
+       float end = Math.max(w.startAngle, w.endAngle);
+       
+       arc(w.center.x, w.center.y, w.radius, w.radius, start, end, PIE);
      }
      
      private void labelWedge() {
@@ -82,14 +86,16 @@ class PieChart extends Graph {
     float angleRange = TWO_PI * d.value / totalY;
     
     float startAngle = lastEndingAngle(previous);
-    float endAngle = startAngle + angleRange;
+    float endAngle = startAngle - angleRange;
+    
+    println("startAngle = " + startAngle + ", endAngle = " + endAngle);
     
     return new Wedge(center, radius, startAngle, endAngle);
   }
   
   private float lastEndingAngle(ArrayList<DatumView> vs) {
     if (vs.isEmpty()) {
-      return PI - HALF_PI; 
+      return PI + HALF_PI; 
     }
     
     PieChartView pcv = (PieChartView) vs.get(vs.size() - 1);
