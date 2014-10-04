@@ -18,17 +18,43 @@ void setup() {
   CSVData data = new CSVReader().read(FILENAME);
   println("root = " + data);
   
-  final Bar bg = new Bar(data);
-  final PieChart pc = new PieChart(data);
-//  final Line lg = new Line(data);
- 
-// current = pc;
-  transition(bg, pc);
+  colorize(data.datums);
   
+  final Bar bg = new Bar(data);                  // tested
+  final PieChart pc = new PieChart(data);        // tested
+  final Line lg = new Line(data);                // tested
+  final HeightGraph hg = new HeightGraph(data);  // tested
+  final Scatterplot sp = new Scatterplot(data);  // tested
+  final PathGraph pg = new PathGraph(pc, null);  // tested
+ 
+//  current = pg;
+//  transition(bg, pc);
 //  transition(bg, lg);
 
-  background(color(255, 255, 255)); 
-  current.render();
+   current = animate(lg, pc, new Continuation() {
+     public void onContinue() {
+       current = pc; 
+     }
+   });
+
+//  background(color(255, 255, 255)); 
+//  current.render();
+}
+
+void colorize(ArrayList<Datum> ds) {
+  color start = color(202, 232, 211);
+  color end = color(3, 101, 152);
+  
+  for (int i = 0; i < ds.size(); i++) {
+    Datum datum = ds.get(i);
+    float percent = 1.0 / ds.size() * i;
+    
+    float r = lerp(red(start), red(end), percent);
+    float g = lerp(green(start), green(end), percent);
+    float b = lerp(blue(start), blue(end), percent);
+    
+    datum.fillColor = color(r, g, b);
+  } 
 }
 
 void transition(final Bar bg, final Line lg) {

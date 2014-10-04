@@ -20,6 +20,7 @@ class HeightGraph extends Graph {
      }
     
      void renderDatum() {
+       stroke(datum.fillColor);
        drawLine(top, bottom);
      }
      

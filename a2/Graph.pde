@@ -4,9 +4,13 @@ class Datum {
   public final String key;
   public final float value;
   
+  public int fillColor;
+  
   public Datum(String key, float value) {
     this.key = key;
     this.value = value;
+    
+    fillColor = color(255,255,255);
   }
 }
 

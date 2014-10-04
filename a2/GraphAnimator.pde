@@ -132,9 +132,23 @@ GraphAnimator animate(Line lg, Scatterplot scat, float duration) {
   return new ScatLineGA(lg, duration, 1, 0);
 }
 
-// MULTIPART ANIMATIONS
-GraphAnimator animate(Bar bg, Line lg, Continuation cont) {
+// PIECHART <--> HEIGHTGRAPH
+GraphAnimator animate(PieChart pc, HeightGraph hg, float duration) {
+  final PathGraph pcApprox = new PathGraph(pc, null);
+  final PathGraph hgApprox = new PathGraph(hg, getInterpolateHelper(pc));
   
+  return new PathGA(pcApprox, hgApprox, 5, 0, 1);
+}
+GraphAnimator animate(HeightGraph hg, PieChart pc, float duration) {
+  final PathGraph pcApprox = new PathGraph(pc, null);
+  final PathGraph hgApprox = new PathGraph(hg, getInterpolateHelper(pc));
+  
+  return new PathGA(pcApprox, hgApprox, 5, 1, 0);
+}
+
+// Bar <--> Line
+GraphAnimator animate(Bar bg, Line lg, Continuation cont) {
+ 
   HeightGraph hg = new HeightGraph(bg.data, bg.xLabel, bg.yLabel);
   Scatterplot scat = new Scatterplot(bg.data, bg.xLabel, bg.yLabel);
   
@@ -144,7 +158,6 @@ GraphAnimator animate(Bar bg, Line lg, Continuation cont) {
       animate(scat, lg, 1.0f)
   )).setContinuation(cont);
 }
-
 GraphAnimator animate(Line lg, Bar bg, Continuation cont) {
  
   HeightGraph hg = new HeightGraph(bg.data, bg.xLabel, bg.yLabel);
@@ -157,6 +170,7 @@ GraphAnimator animate(Line lg, Bar bg, Continuation cont) {
   )).setContinuation(cont);
 }
 
+// Pie <--> Bar (direct)
 GraphAnimator animate(PieChart pc, Bar bg, Continuation cont) {
   
   final PathGraph pcApprox = new PathGraph(pc, null);
@@ -176,6 +190,30 @@ GraphAnimator animate(Bar bg, PieChart pc, Continuation cont) {
       (GraphAnimator)new PathGA(bgApprox, pcApprox, 5, 0, 1)
   )).setContinuation(cont);
   
+}
+
+// Pie <--> Line (through Height <--> Scatterplot)
+GraphAnimator animate(PieChart pc, Line lg, Continuation cont) {
+ 
+  HeightGraph hg = new HeightGraph(pc.data, pc.xLabel, pc.yLabel);
+  Scatterplot scat = new Scatterplot(pc.data, pc.xLabel, pc.yLabel);
+  
+  return new GraphSequenceAnimator(makeList(
+      animate(pc, hg, 1.0f),
+      animate(hg, scat, 1.0f),
+      animate(scat, lg, 1.0f)
+  )).setContinuation(cont);
+}
+GraphAnimator animate(Line lg, PieChart pc, Continuation cont) {
+  
+  HeightGraph hg = new HeightGraph(pc.data, pc.xLabel, pc.yLabel);
+  Scatterplot scat = new Scatterplot(pc.data, pc.xLabel, pc.yLabel);
+  
+  return new GraphSequenceAnimator(makeList(
+      animate(lg, scat, 1.0f),
+      animate(scat, hg, 1.0f),
+      animate(hg, pc, 1.0f)
+  )).setContinuation(cont);
 }
 
 InterpolateHelper getInterpolateHelper(final PieChart pc) {

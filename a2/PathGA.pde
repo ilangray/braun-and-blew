@@ -15,7 +15,7 @@ class PathGraph extends Graph {
     }
     
     public void renderDatum() {
-      drawPath(getPath(), color(0, 0, 0), color(255,255,255));
+      drawPath(getPath(), color(0,0,0), datum.fillColor);
     }
     
     public void renderTooltip() {}
@@ -41,7 +41,6 @@ class PathGraph extends Graph {
     if (g instanceof Bar) {
       Bar.BarView bv = (Bar.BarView)toApprox;
       Rect bounds = (Rect)bv.hitbox;
-//      approxed = new Path(bounds, shouldInterpolateLeft(i));
       approxed = new Path(bounds, interpHelper.shouldInterpolateLeft(i));
     } 
     else if (g instanceof PieChart) {
@@ -55,7 +54,7 @@ class PathGraph extends Graph {
       Point bottom = dv.bottom;
       
       Rect bounds = new Rect(top.x, top.y, 0, bottom.y - top.y);
-//      approxed = new Path(bounds, shouldInterpolateLeft(i));
+//      approxed = new Path(bounds, false);
       approxed = new Path(bounds, interpHelper.shouldInterpolateLeft(i));
     } 
     else {

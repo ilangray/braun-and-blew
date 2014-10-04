@@ -23,6 +23,7 @@ class PieChart extends Graph {
        float start = Math.min(w.startAngle, w.endAngle);
        float end = Math.max(w.startAngle, w.endAngle);
        
+       fill(datum.fillColor);
        arc(w.center.x, w.center.y, w.radius, w.radius, start, end, PIE);
      }
      

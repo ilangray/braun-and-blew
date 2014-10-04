@@ -27,7 +27,7 @@ class Scatterplot extends Graph {
     }
     
     void renderDatum() {
-      color fill = hit ? HIGHLIGHTED_FILL : NORMAL_FILL;
+      color fill = hit ? HIGHLIGHTED_FILL : datum.fillColor;
       strokeWeight(0);
       fill(fill);
       ellipse(center.x, center.y, diameter, diameter);

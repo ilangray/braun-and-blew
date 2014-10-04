@@ -21,7 +21,7 @@ class Bar extends Graph {
      }
     
      void renderDatum() {
-       color fill = hit ? HIGHLIGHTED_FILL : NORMAL_FILL;
+       color fill = hit ? HIGHLIGHTED_FILL : datum.fillColor;
        strokeWeight(0);
        drawRect(hitbox, fill, fill);
      }
