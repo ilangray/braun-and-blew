@@ -21,7 +21,7 @@ void setup() {
   final Bar bg = new Bar(data);
   final Line lg = new Line(data);
   
-  final PieChart pc = new PieChart(data);
+//  final PieChart pc = new PieChart(data);
   
   /*
   current = animate(lg, bg, new Continuation() {
@@ -38,8 +38,8 @@ void setup() {
   });
   */
   
-//  transition(bg, lg);
-  current = pc;
+  transition(bg, lg);
+//  current = pc;
 }
 
 void transition(final Bar bg, final Line lg) {
