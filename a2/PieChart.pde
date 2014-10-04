@@ -89,7 +89,7 @@ class PieChart extends Graph {
   
   private float lastEndingAngle(ArrayList<DatumView> vs) {
     if (vs.isEmpty()) {
-      return 0; 
+      return PI - HALF_PI; 
     }
     
     PieChartView pcv = (PieChartView) vs.get(vs.size() - 1);

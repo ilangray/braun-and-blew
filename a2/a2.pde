@@ -22,27 +22,7 @@ void setup() {
   final PieChart pc = new PieChart(data);
 //  final Line lg = new Line(data);
  
-  current = animate(bg, pc, new Continuation() {
-    public void onContinue() {
-      current = pc;
-    } 
-  });
-  
-  
-  /*
-  current = animate(lg, bg, new Continuation() {
-    public void onContinue() {
-      println("YOLO");
-      current = bg;
-      
-      current = animate(bg, lg, new Continuation() {
-        public void onContinue() {
-          current = lg;
-        }
-      });
-    }
-  });
-  */
+  transition(bg, pc);
   
 //  transition(bg, lg);
 }
@@ -59,6 +39,21 @@ void transition(final Line lg, final Bar bg) {
   current = animate(lg, bg, new Continuation() {
     public void onContinue() {
       transition(bg, lg); 
+    }
+  });
+}
+
+void transition(final PieChart pc, final Bar bg) {
+  current = animate(pc, bg, new Continuation() {
+    public void onContinue() {
+      transition(bg, pc); 
+    }
+  });
+}
+void transition(final Bar bg, final PieChart pc) {
+  current = animate(bg, pc, new Continuation() {
+    public void onContinue() {
+      transition(pc, bg); 
     }
   });
 }

@@ -39,7 +39,7 @@ class PathGraph extends Graph {
     if (g instanceof Bar) {
       Bar.BarView bv = (Bar.BarView)toApprox;
       Rect bounds = (Rect)bv.hitbox;
-      approxed = new Path(bounds);
+      approxed = new Path(bounds, shouldInterpolateLeft(i));
     } 
     else if (g instanceof PieChart) {
       Wedge bounds = (Wedge)toApprox.bounds;
@@ -52,7 +52,7 @@ class PathGraph extends Graph {
       Point bottom = dv.bottom;
       
       Rect bounds = new Rect(top.x, top.y, 0, bottom.y - top.y);
-      approxed = new Path(bounds);
+      approxed = new Path(bounds, shouldInterpolateLeft(i));
     } 
     else {
       throw new IllegalArgumentException(); 
@@ -60,6 +60,12 @@ class PathGraph extends Graph {
     
     return approxed;
   }
+  
+  // returns true iff the Path should interpolate the left side, otherwise the right.
+  private boolean shouldInterpolateLeft(int i) {
+    return i < data.size() / 2;
+  }    
+
   
   protected DatumView createDatumView(Datum d, Shape s) {
     return new PathView(d, s); 

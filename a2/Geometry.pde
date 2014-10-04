@@ -58,21 +58,36 @@ class Path implements Shape {
     points.addAll(pts);
   }
   
-  public Path(Rect r) {
-    
-    // fancy edge is RIGHT
-    Point start = r.getUR();
-    Point end = r.getLR();
-    
-    // NB: start is added when i = 0
-    for (int i = 0; i < NUM_PTS; i++) {
-       points.add(start.lerpBetween(end, 1.0/NUM_PTS * i));
+  // if interpolateLeft is true, then the fancy side is on the left, else on right.
+  public Path(Rect r, boolean interpolateLeft) {
+    if (interpolateLeft) {
+      // fancy edge is LEFT
+      Point start = r.getLL();
+      Point end = r.getUL();
+      
+      // NB: start is added when i = 0
+      for (int i = 0; i < NUM_PTS; i++) {
+         points.add(start.lerpBetween(end, 1.0/NUM_PTS * i));
+      }
+      
+      points.add(end);
+      points.add(r.getUR());
+      points.add(r.getLR());
+    } else {
+      // fancy edge is RIGHT
+      Point start = r.getUR();
+      Point end = r.getLR();
+      
+      // NB: start is added when i = 0
+      for (int i = 0; i < NUM_PTS; i++) {
+         points.add(start.lerpBetween(end, 1.0/NUM_PTS * i));
+      }
+      
+      // add the other three corners
+      points.add(end);
+      points.add(r.getLL());
+      points.add(r.getUL());
     }
-    
-    // add the other three corners
-    points.add(end);
-    points.add(r.getLL());
-    points.add(r.getUL());
   }
   
   public Path(Wedge w) {

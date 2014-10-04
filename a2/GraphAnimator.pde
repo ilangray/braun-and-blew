@@ -173,7 +173,7 @@ GraphAnimator animate(Bar bg, PieChart pc, Continuation cont) {
   final PathGraph pcApprox = new PathGraph(pc);
   
   return new GraphSequenceAnimator(makeList(
-      (GraphAnimator)new PathGA(pcApprox, bgApprox, 30, 1, 0)
+      (GraphAnimator)new PathGA(bgApprox, pcApprox, 30, 0, 1)
   )).setContinuation(cont);
   
 }
