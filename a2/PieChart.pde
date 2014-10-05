@@ -80,16 +80,13 @@ class PieChart extends Graph {
   }
  
   protected Shape getDatumViewBounds(Datum d, int i, ArrayList<DatumView> previous) {
-    Point center = new Point(width/2, height/2);  
-    float radius = Math.min(width, height) * 1.0f/3;
-    
-    // this math is totally wrong. fix it.
+    Point center = getBounds().getCenter();  
+    float radius = Math.min(getBounds().w, getBounds().h) * 1.0f/3;
+   
     float angleRange = TWO_PI * d.value / totalY;
     
     float startAngle = lastEndingAngle(previous);
     float endAngle = startAngle - angleRange;
-    
-    println("startAngle = " + startAngle + ", endAngle = " + endAngle);
     
     return new Wedge(center, radius, startAngle, endAngle);
   }

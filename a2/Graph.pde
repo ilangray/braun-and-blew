@@ -67,6 +67,9 @@ public abstract class Graph {
   public final String xLabel;
   public final String yLabel;
   
+  // where the graph should draw itself
+  private Rect bounds;
+  
   public Graph() {
     this(new ArrayList<Datum>(), "", ""); 
   }
@@ -94,6 +97,18 @@ public abstract class Graph {
     }
     tickCount = ticks;
     maxY = tickCount * interval;
+  }
+  
+  public void setBounds(Rect bounds) {
+    this.bounds = bounds; 
+  }
+  
+  public void setBounds(Graph g) {
+    setBounds(g.getBounds()); 
+  }
+  
+  public Rect getBounds() {
+    return bounds; 
   }
   
   public void render() {
@@ -130,8 +145,7 @@ public abstract class Graph {
     
     float x = i * uw + getO().x;
     float nextX = (i + 1) * uw + getO().x;
-    Rect bounds = new Rect(new Point(x, y), new Point(nextX, bottomY));
-    return bounds.scale(0.5, 1);
+    return new Rect(new Point(x, y), new Point(nextX, bottomY)).scale(0.5, 1);
   }
   
   // lets the subclass determines the type of DatumView used
@@ -166,15 +180,21 @@ public abstract class Graph {
   }
   
   private Point getO() {
-    return new Point(width * PADDING_LEFT, height * (1 - PADDING_BOTTOM));
+    if (bounds == null) {  
+      println("Bounds is null on graph = " + this); 
+    }
+    return new Point(bounds.x + bounds.w * PADDING_LEFT, bounds.y + bounds.h * (1 - PADDING_BOTTOM));
   }
   
   private Point getLR() {
-    return new Point(width * (1 - PADDING_RIGHT), height * (1 - PADDING_BOTTOM));
+    if (bounds == null) {
+      println("Bounds is null on graph = " + this); 
+    }
+    return new Point(bounds.x + bounds.w * (1 - PADDING_RIGHT), bounds.y + bounds.h * (1 - PADDING_BOTTOM));
   }
   
   private Point getUL() {
-    return new Point(width * PADDING_LEFT, height * PADDING_TOP);
+    return new Point(bounds.x + bounds.w * PADDING_LEFT, bounds.y + bounds.h * PADDING_TOP);
   }
   
   private void drawLine(Point p, Point q, int thickness) {
@@ -201,7 +221,7 @@ public abstract class Graph {
     }
     
     // draw the axis name
-    float x = (1 - PADDING_RIGHT / 2) * width;
+    float x = (1 - PADDING_RIGHT / 2) * bounds.w + bounds.x;
     textAlign(CENTER, CENTER);
     percentTextSize(AXIS_NAME_PERCENT_FONT_SIZE);
     text(xLabel, x, getO().y);
@@ -242,14 +262,14 @@ public abstract class Graph {
     }
     
     // draw the axis name
-    float y = PADDING_TOP / 2 * height;
+    float y = PADDING_TOP / 2 * bounds.h + bounds.y;
     textAlign(CENTER, CENTER);
     percentTextSize(AXIS_NAME_PERCENT_FONT_SIZE);
     text(yLabel, x, y);
   }
   
   protected void percentTextSize(float percent) {
-    textSize(percent * height);
+    textSize(percent * bounds.h);
   }
   
   protected void drawRect(Rect r, color stroke, color fill) {
@@ -261,14 +281,14 @@ public abstract class Graph {
   // renders the given string as a label above the hitbox
   protected void renderLabel(Rect hitbox, String s) {
      float x = hitbox.getCenter().x;
-     float y = hitbox.getMinY() - LABEL_PERCENT_OFFSET * height;
+     float y = hitbox.getMinY() - LABEL_PERCENT_OFFSET * bounds.h;
     
      // set font size because text measurements depend on it
      percentTextSize(LABEL_PERCENT_FONT_SIZE);
      
      // bounding rectangle
      float w = textWidth(s) * 1.1;
-     float h = LABEL_PERCENT_FONT_SIZE * height * 1.3;
+     float h = LABEL_PERCENT_FONT_SIZE * bounds.h * 1.3;
      Rect r = new Rect(x - w/2, y - h, w, h);
      drawRect(r, BLACK, WHITE);
      
@@ -284,7 +304,7 @@ public abstract class Graph {
      
      // bounding rectangle
      float w = textWidth(s) * 1.1;
-     float h = LABEL_PERCENT_FONT_SIZE * height * 1.3;
+     float h = LABEL_PERCENT_FONT_SIZE * bounds.h * 1.3;
      Rect r = new Rect(x - w/2, y - h, w, h);
      drawRect(r, BLACK, WHITE);
      

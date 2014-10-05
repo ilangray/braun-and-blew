@@ -15,7 +15,8 @@ class PathGraph extends Graph {
     }
     
     public void renderDatum() {
-      drawPath(getPath(), color(0,0,0), datum.fillColor);
+//      color(0,0,0)
+      drawPath(getPath(), datum.fillColor, datum.fillColor);
     }
     
     public void renderTooltip() {}
@@ -102,6 +103,12 @@ class PathGA extends GraphAnimator {
     
     src.createDatumViews();
     dest.createDatumViews();
+  }
+  
+  public void setBounds(Rect bounds) {
+    super.setBounds(bounds);
+    src.setBounds(bounds);
+    dest.setBounds(bounds); 
   }
   
   protected Graph.DatumView createDatumView(Datum d, Shape r, float percent) {

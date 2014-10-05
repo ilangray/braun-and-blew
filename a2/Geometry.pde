@@ -47,6 +47,7 @@ class Point {
   }
 }
 
+// Represents a shape formed by connecting a list of points with straight lines
 class Path implements Shape {
   
   public static final int NUM_PTS = 100;
@@ -157,6 +158,7 @@ class Wedge implements Shape {
 }
 
 class Rect implements Shape {
+  
   public final float x, y, w, h;
   
   public Rect(float x, float y, float w, float h) {

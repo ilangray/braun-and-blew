@@ -78,6 +78,12 @@ class GraphSequenceAnimator extends GraphAnimator {
     setCurrent(0);
   } 
   
+  public void setBounds(Rect bounds) {
+    super.setBounds(bounds);
+   
+    current.setBounds(bounds); 
+  }
+  
   private void setCurrent(final int i) {
     // base case
     if (i >= animators.size()) {
@@ -196,7 +202,9 @@ GraphAnimator animate(Bar bg, PieChart pc, Continuation cont) {
 GraphAnimator animate(PieChart pc, Line lg, Continuation cont) {
  
   HeightGraph hg = new HeightGraph(pc.data, pc.xLabel, pc.yLabel);
+  hg.setBounds(lg);
   Scatterplot scat = new Scatterplot(pc.data, pc.xLabel, pc.yLabel);
+  scat.setBounds(pc);
   
   return new GraphSequenceAnimator(makeList(
       animate(pc, hg, 1.0f),
@@ -207,7 +215,9 @@ GraphAnimator animate(PieChart pc, Line lg, Continuation cont) {
 GraphAnimator animate(Line lg, PieChart pc, Continuation cont) {
   
   HeightGraph hg = new HeightGraph(pc.data, pc.xLabel, pc.yLabel);
+  hg.setBounds(lg);
   Scatterplot scat = new Scatterplot(pc.data, pc.xLabel, pc.yLabel);
+  scat.setBounds(lg);
   
   return new GraphSequenceAnimator(makeList(
       animate(lg, scat, 1.0f),

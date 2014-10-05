@@ -2,43 +2,220 @@
 
 // constants 
 String FILENAME = "ds1.csv";
+float PERCENT_GRAPH_WIDTH = 0.8;
+float PERCENT_BUTTON_PADDING = 0.75;
 
-Graph current;
+// the contents of the CSV file
+CSVData DATA;
+
+ArrayList<Button> buttons;
+
+// the current graph being rendered
+Graph currentGraph;
+// what type is the current graph?
+int currentType;
+
+boolean animating = false;
+
+int PIE = 0;
+int BAR = 1;
+int LINE = 2;
+
+
+void layoutUI() {
+  // layout the graph
+  currentGraph.setBounds(getGraphBounds());
+  
+  // layout side bar
+  layoutButtons(getButtonFrames(getSidebarBounds()));
+}
+
+void render() {
+  currentGraph.render();
+  
+  renderSeparator();
+ 
+  for (Button b : buttons) {
+    b.render();
+  } 
+}
+
+void renderSeparator() {
+  stroke(color(0,0,0));
+  
+  Rect frame = getGraphBounds();
+  
+  Point top = frame.getUR();
+  Point bottom = frame.getLR();
+  
+  strokeWeight(4);
+  drawLine(top, bottom);
+}
+
+Rect getGraphBounds() {
+  return new Rect(0, 0, PERCENT_GRAPH_WIDTH * width, height);
+}
+
+Rect getSidebarBounds() {
+  Rect graphBounds = getGraphBounds();
+  float percentWidth = 1 - PERCENT_GRAPH_WIDTH;
+  return new Rect(graphBounds.getMaxX(), 0, percentWidth * width, height);
+}
+
+ArrayList<Rect> getButtonFrames(Rect sidebarBounds) {
+  ArrayList<Rect> bounds = new ArrayList<Rect>();
+  
+  float h = sidebarBounds.h / buttons.size();
+  
+  for (int i = 0; i < buttons.size(); i++) {
+    Rect frame = new Rect(sidebarBounds.x, sidebarBounds.y + h * i, sidebarBounds.w, h); 
+    bounds.add(frame.scale(PERCENT_BUTTON_PADDING, PERCENT_BUTTON_PADDING));
+  }
+  
+  return bounds;
+}
+
+void layoutButtons(ArrayList<Rect> frames) {
+  for (int i = 0; i < frames.size(); i++) {
+    Button button = buttons.get(i);
+    Rect frame = frames.get(i);
+    
+    button.frame = frame;
+  }
+}
+
+Button makeButton(String text) {
+  return new Button(new Rect(0,0,0,0), color(255,255,255), text, color(0,0,0)); 
+}
 
 void setup() {
   // general canvas setup
   size(900, 600);
   frame.setResizable(true);
-  
   frameRate(30);
   
-  // init SQTM
-  Rect bounds = new Rect(5, 5, width - 10, height - 10);
+  // read CSV data
+  DATA = new CSVReader().read(FILENAME);
+  colorize(DATA.datums);
   
-  CSVData data = new CSVReader().read(FILENAME);
-  println("root = " + data);
-  
-  colorize(data.datums);
-  
-  final Bar bg = new Bar(data);                  // tested
-  final PieChart pc = new PieChart(data);        // tested
-  final Line lg = new Line(data);                // tested
-  final HeightGraph hg = new HeightGraph(data);  // tested
-  final Scatterplot sp = new Scatterplot(data);  // tested
-  final PathGraph pg = new PathGraph(pc, null);  // tested
- 
-//  current = pg;
-//  transition(bg, pc);
-//  transition(bg, lg);
+  // init buttons -- order must match value of constants
+  buttons = makeList(
+    makeButton("Pie Chart"),
+    makeButton("Bar Graph"),
+    makeButton("Line Graph")
+  );
 
-   current = animate(lg, pc, new Continuation() {
-     public void onContinue() {
-       current = pc; 
-     }
-   });
+  // start with a bar graph
+  currentGraph = new Bar(DATA);
+  currentType = BAR;
+}
 
-//  background(color(255, 255, 255)); 
-//  current.render();
+void draw() {
+  background(color(255, 255, 255)); 
+  
+  layoutUI();
+  render();
+}
+
+void mouseClicked() {
+  // find which button was hit
+  Button hit = getButtonContainingMouse();
+  
+  if (hit == null) {
+    return; 
+  }
+  
+  animateTransition(buttons.indexOf(hit));
+}
+
+void animateTransition(int newType) {
+  // one animation at a time
+  if (animating) {
+    return;
+  }
+  
+  // only animate if type changed
+  if (newType == currentType) {
+    return;
+  } 
+  
+  animating = true;
+  
+  Graph g = currentGraph;
+  
+  if (isBar(g)) {
+    Bar bar = (Bar)currentGraph;
+    if (newType == LINE) {
+      Line line = new Line(DATA);
+      line.setBounds(currentGraph.getBounds());
+      currentGraph = animate(bar, line, makeContinuation(line, newType));
+    } else {
+      PieChart pie = new PieChart(DATA);
+      pie.setBounds(getGraphBounds());
+      currentGraph = animate(bar, pie, makeContinuation(pie, newType));
+    }
+  }
+  else if (isLine(g)) {
+    Line line = (Line)currentGraph;
+    if (newType == BAR) {
+      Bar bar = new Bar(DATA);
+      bar.setBounds(getGraphBounds());
+      currentGraph = animate(line, bar, makeContinuation(bar, newType));
+    } else {
+      PieChart pie = new PieChart(DATA);
+      pie.setBounds(getGraphBounds());
+      currentGraph = animate(line, pie, makeContinuation(pie, newType));
+    }
+  }
+  else if (isPie(g)) {
+    PieChart pie = (PieChart)currentGraph;
+    if (newType == LINE) {
+      Line line = new Line(DATA);
+      line.setBounds(currentGraph.getBounds());
+      currentGraph = animate(pie, line, makeContinuation(line, newType));
+    } else {
+      Bar bar = new Bar(DATA);
+      bar.setBounds(getGraphBounds());
+      currentGraph = animate(pie, bar, makeContinuation(bar, newType));
+    }
+  } 
+  else {
+    throw new IllegalArgumentException(); 
+  }
+}
+
+Continuation makeContinuation(final Graph result, final int type) {
+  return new Continuation() {
+    public void onContinue() {
+      currentGraph = result;
+      currentType = type;
+      
+      println("Animating COMPLETED");
+      animating = false;
+    } 
+  };
+}
+
+boolean isBar(Graph g) {
+  return g instanceof Bar;
+}
+
+boolean isLine(Graph g) {
+  return g instanceof Line;
+}
+
+boolean isPie(Graph g) {
+  return g instanceof PieChart;
+}
+
+Button getButtonContainingMouse() {
+  for (Button b : buttons) {
+    if (b.containsMouse()) {
+      return b;
+    } 
+  } 
+  
+  return null;
 }
 
 void colorize(ArrayList<Datum> ds) {
@@ -56,42 +233,5 @@ void colorize(ArrayList<Datum> ds) {
     datum.fillColor = color(r, g, b);
   } 
 }
-
-void transition(final Bar bg, final Line lg) {
-  current = animate(bg, lg, new Continuation() {
-    public void onContinue() {
-      transition(lg, bg); 
-    }
-  });
-}
-
-void transition(final Line lg, final Bar bg) {
-  current = animate(lg, bg, new Continuation() {
-    public void onContinue() {
-      transition(bg, lg); 
-    }
-  });
-}
-
-void transition(final PieChart pc, final Bar bg) {
-  current = animate(pc, bg, new Continuation() {
-    public void onContinue() {      
-      transition(bg, pc); 
-    }
-  });
-}
-void transition(final Bar bg, final PieChart pc) {
-  current = animate(bg, pc, new Continuation() {
-    public void onContinue() {
-      transition(pc, bg); 
-    }
-  });
-}
-
-void draw() {
-  background(color(255, 255, 255)); 
-  current.render();
-}
-
 
 
