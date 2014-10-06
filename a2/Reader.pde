@@ -17,25 +17,57 @@ class CSVData {
 }
 
 class CSVReader {
+  
+  private static final String SEPARATOR = ",";
+  
   public CSVData read(String filename) {
       String[] lines = loadStrings(filename);
-      String[] tokens = trim(mapSplit(lines));
       
-      String xLabel = tokens[0];
-      String yLabel = tokens[1];
-      ArrayList<Datum> data = getDatums(tokens, 2);
+      ArrayList<String> fields = makeList(getComponents(lines[0]));
+      fields.remove(0);
       
-      return new CSVData(data, xLabel, yLabel);
+      ArrayList<Datum> ds = new ArrayList<Datum>();
+      for (int i = 1; i < lines.length; i++) {
+         ds.add(parseDatum(fields, lines[i]));
+      }
+      
+      String[] firstLineComps = getComponents(lines[0]);
+      String xLabel = firstLineComps[0];
+      String yLabel = firstLineComps[1];
+      
+      return new CSVData(ds, xLabel, yLabel);
   }
   
-  private ArrayList<Datum> getDatums(String[] tokens, int start) {
-    ArrayList<Datum> datums = new ArrayList<Datum>();
+  private String[] getComponents(String line) {
+    return trim(split(line, SEPARATOR)); 
+  }
+  
+  // yo if k is >= ss.length, its not gonna go well. youve been warned
+  private String[] drop(String[] ss, int k) {
+    assert k <= ss.length;
     
-    for (int i = start; i < tokens.length; i += 2) {
-      datums.add(new Datum(tokens[i], Float.parseFloat(tokens[i+1])));
+    String[] output = new String[ss.length - k];
+    
+    for (int i = k; i < ss.length; i++) {
+      output[i - k] = ss[i];
     }
     
-    return datums;
+    return output;
+  }
+  
+  private Datum parseDatum(ArrayList<String> fields, String line) {
+    
+    String[] comps = getComponents(line);
+    
+    String key = comps[0];
+    
+    ArrayList<Float> values = new ArrayList<Float>();
+    
+    for (int i = 1; i < comps.length; i++) {
+      values.add(Float.parseFloat(comps[i])); 
+    }
+    
+    return new Datum(key, values, fields);
   }
   
   // takes an array of comma-separated pairs of values
@@ -49,11 +81,21 @@ class CSVReader {
       String line = lines[i];
       String[] comps = split(lines[i], ",");
       
-      parts[2*i]     = comps[0];
+      parts[2*i]     = comps[0];  
       parts[2*i + 1] = comps[1];
     }
     
     return parts;
+  }
+ 
+  <T> ArrayList<T> makeList(T[] values) {
+    ArrayList<T> ts = new ArrayList<T>();
+    
+    for (T v : values) {
+      ts.add(v); 
+    }
+    
+    return ts; 
   } 
   
   public CSVReader() {

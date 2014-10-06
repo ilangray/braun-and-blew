@@ -114,6 +114,20 @@ class GraphSequenceAnimator extends GraphAnimator {
  * methods for instantiating the correct type of animator based on src/dest graphs
  */
  
+// STACKEDBAR <--> BAR
+GraphAnimator animate(StackedBar sb, Bar bg, float duration) {
+  final PathGraph sbApprox = new PathGraph(sb, null);
+  final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(false));
+  
+  return new PathGA(sbApprox, bgApprox, duration, 0, 1);
+}
+GraphAnimator animate(Bar bg, StackedBar sb, float duration) {
+  final PathGraph sbApprox = new PathGraph(sb, null);
+  final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(false));
+  
+  return new PathGA(sbApprox, bgApprox, duration, 1, 0);
+}
+ 
 // BAR <--> HEIGHTGRAPH
 GraphAnimator animate(Bar bg, HeightGraph hg, float duration) {
   return new BarHeightGA(bg, duration, 1, 0);
@@ -224,6 +238,80 @@ GraphAnimator animate(Line lg, PieChart pc, Continuation cont) {
       animate(scat, hg, 1.0f),
       animate(hg, pc, 1.0f)
   )).setContinuation(cont);
+}
+
+// STACKED ****ing BAR
+GraphAnimator animate(StackedBar sb, Bar bg, Continuation cont) {
+  return new GraphSequenceAnimator(makeList(
+      animate(sb, bg, 1.0f)
+  )).setContinuation(cont);
+}
+GraphAnimator animate(Bar bg, StackedBar sb, Continuation cont) {
+  return new GraphSequenceAnimator(makeList(
+      animate(bg, sb, 1.0f)
+  )).setContinuation(cont);
+}
+
+GraphAnimator animate(StackedBar sb, Line lg, Continuation cont) {
+  Bar bg = new Bar(sb.data, sb.xLabel, sb.yLabel);
+  bg.setBounds(sb);
+  HeightGraph hg = new HeightGraph(sb.data, sb.xLabel, sb.yLabel);
+  hg.setBounds(sb);
+  Scatterplot scat = new Scatterplot(sb.data, sb.xLabel, sb.yLabel);
+  scat.setBounds(sb);
+  
+  return new GraphSequenceAnimator(makeList(
+      animate(sb, bg, 1.0f),
+      animate(bg, hg, 1.0f),
+      animate(hg, scat, 1.0f),
+      animate(scat, lg, 1.0f)
+  )).setContinuation(cont);
+}
+GraphAnimator animate(Line lg, StackedBar sb, Continuation cont) {
+  Bar bg = new Bar(lg.data, lg.xLabel, lg.yLabel);
+  bg.setBounds(sb);
+  HeightGraph hg = new HeightGraph(lg.data, lg.xLabel, lg.yLabel);
+  hg.setBounds(sb);
+  Scatterplot scat = new Scatterplot(lg.data, lg.xLabel, lg.yLabel);
+  scat.setBounds(sb);
+  
+  return new GraphSequenceAnimator(makeList(
+      animate(lg, scat, 1.0f),
+      animate(scat, hg, 1.0f),
+      animate(hg, bg, 1.0f),
+      animate(bg, sb, 1.0f)
+  )).setContinuation(cont);
+}
+
+GraphAnimator animate(StackedBar sb, PieChart pc, Continuation cont) {
+  final Bar bg = new Bar(sb.data, sb.xLabel, sb.yLabel);
+  bg.setBounds(sb);
+  final PathGraph pcApprox = new PathGraph(pc, null);
+  final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(pc));
+  
+  return new GraphSequenceAnimator(makeList(
+      animate(sb, bg, 1.0f),
+      (GraphAnimator)new PathGA(bgApprox, pcApprox, 5, 0, 1)
+  )).setContinuation(cont);
+}
+GraphAnimator animate(PieChart pc, StackedBar sb, Continuation cont) {
+  final Bar bg = new Bar(pc.data, pc.xLabel, pc.yLabel);
+  bg.setBounds(pc);
+  final PathGraph pcApprox = new PathGraph(pc, null);
+  final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(pc));
+  
+  return new GraphSequenceAnimator(makeList(
+      (GraphAnimator)new PathGA(pcApprox, bgApprox, 5, 0, 1),
+      animate(bg, sb, 1.0f)
+  )).setContinuation(cont);
+}
+
+InterpolateHelper getInterpolateHelper(final boolean interpolateLeft) {
+  return new InterpolateHelper() {
+    public boolean shouldInterpolateLeft(int i) {
+      return interpolateLeft;
+    } 
+  };
 }
 
 InterpolateHelper getInterpolateHelper(final PieChart pc) {

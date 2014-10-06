@@ -20,7 +20,7 @@ boolean animating = false;
 int PIE = 0;
 int BAR = 1;
 int LINE = 2;
-
+int STACKEDBAR = 3;
 
 void layoutUI() {
   // layout the graph
@@ -102,12 +102,14 @@ void setup() {
   buttons = makeList(
     makeButton("Pie Chart"),
     makeButton("Bar Graph"),
-    makeButton("Line Graph")
+    makeButton("Line Graph"),
+    makeButton("StackedBar")
   );
 
   // start with a bar graph
-  currentGraph = new Bar(DATA);
-  currentType = BAR;
+//  currentGraph = new Bar(DATA);
+  currentType = STACKEDBAR;
+  currentGraph = new StackedBar(DATA);
 }
 
 void draw() {
@@ -149,10 +151,14 @@ void animateTransition(int newType) {
       Line line = new Line(DATA);
       line.setBounds(currentGraph.getBounds());
       currentGraph = animate(bar, line, makeContinuation(line, newType));
-    } else {
+    } else if (newType == PIE) {
       PieChart pie = new PieChart(DATA);
       pie.setBounds(getGraphBounds());
       currentGraph = animate(bar, pie, makeContinuation(pie, newType));
+    } else {
+      StackedBar sb = new StackedBar(DATA);
+      sb.setBounds(getGraphBounds());
+      currentGraph = animate(bar, sb, makeContinuation(sb, newType));
     }
   }
   else if (isLine(g)) {
@@ -161,10 +167,14 @@ void animateTransition(int newType) {
       Bar bar = new Bar(DATA);
       bar.setBounds(getGraphBounds());
       currentGraph = animate(line, bar, makeContinuation(bar, newType));
-    } else {
+    } else if (newType == PIE) {
       PieChart pie = new PieChart(DATA);
       pie.setBounds(getGraphBounds());
       currentGraph = animate(line, pie, makeContinuation(pie, newType));
+    } else {
+      StackedBar sb = new StackedBar(DATA);
+      sb.setBounds(getGraphBounds());
+      currentGraph = animate(line, sb, makeContinuation(sb, newType));
     }
   }
   else if (isPie(g)) {
@@ -173,12 +183,32 @@ void animateTransition(int newType) {
       Line line = new Line(DATA);
       line.setBounds(currentGraph.getBounds());
       currentGraph = animate(pie, line, makeContinuation(line, newType));
-    } else {
+    } else if (newType == BAR) {
       Bar bar = new Bar(DATA);
       bar.setBounds(getGraphBounds());
       currentGraph = animate(pie, bar, makeContinuation(bar, newType));
+    } else {
+      StackedBar sb = new StackedBar(DATA);
+      sb.setBounds(getGraphBounds());
+      currentGraph = animate(pie, sb, makeContinuation(sb, newType)); 
     }
-  } 
+  }  
+  else if (isStackedBar(g)) {
+    StackedBar sb = (StackedBar)currentGraph;
+    if (newType == LINE) {
+      Line line = new Line(DATA);
+      line.setBounds(getGraphBounds());
+      currentGraph = animate(sb, line, makeContinuation(line, newType));
+    } else if (newType == BAR) {
+      Bar bar = new Bar(DATA);
+      bar.setBounds(getGraphBounds());
+      currentGraph = animate(sb, bar, makeContinuation(bar, newType));
+    } else {  // newType == PIE
+      PieChart pc = new PieChart(DATA);
+      pc.setBounds(getGraphBounds());
+      currentGraph = animate(sb, pc, makeContinuation(pc, newType));
+    }
+  }
   else {
     throw new IllegalArgumentException(); 
   }
@@ -206,6 +236,10 @@ boolean isLine(Graph g) {
 
 boolean isPie(Graph g) {
   return g instanceof PieChart;
+}
+
+boolean isStackedBar(Graph g) {
+  return g instanceof StackedBar; 
 }
 
 Button getButtonContainingMouse() {

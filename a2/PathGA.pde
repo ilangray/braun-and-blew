@@ -44,6 +44,11 @@ class PathGraph extends Graph {
       Rect bounds = (Rect)bv.hitbox;
       approxed = new Path(bounds, interpHelper.shouldInterpolateLeft(i));
     } 
+    else if (g instanceof StackedBar) {
+      StackedBar.StackedBarView sbv = (StackedBar.StackedBarView) toApprox;
+      Rect bounds = (Rect)sbv.hitbox;
+      approxed = new Path(bounds, false);
+    }
     else if (g instanceof PieChart) {
       Wedge bounds = (Wedge)toApprox.bounds;
       approxed = new Path(bounds);
@@ -78,14 +83,9 @@ class PathGraph extends Graph {
     }
     return false;
   }
-
   
   protected DatumView createDatumView(Datum d, Shape s) {
     return new PathView(d, s); 
-  }
-  
-  protected void renderAxes() {
-    g.renderAxes();
   }
 }
 
@@ -110,6 +110,9 @@ class PathGA extends GraphAnimator {
     src.setBounds(bounds);
     dest.setBounds(bounds); 
   }
+  
+  // turns out we actually LIKE rendering the axes here because it gives the viewer some sense of scale/destination
+  //protected void renderAxes() {}
   
   protected Graph.DatumView createDatumView(Datum d, Shape r, float percent) {
     int i = src.data.indexOf(d);

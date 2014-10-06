@@ -4,13 +4,41 @@ class Datum {
   public final String key;
   public final float value;
   
+  // the first line of teh file, which names all fields
+  public final ArrayList<String> fields;
+  public final ArrayList<Float> values;
+  
+  public final float total;
+  
+  public final int dimensions;
+  
   public int fillColor;
   
-  public Datum(String key, float value) {
+  public Datum(String key, ArrayList<Float> values, ArrayList<String> fields) {
+    this.fields = fields;
+    this.values = values;
+   
     this.key = key;
-    this.value = value;
+    this.value = values.get(0); 
+    
+    this.total = calculateTotal();
+    this.dimensions = values.size();
     
     fillColor = color(255,255,255);
+  }
+  
+  private float calculateTotal() {
+    float sum = 0;
+   
+    for (int i = 0; i < values.size(); i++) {
+      sum += values.get(i); 
+    }
+   
+    return sum;  
+  }
+  
+  public float getTotal() {
+    return total;
   }
 }
 
@@ -314,7 +342,7 @@ public abstract class Graph {
      text(s, x, y);
    }
    
-   private float getMaxY() {
+   protected float getMaxY() {
      if (data.isEmpty()) {
        return 0; 
      }
