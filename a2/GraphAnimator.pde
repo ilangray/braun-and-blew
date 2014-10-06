@@ -157,13 +157,13 @@ GraphAnimator animate(PieChart pc, HeightGraph hg, float duration) {
   final PathGraph pcApprox = new PathGraph(pc, null);
   final PathGraph hgApprox = new PathGraph(hg, getInterpolateHelper(pc));
   
-  return new PathGA(pcApprox, hgApprox, 5, 0, 1);
+  return new PathGA(pcApprox, hgApprox, 2.0, 0, 1);
 }
 GraphAnimator animate(HeightGraph hg, PieChart pc, float duration) {
   final PathGraph pcApprox = new PathGraph(pc, null);
   final PathGraph hgApprox = new PathGraph(hg, getInterpolateHelper(pc));
   
-  return new PathGA(pcApprox, hgApprox, 5, 1, 0);
+  return new PathGA(pcApprox, hgApprox, 2.0, 1, 0);
 }
 
 // Bar <--> Line
@@ -197,7 +197,7 @@ GraphAnimator animate(PieChart pc, Bar bg, Continuation cont) {
   final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(pc));
   
   return new GraphSequenceAnimator(makeList(
-      (GraphAnimator)new PathGA(pcApprox, bgApprox, 5, 0, 1)
+      (GraphAnimator)new PathGA(pcApprox, bgApprox, 2.0, 0, 1)
   )).setContinuation(cont);
   
 }
@@ -207,7 +207,7 @@ GraphAnimator animate(Bar bg, PieChart pc, Continuation cont) {
   final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(pc));
   
   return new GraphSequenceAnimator(makeList(
-      (GraphAnimator)new PathGA(bgApprox, pcApprox, 5, 0, 1)
+      (GraphAnimator)new PathGA(bgApprox, pcApprox, 2.0, 0, 1)
   )).setContinuation(cont);
   
 }
@@ -291,7 +291,7 @@ GraphAnimator animate(StackedBar sb, PieChart pc, Continuation cont) {
   
   return new GraphSequenceAnimator(makeList(
       animate(sb, bg, 1.0f),
-      (GraphAnimator)new PathGA(bgApprox, pcApprox, 5, 0, 1)
+      (GraphAnimator)new PathGA(bgApprox, pcApprox, 2, 0, 1)
   )).setContinuation(cont);
 }
 GraphAnimator animate(PieChart pc, StackedBar sb, Continuation cont) {
@@ -301,7 +301,7 @@ GraphAnimator animate(PieChart pc, StackedBar sb, Continuation cont) {
   final PathGraph bgApprox = new PathGraph(bg, getInterpolateHelper(pc));
   
   return new GraphSequenceAnimator(makeList(
-      (GraphAnimator)new PathGA(pcApprox, bgApprox, 5, 0, 1),
+      (GraphAnimator)new PathGA(pcApprox, bgApprox, 2, 0, 1),
       animate(bg, sb, 1.0f)
   )).setContinuation(cont);
 }

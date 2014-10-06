@@ -107,9 +107,8 @@ void setup() {
   );
 
   // start with a bar graph
-//  currentGraph = new Bar(DATA);
-  currentType = STACKEDBAR;
-  currentGraph = new StackedBar(DATA);
+  currentGraph = new Bar(DATA);
+  currentType = BAR;
 }
 
 void draw() {
