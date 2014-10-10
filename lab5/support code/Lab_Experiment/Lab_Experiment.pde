@@ -13,6 +13,31 @@ void getNextChart() {
     chartType = (int)random(3);
 }
 
+ArrayList<Datum> getMarkedDatums() {
+  ArrayList<Datum> realDatums = getDatumFromData(d.data);
+   ArrayList<Datum> marked = new ArrayList<Datum>();
+   
+   for (Datum d : realDatums) {
+     if (d.marked) {
+       marked.add(d);
+     } 
+   }
+   
+   return marked;
+}
+
+float calculateRealPercent() {
+  ArrayList<Datum> marked = getMarkedDatums();
+  
+  Datum d1 = marked.get(0);
+  Datum d2 = marked.get(1);
+  
+  Datum small = d1.value < d2.value ? d1 : d2;
+  Datum large = d1.value < d2.value ? d2 : d1;
+  
+  return small.value / large.value;
+}
+
 void setup() {
     totalWidth = displayWidth;
     totalHeight = displayHeight;
@@ -137,14 +162,16 @@ public void next() {
             /**
              ** Finish this: decide how to compute the right answer
              **/
-            truePerc = DECIDE_YOURSELF; // hint: from your list of DataPoints, extract the two marked ones to calculate the "true" percentage
+            truePerc = calculateRealPercent(); // hint: from your list of DataPoints, extract the two marked ones to calculate the "true" percentage
 
             reportPerc = ans / 100.0; // this is the participant's response
+            
+            println("true percentage = " + truePerc);
             
             /**
              ** Finish this: decide how to compute the log error from Cleveland and McGill (see the handout for details)
              **/
-            error = DECIDE_YOURSELF;
+            error = log2(Math.abs(reportPerc - truePerc) + 1/8.0);
 
             saveJudgement();
         }
@@ -161,6 +188,10 @@ public void next() {
             pagelast = true;
         }
     }
+}
+
+float log2(double f) {
+  return (float)Math.log(f) / (float)Math.log(2); 
 }
 
 /**
@@ -181,8 +212,8 @@ public void reset(){
     /**
      ** Finish/Use/Change this method if you need 
      **/
-    partipantID = DECIDE_YOURSELF;
-    d = null;
+    partipantID = 7;
+    getNextChart();
 
     /**
      ** Don't worry about the code below

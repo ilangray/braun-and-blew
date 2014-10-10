@@ -33,11 +33,7 @@ class View {
   } 
   
   private void doRender() {
-    if (datum.marked) {
-       println("rendering a marked datum");
-    } else {
-      println("not marked");
-    }
+
     color viewFill = datum.marked ? HIGHLIGHTED_FILL : REGULAR_FILL;
     drawRect(bounds, STROKE_COLOR, viewFill);
     textAlign(CENTER, CENTER);
