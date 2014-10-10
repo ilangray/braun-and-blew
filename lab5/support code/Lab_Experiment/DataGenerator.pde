@@ -43,9 +43,4 @@ class Data {
         
         data[secondInd].marked = true;
     }
-    
-        /**
-         ** finish this: the rest methods and variables you may want to use
-         ** 
-         **/
 }

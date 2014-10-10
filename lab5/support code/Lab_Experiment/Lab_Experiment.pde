@@ -6,7 +6,12 @@ final int DECIDE_YOURSELF = -1; // This is a placeholder for variables you will 
  * This is a global variable for the dataset in your visualization. You'll be overwriting it each trial.
  */
 Data d = null;
+int chartType = 5;
 
+void getNextChart() {
+    d = new Data();
+    chartType = (int)random(3);
+}
 
 void setup() {
     totalWidth = displayWidth;
@@ -29,13 +34,13 @@ void setup() {
     /**
      ** Finish this: decide how to generate the dataset you are using (see DataGenerator)
      **/
-    d = new Data();
+    getNextChart();
 
     /**
      ** Finish this: how to generate participant IDs
      ** You can write a short alphanumeric ID generator (cool) or modify this for each participant (less cool).
      **/
-    partipantID = DECIDE_YOURSELF;
+    partipantID = 7;
 }
 
 ArrayList<Datum> getDatumFromData(Data.DataPoint[] input) {
@@ -43,7 +48,7 @@ ArrayList<Datum> getDatumFromData(Data.DataPoint[] input) {
   
   for (int i = 0; i < NUM; i++) {
     toReturn.add(new Datum(input[i]));
-    println(toReturn.get(i).value);
+//    println(toReturn.get(i).value);
   }
   
   return toReturn;
@@ -67,23 +72,12 @@ void draw() {
             drawInstruction();
             page2 = false;
         }
-
-        /**
-         **  Finish this: decide the chart type. You can do this randomly.
-         **/
-        int chartType = 2;
+      
+        fill(color(255,255,255));
+        stroke(color(255,255,255));
+        rect(chartLeftX, chartLeftY, chartSize, chartSize);
 
         switch (chartType) {
-            case -1: // This is a placeholder, you can remove it and use the other cases for the final version
-                 stroke(0);
-                 strokeWeight(1);
-                 fill(255);
-                 rectMode(CORNER);
-                 /*
-                  * all your charts must be inside this rectangle
-                  */
-                 rect(chartLeftX, chartLeftY, chartSize, chartSize);
-                 break;
             case 0:
                 Bar b = new Bar(realDatums, "", "");
                 b.setBounds(bounds);
@@ -102,27 +96,12 @@ void draw() {
                  **/
                 break;
             case 2:
-                    Bar bp = new Bar(realDatums, "", "");
-                    bp.setBounds(bounds);
-                    pushMatrix();
-                    rotate(HALF_PI);
-                    translate(bounds.x, bounds.y);
-                    fill(color(0, 0, 0));
-                    bp.render();
-                    popMatrix();
-                /**
-                 ** finish this: 3rd visualization
-                 **/
+                SQTMDatum root = makeSQTMDatums(realDatums);
+                SQTM sqtm = new SQTM(bounds, root);
+                sqtm.render();
                 break;
-            case 3:
-                /**
-                 ** finish this: 4th visualization
-                 **/
-                break;
-            case 4:
-                /**
-                 ** finish this: 5th visualization
-                 **/
+            default:
+                println("YOU FUCKED UP. type = " + chartType);
                 break;
         }
 
@@ -173,7 +152,7 @@ public void next() {
         /**
          ** Finish this: decide the dataset (similar to how you did in setup())
          **/
-        d = null;
+        getNextChart();
 
         cp5.get(Textfield.class, "answer").clear();
         index++;

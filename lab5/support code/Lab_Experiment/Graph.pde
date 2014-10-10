@@ -1,4 +1,5 @@
-/* Graph abstract class */
+
+/* Graphstract class */
 
 class Datum {
   public final String key = "";
