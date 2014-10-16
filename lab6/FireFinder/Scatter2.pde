@@ -19,8 +19,7 @@ class Scatter2 {
   public final float maxY;
 
   public Scatter2(ArrayList<Point> data, int canvWidth, int canvHeight, float minX, float maxX, float minY, float maxY) {
-    this.data = data;
-    this.data = new ArrayList(data);
+    this.data = deepCopy(data);
     this.canvWidth = canvWidth;
     this.canvHeight = canvHeight;
     this.minX = minX;
@@ -29,6 +28,16 @@ class Scatter2 {
     this.maxY = maxY;
     
     scalePoints(); 
+  }
+  
+  public ArrayList<Point> deepCopy(ArrayList<Point> pts) {
+    ArrayList<Point> copy = new ArrayList<Point>();
+   
+    for (Point p : pts) {
+      copy.add(new Point(p.x, p.y)); 
+    }
+   
+    return copy; 
   }
   
   public void scalePoints() {
