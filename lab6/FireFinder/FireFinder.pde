@@ -19,6 +19,11 @@ Range rangeWind;
 controlP5.Button bSubmit;
 controlP5.Button bClose;
 
+float minX;
+float maxX;
+float minY;
+float maxY;
+
 int monSize = MIN_INT;
 int daySize = MIN_INT;
 int margin = MIN_INT;
@@ -41,6 +46,8 @@ String[] days = {
 
 boolean queryReady = false;
 boolean interfaceReady = false;
+
+ArrayList<Point> points = new ArrayList<Point>();
 
 void setup() {
     size(int(displayWidth * 0.8), int(displayHeight * 0.8));
@@ -75,6 +82,8 @@ void setup() {
             closeAll();
         }
     });
+    
+    submitQuery();
 }
 
 void clearCanvas() {

@@ -155,9 +155,10 @@ void submitQuery() {
         // submit the sql query and get a ResultSet from the database
        rs  = (ResultSet) DBHandler.exeQuery(sql);
        
-       println("DAAAATAAA:");
-       while(rs.next()) {
-         println("pt = " + rs.getFloat("X") + ", " + rs.getFloat("Y")); 
+       points.clear();
+       
+       while (rs.next()) {
+         points.add(new Point(rs.getFloat("X"), rs.getFloat("Y")));
        }
 
     } catch (Exception e) {

@@ -1,7 +1,7 @@
 int canvasWidth = MIN_INT; // this would be initialized in setup
 
 void draw() {
-  //clearCanvas();
+  clearCanvas();
 
 
   /**
@@ -12,6 +12,10 @@ void draw() {
    ** the hovering is optional
    **/
    
+  
+  stroke(color(0,0,0));
+  fill(color(0,0,0));
+  new Scatter2(points, canvasWidth, height).render();
   
 
 }

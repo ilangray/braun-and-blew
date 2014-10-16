@@ -17,7 +17,7 @@ void initSetting() {
      ** initialize the second element of each array to the max value of the column
      **/
 
-    String sql = "SELECT MIN(temp) AS MinTemp, MAX(temp) AS MaxTemp, MIN(humidity) AS MinHumidity, MAX(humidity) AS MaxHumidity, MIN(wind) AS MinWind, MAX(wind) AS MaxWind from forestfire";
+    String sql = "SELECT MIN(temp) AS MinTemp, MAX(temp) AS MaxTemp, MIN(humidity) AS MinHumidity, MAX(humidity) AS MaxHumidity, MIN(wind) AS MinWind, MAX(wind) AS MaxWind, MIN(X) as MinX, MAX(X) as MaxX, MIN(Y) as MinY, MAX(Y) as MaxY from forestfire";
     ResultSet rs = null;
      
     try {
@@ -34,6 +34,12 @@ void initSetting() {
         
         rangeWindValue[0] = rs.getFloat("MinWind");
         rangeWindValue[1] = rs.getFloat("MaxWind");
+        
+        minX = rs.getFloat("MinX");
+        maxX = rs.getFloat("MaxX");
+        
+        minY = rs.getFloat("MinY");
+        maxY = rs.getFloat("MaxY");
         
     } catch (Exception e) {
         // should be a java.lang.NullPointerException here when rs is empty
