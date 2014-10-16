@@ -49,7 +49,7 @@ void setup() {
     monSize = (width - height) / 14;
     daySize = (width - height) / 17;
     margin = int((height * 0.0425));
-    
+   
     cp5 = new ControlP5(this);
     rectMode(CORNER);
     ellipseMode(CORNER);
