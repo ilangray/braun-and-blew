@@ -15,7 +15,8 @@ void draw() {
   
   stroke(color(0,0,0));
   fill(color(0,0,0));
-  new Scatter2(points, canvasWidth, height).render();
+  new Scatter2(points, canvasWidth, height, minX, maxX, minY, maxY).render();
+  println("size = " + points.size());
   
 
 }
