@@ -2,21 +2,12 @@ int canvasWidth = MIN_INT; // this would be initialized in setup
 
 void draw() {
   clearCanvas();
-
-
-  /**
-   ** Finish this:
-   **
-   ** you should draw your scatterplot here, on rect(0, 0, canvasWidth,canvasWidth) (CORNER)
-   ** axes and labels on axes are required
-   ** the hovering is optional
-   **/
-   
+//  fill(color(255,255,255));
+//  rect(0, 0, canvasWidth, height);
   
   stroke(color(0,0,0));
   fill(color(0,0,0));
-  new Scatter2(points, canvasWidth, height, minX, maxX, minY, maxY).render();
-  println("size = " + points.size());
   
-
+  Scatter2 scat = new Scatter2(points, canvasWidth, height, minX, maxX, minY, maxY);
+  scat.render();  
 }
