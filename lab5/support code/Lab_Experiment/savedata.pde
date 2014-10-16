@@ -29,6 +29,7 @@ void saveJudgement() {
         expData = new Table();
         expData.addColumn("PartipantID");
         expData.addColumn("Index");
+        expData.addColumn("Chart_Type");
         expData.addColumn("Vis");
         expData.addColumn("VisID");
         expData.addColumn("Error");
@@ -39,6 +40,7 @@ void saveJudgement() {
     TableRow newRow = expData.addRow();
     newRow.setInt("PartipantID", partipantID);
     newRow.setInt("Index", index);
+    newRow.setInt("Chart_Type", chartType);
 
     /**
      ** finish this: decide the current visualization
