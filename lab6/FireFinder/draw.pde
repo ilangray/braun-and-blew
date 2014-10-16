@@ -1,7 +1,8 @@
 int canvasWidth = MIN_INT; // this would be initialized in setup
 
 void draw() {
-  clearCanvas();
+  //clearCanvas();
+
 
   /**
    ** Finish this:
