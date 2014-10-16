@@ -37,6 +37,26 @@ void mouseReleased() {
     }
 }
 
+String monthQuery() {
+  
+}
+
+String dayQuery() {
+  
+}
+
+String humidityQuery() {
+  
+}
+
+String windQuery() {
+  
+}
+
+String tempQuery(int min, int max) {
+  
+}
+
 void submitQuery() {
     /**
      ** Finish this
@@ -65,12 +85,16 @@ void submitQuery() {
      ** finish the sql
      ** do read information from the ResultSet
      **/
-    String sql = "SELECT * from forestfire";
+    String sql = "SELECT X, Y from forestfire WHERE temp BETWEEN " + minTemp + " AND " + maxTemp;
     ResultSet rs = null;
 
     try {
         // submit the sql query and get a ResultSet from the database
        rs  = (ResultSet) DBHandler.exeQuery(sql);
+       
+       while(rs.next()) {
+         println("pt = " + rs.getFloat("X") + ", " + rs.getFloat("Y")); 
+       }
 
     } catch (Exception e) {
         // should be a java.lang.NullPointerException here when rs is empty
@@ -79,6 +103,8 @@ void submitQuery() {
         closeThisResultSet(rs);
     }
 }
+
+
 
 void closeThisResultSet(ResultSet rs) {
     if(rs == null){
