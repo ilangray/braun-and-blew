@@ -18,28 +18,51 @@ class Node {
   }
   
   public void addForce(Vector f) {
-    println("adding force = " + f);
+//    println("adding force = " + f);
     netForce.add(f);
   }
   
   // f = m * a --> a = f / m
-  public void updateAcceleration(float dt) {
+  private void updateAcceleration(float dt) {
     println("applying netforce = " + netForce);
     
-    this.acc = netForce.scale(mass, mass).copy();
+    Vector prev = acc;
+    
+    float scale = 1.0f / mass;
+    this.acc = netForce.copy().scale(scale, scale);
+    
+    println(" -- prev acc = " + prev + ", new = " + acc);
     
     // reset netForce for next time
     netForce.reset();
   }
   
-  public void updateVelocity(float dt) {
+  private void updateVelocity(float dt) {
+    Vector prev = vel.copy();
+    
     vel.add(acc.scale(dt, dt));
+    
+    println(" -- prev vel = " + prev + ", new = " + vel);
   }
   
   public void updatePosition(float dt) {
-    Point prev = new Point(pos.x, pos.y);
-    pos.add(acc.copy().scale(dt, dt));
+    if (fixed) { 
+      return;
+    }
     
-    println("prev point = " + prev + ", new = " + pos);
+    println("Node w/ id = " + id);
+    
+    updateAcceleration(dt);
+    updateVelocity(dt);
+    
+    Point prev = new Point(pos.x, pos.y);
+    pos.add(vel.copy().scale(dt, dt));
+  
+    println(" -- prev point = " + prev + ", new = " + pos);
+  }
+  
+  public float getKineticEnergy() {
+    float speed = vel.getMagnitude();
+    return 0.5f * mass * speed*speed;   // 0.5 m * (v^2)
   }
 }

@@ -160,18 +160,6 @@ class Rect {
    return new Rect(x + amount, y + amount, w - 2 * amount, h - 2 * amount);
   }
 }
-
-void drawRect(Rect r, color stroke, color fill) {
-     stroke(stroke);
-     fill(fill);
-     rect(r.x, r.y, r.w, r.h);
-}
-  
-void strokeRect(Rect r, color stroke) {
-    noFill();
-    stroke(stroke);
-    rect(r.x, r.y, r.w, r.h); 
-}
   
 <T> ArrayList<T> makeList(T... values) {
   ArrayList<T> ts = new ArrayList<T>();

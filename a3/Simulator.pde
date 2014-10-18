@@ -1,19 +1,25 @@
 // Runs the simulation
 class Simulator {
   
+  private static final float RESTING_ENERGY = 100;
+  
   private final ArrayList<Node> nodes;
   private final ArrayList<Spring> springs;
+  private final ArrayList<Damper> dampers;
   
-  public Simulator(ArrayList<Node> nodes, ArrayList<Spring> springs) {
+  public Simulator(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Damper> dampers) {
     this.nodes = nodes;
     this.springs = springs;
+    this.dampers = dampers;
   } 
   
-  public void step(float dt) {
+  // returns true if the system should be redrawn
+  public boolean step(float dt) {
     aggregateForces();
-    updateAccelerations(dt);
-    updateVelocities(dt);
     updatePositions(dt);
+    
+    println("ke = " + getKineticEnergy());
+    return getKineticEnergy() > RESTING_ENERGY;
   }
   
   private void aggregateForces() {
@@ -23,20 +29,21 @@ class Simulator {
     }
     
     // tell all the dampers to apply their forces
+    for (Damper d : dampers) {
+      d.applyForce(); 
+    }
     
     // tell all the zaps to apply their forces
   }
   
-  private void updateAccelerations(float dt) {
+  private float getKineticEnergy() {
+    float total = 0;
+    
     for (Node n : nodes) {
-      n.updateAcceleration(dt); 
+      total += n.getKineticEnergy(); 
     }
-  }
-  
-  private void updateVelocities(float dt) {
-    for (Node n : nodes) {
-      n.updateVelocity(dt); 
-    }
+    
+    return total;
   }
   
   // applies nodes' velocities to t

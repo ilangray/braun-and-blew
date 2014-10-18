@@ -1,31 +1,34 @@
 // This is what you think it is
 class Spring extends InterNodeForce {
   
-  private static final float K = 0.5f;
+  private static final float K = 5f;
   
-  public final float restLen;
+  public final double restLen;
   
-  public Spring(Node endA, Node endB, float restLen) {
+  public Spring(Node endA, Node endB, double restLen) {
     super(endA, endB);
     this.restLen = restLen;
   }
   
   public void applyForce() {
     // force is proportional to the diff between restLen and current idst 
-    float diffstance = restLen - getDistance();
+    println("restlen = " + restLen + ", curr dist = " + getDistance()); 
      
     Vector diff = new Vector(endA.pos, endB.pos);
+    Vector force = diff.scale(-K, -K);
     
-    Vector force = diff.copy().scale(K, K);
+    println("magnitude of spring force = " + force.getMagnitude());
     
-    if (diffstance < 0) {
+    if (restLen < getDistance()) {
+      println("INWARDS");
       // forces go INWARDS 
-      endA.addForce(force);
-      endB.addForce(force.reverse());   
-    } else {
-      // forces go OUTWARDS
       endB.addForce(force);
-      endA.addForce(force.reverse());
+      endA.addForce(force.reverse());  
+    } else {
+      println("OUTWARDS");
+      // forces go OUTWARDS
+      endA.addForce(force);
+      endB.addForce(force.reverse());
     }
   }
 }

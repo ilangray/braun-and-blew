@@ -5,16 +5,16 @@
  */
 class Damper implements ForceSource {
 
-	private static final float K = 0.5f;
+  private static final float K = 0.7f;
 
-	private final Node node;
+  private final Node node;
 
-    public Damper(Node node) {
-      this.node = node;
-    }
+  public Damper(Node node) {
+    this.node = node;
+  }
     
-    public void applyForce() {
-      Vector velocity = node.vel.copy().scale(-K, -K);
-      node.addForce(velocity);
-    }
+  public void applyForce() {
+    Vector velocity = node.vel.copy().scale(-K, -K);
+    node.addForce(velocity);
+  }
 }
