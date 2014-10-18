@@ -32,11 +32,14 @@ class Vector {
   public Vector(float x, float y) {
     this.x = x;
     this.y = y;
-}
+  }
 
   public Vector() {
-    this.x = 0;
-    this.y = 0;
+    this(0, 0);
+  }
+  
+  public Vector(Point p, Point q) {
+    this(q.x - p.x, q.y - p.y);
   }
 
   public void add(Vector v) {
@@ -44,9 +47,36 @@ class Vector {
     this.y += v.y;
   }
   
+  public void subtract(Vector v) {
+    this.x -= v.x;
+    this.y -= v.y; 
+  }
+   
   public void reset() {
     this.x = 0;
     this.y = 0;
+  }
+ 
+  public float getMagnitude() {
+    return mag(x, y);
+  }
+ 
+  // switches the direction of the force
+  public Vector reverse() {
+    scale(-1, -1);
+    
+    return this;
+  }
+  
+  public Vector scale(float sx, float sy) {
+    this.x *= sx;
+    this.y *= sy; 
+    
+    return this;
+  }
+  
+  public Vector copy() {
+    return new Vector(x, y);
   }
 }
   
