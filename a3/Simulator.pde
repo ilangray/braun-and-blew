@@ -13,7 +13,6 @@ class Simulator {
     aggregateForces();
     updateAccelerations(dt);
     updateVelocities(dt);
-    dampen(dt);
     updatePositions(dt);
   }
   
@@ -23,8 +22,9 @@ class Simulator {
       s.applyForce(); 
     }
     
-    // tell all the zaps to apply their forces
+    // tell all the dampers to apply their forces
     
+    // tell all the zaps to apply their forces
   }
   
   private void updateAccelerations(float dt) {
@@ -37,11 +37,6 @@ class Simulator {
     for (Node n : nodes) {
       n.updateVelocity(dt); 
     }
-  }
-  
-  // applies dampening, which lowers nodes' velocities
-  private void dampen(float dt) {
-     // ??
   }
   
   // applies nodes' velocities to t

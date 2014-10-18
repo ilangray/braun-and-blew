@@ -1,10 +1,20 @@
 
+/**
+ * A Damper applies a force proportional to a 
+ * node's velocity, in the opposite direction.
+ */
 class Damper implements ForceSource {
-    public Damper() {
-      
+
+	private static final float K = 0.5f;
+
+	private final Node node;
+
+    public Damper(Node node) {
+      this.node = node;
     }
     
-    void applyForce() {
-      
+    public void applyForce() {
+      Vector velocity = node.vel.copy().scale(-K, -K);
+      node.addForce(velocity);
     }
 }

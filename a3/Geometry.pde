@@ -13,6 +13,11 @@ class Point {
     this.y = y;
   }
   
+  public void add(Vector v) {
+    x += v.x;
+    y += v.y; 
+  }
+  
   public Point offset(Point other) {
     return new Point(other.x + x, other.y + y);
   }
@@ -22,6 +27,10 @@ class Point {
     float dy = (other.y - y);
     
     return sqrt(dx*dx + dy*dy);
+  }
+  
+  public String toString() {
+    return "Point{x = " + x + ", y = " + y + "}"; 
   }
 }
 
@@ -77,6 +86,10 @@ class Vector {
   
   public Vector copy() {
     return new Vector(x, y);
+  }
+  
+  public String toString() {
+    return "Vector{x = " + x + ", y = " + y + "}"; 
   }
 }
   
@@ -148,15 +161,25 @@ class Rect {
   }
 }
 
-  void drawRect(Rect r, color stroke, color fill) {
+void drawRect(Rect r, color stroke, color fill) {
      stroke(stroke);
      fill(fill);
      rect(r.x, r.y, r.w, r.h);
-  }
+}
   
-  void strokeRect(Rect r, color stroke) {
+void strokeRect(Rect r, color stroke) {
     noFill();
     stroke(stroke);
     rect(r.x, r.y, r.w, r.h); 
+}
+  
+<T> ArrayList<T> makeList(T... values) {
+  ArrayList<T> ts = new ArrayList<T>();
+
+  for (T v : values) {
+    ts.add(v);
   }
+
+  return ts;
+}
  

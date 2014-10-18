@@ -6,11 +6,14 @@ interface ForceSource {
   void applyForce();
 }
 
-abstract class BaseSource implements ForceSource {
+/**
+ * An InterNodeForce is a force that acts between two nodes.
+ */
+abstract class InterNodeForce implements ForceSource {
   public Node endA;
   public Node endB;
   
-  public BaseSource(Node endA, Node endB) {
+  public InterNodeForce(Node endA, Node endB) {
     this.endA = endA;
     this.endB = endB;
   }

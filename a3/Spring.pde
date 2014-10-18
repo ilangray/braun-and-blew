@@ -1,11 +1,11 @@
 // This is what you think it is
-class Spring extends BaseSource {
+class Spring extends InterNodeForce {
   
-  public static final float K = 0.5f;
+  private static final float K = 0.5f;
   
   public final float restLen;
   
-  public Spring(Node endA, Node endB, float k, float restLen) {
+  public Spring(Node endA, Node endB, float restLen) {
     super(endA, endB);
     this.restLen = restLen;
   }
@@ -28,6 +28,4 @@ class Spring extends BaseSource {
       endA.addForce(force.reverse());
     }
   }
-  
-  public void render() {}
 }
