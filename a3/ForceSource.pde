@@ -18,7 +18,7 @@ abstract class InterNodeForce implements ForceSource {
     this.endB = endB;
   }
   
-  protected double getDistance() {
+  protected float getDistance() {
     return endB.pos.distFrom(endA.pos);
 //    return dist(endA.pos.x, endA.pos.y, endB.pos.x, endB.pos.y); 
   }

@@ -5,11 +5,13 @@ class Simulator {
   
   private final ArrayList<Node> nodes;
   private final ArrayList<Spring> springs;
+  private final ArrayList<Zap> zaps;
   private final ArrayList<Damper> dampers;
   
-  public Simulator(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Damper> dampers) {
+  public Simulator(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Zap> zaps, ArrayList<Damper> dampers) {
     this.nodes = nodes;
     this.springs = springs;
+    this.zaps = zaps;
     this.dampers = dampers;
   } 
   
@@ -34,6 +36,10 @@ class Simulator {
     }
     
     // tell all the zaps to apply their forces
+    for (Zap z : zaps) {
+      z.applyForce(); 
+    }
+    
   }
   
   private float getKineticEnergy() {

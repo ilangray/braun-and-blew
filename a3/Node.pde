@@ -14,7 +14,7 @@ class Node {
   public Node(int id, float mass) {
     this.id = id;
     this.mass = mass;
-    this.radius = sqrt(mass / PI);
+    this.radius = sqrt(mass / PI) * 10;
   }
   
   public void addForce(Vector f) {

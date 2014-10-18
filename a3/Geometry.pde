@@ -66,6 +66,13 @@ class Vector {
     this.y = 0;
   }
  
+  public Vector normalize() {
+     float mag = getMagnitude();
+     scale(1.0f/mag, 1.0f/mag);
+    
+     return this;
+  }
+ 
   public float getMagnitude() {
     return mag(x, y);
   }
