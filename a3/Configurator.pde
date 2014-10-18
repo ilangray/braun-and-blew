@@ -9,11 +9,25 @@ class Configurator {
   public DieWelt configure() {
     ArrayList<String> al = read();
     DieWelt world = initWorld(al);
+    placeNodes(world);
     return world;
   }
 
-  // 
-  public DieWelt initWorld(ArrayList<String> al) {
+  // Randomly assigns position of nodes within playing field.
+  // TODO: Currently doesn't prevent nodes from overlapping or from part of a node from hanging off the screen
+  private void placeNodes(DieWelt world) {
+    for (int i = 0; i < world.nodes.size(); i++) {
+      Node toEdit = world.nodes.get(i);
+      toEdit.pos.x = random(width);
+      toEdit.pos.y = random(height);
+    }
+  }
+
+  // Initializes the nodes and springs from the info from the file.
+  // Creates an ArrayList of Zaps and an ArrayList of Dampers, but these
+  // last two are independent on the input file.
+  // Returns Die Welt.
+  private DieWelt initWorld(ArrayList<String> al) {
     ArrayList<Node> nodes = new ArrayList<Node>();
     ArrayList<Spring> springs = new ArrayList<Spring>();
     ArrayList<Zap> zaps = new ArrayList<Zap>();
