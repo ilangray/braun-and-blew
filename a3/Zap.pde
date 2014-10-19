@@ -20,7 +20,11 @@ class Zap extends InterNodeForce {
     Vector force = new Vector(endA.pos, endB.pos).normalize().scale(mag, mag);
     
     // apply to end points
-    endA.addForce(force);
-    endB.addForce(force.reverse());
+    // BACKWARDS
+    endB.addForce(force);
+    endA.addForce(force.reverse());
+    
+//    endA.addForce(force);
+//    endB.addForce(force.reverse());
   }
 }
