@@ -4,7 +4,9 @@
  */
 class RenderMachine {
   
-  private final int NODE_COLOR = color(0,0,0);
+  private final int EMPTY_NODE_COLOR = color(0,0,0);
+  private final int MOUSED_NODE_COLOR = color(0, 255, 0);
+  
   private final int SPRING_COLOR = color(255,0,0);
   
   private final ArrayList<Node> nodes;
@@ -43,16 +45,21 @@ class RenderMachine {
   
   private void renderNodes() {
     for (Node n : nodes) {
-      renderNode(n);
+      renderNode(n, getNodeColor(n));
     } 
   }
   
-  private void renderNode(Node n) {
-    Point center = n.pos;
-    float radius = n.radius;
-    
-    stroke(NODE_COLOR);
-    fill(NODE_COLOR);
+  private int getNodeColor(Node n) {
+    return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
+  }
+  
+  private void renderNode(Node n, int c) {
+    stroke(c);
+    fill(c);
+    circle(n.pos, n.radius);
+  }
+  
+  private void circle(Point center, float radius) {
     ellipse(center.x, center.y, radius, radius);
   }
 }

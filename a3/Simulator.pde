@@ -1,7 +1,7 @@
 // Runs the simulation
 class Simulator {
   
-  private static final float RESTING_ENERGY = 100;
+  private static final float RESTING_ENERGY = 500;
   
   private final ArrayList<Node> nodes;
   private final ArrayList<Spring> springs;
@@ -20,9 +20,8 @@ class Simulator {
     aggregateForces();
     updatePositions(dt);
     
-    println("ke = " + getKineticEnergy());
-//    return getKineticEnergy() > RESTING_ENERGY;
-    return true;
+//    println("ke = " + getKineticEnergy());
+    return getKineticEnergy() > RESTING_ENERGY;
   }
   
   private void aggregateForces() {
@@ -60,5 +59,8 @@ class Simulator {
     } 
   }
   
+  private ArrayList<Node> getNodes() {
+    return nodes; 
+  }
   
 }

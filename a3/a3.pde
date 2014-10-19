@@ -10,8 +10,7 @@ boolean done = false;
 void setup() {
   size(600, 600);
   frame.setResizable(true);
-  
-  
+ 
   // read data
   DieWelt w = new Configurator("data.csv").configure();
   

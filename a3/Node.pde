@@ -24,14 +24,14 @@ class Node {
   
   // f = m * a --> a = f / m
   private void updateAcceleration(float dt) {
-    println("applying netforce = " + netForce);
+//    println("applying netforce = " + netForce);
     
     Vector prev = acc;
     
     float scale = 1.0f / mass;
     this.acc = netForce.copy().scale(scale, scale);
     
-    println(" -- prev acc = " + prev + ", new = " + acc);
+//    println(" -- prev acc = " + prev + ", new = " + acc);
     
     // reset netForce for next time
     netForce.reset();
@@ -42,7 +42,15 @@ class Node {
     
     vel.add(acc.scale(dt, dt));
     
-    println(" -- prev vel = " + prev + ", new = " + vel);
+//    println(" -- prev vel = " + prev + ", new = " + vel);
+  }
+  
+  /**
+   * Hit tests a point against the node's position (radius/center)
+   */
+  public boolean containsPoint(int x, int y) {
+    float dist = dist(pos.x, pos.y, x, y);
+    return dist < radius;
   }
   
   public void updatePosition(float dt) {
@@ -50,7 +58,7 @@ class Node {
       return;
     }
     
-    println("Node w/ id = " + id);
+//    println("Node w/ id = " + id);
     
     updateAcceleration(dt);
     updateVelocity(dt);
@@ -60,7 +68,7 @@ class Node {
     
     ensureInBounds();
     
-    println(" -- prev point = " + prev + ", new = " + pos);
+//    println(" -- prev point = " + prev + ", new = " + pos);
   }
   
   private void ensureInBounds() {
