@@ -1,7 +1,7 @@
 // This is what you think it is
 class Spring extends InterNodeForce {
   
-  private static final float K = 0.5f;
+  private static final float K = 2f;
   
   public final double restLen;
   
