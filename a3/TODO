@@ -1,0 +1,8 @@
+
+Things left to do on this assignment:
+  1. make graph settle in the center of the screen
+  2. stop the simulation when below cutoff KE, and restart when above
+
+
+DONNNNNNE:
+  3. prevent user from dragging nodes off screen (bounds check on update)

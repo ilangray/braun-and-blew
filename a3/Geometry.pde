@@ -178,3 +178,7 @@ class Rect {
   return ts;
 }
  
+// clamp like a champ --> "clampion"
+float clamp(float x, int min, int max) {
+  return min(max(x, min), max); 
+}

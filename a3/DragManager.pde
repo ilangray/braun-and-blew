@@ -22,8 +22,8 @@ void mousePressed() {
 
 void mouseDragged() {
   if (dragged != null) {
-    dragged.pos.x = mouseX;
-    dragged.pos.y = mouseY;  
+    dragged.pos.x = clamp(mouseX, 0, width);
+    dragged.pos.y = clamp(mouseY, 0, height);  
   }
 }
 

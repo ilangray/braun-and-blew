@@ -71,25 +71,24 @@ class Node {
 //    println(" -- prev point = " + prev + ", new = " + pos);
   }
   
+  private static final float COLLISION_SCALE = -0.8;
+  
   private void ensureInBounds() {
     if (pos.x < 0) {
       pos.x = 0;
-      vel.reset(); 
+      vel.x *= COLLISION_SCALE;
     }
-    
-    if (pos.x > width) {
-      pos.x = width;
-      vel.reset(); 
+    else if (pos.x > width) {
+      pos.x = width;      
+      vel.x *= COLLISION_SCALE;
     }
-    
-    if (pos.y < 0) {
+    else if (pos.y < 0) {
       pos.y = 0;
-      vel.reset(); 
+      vel.y *= COLLISION_SCALE;
     }
-    
-    if (pos.y > height) {
+    else if (pos.y > height) {
       pos.y = height;
-      vel.reset();
+      vel.y *= COLLISION_SCALE;
     } 
   }
   
