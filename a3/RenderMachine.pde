@@ -30,8 +30,14 @@ class RenderMachine {
     Point endA = s.endA.pos;
     Point endB = s.endB.pos;
    
-    stroke(SPRING_COLOR);
-    fill(SPRING_COLOR);
+    if (dist(endA.x, endA.y, endB.x, endB.y) < s.restLen) {
+      stroke(SPRING_COLOR);
+      fill(SPRING_COLOR);
+    } else {
+      stroke(color(0, 0, 255));
+      fill(color(0, 0, 255));
+    }
+    
     line(endA.x, endA.y, endB.x, endB.y); 
   }
   

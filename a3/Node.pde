@@ -57,8 +57,32 @@ class Node {
     
     Point prev = new Point(pos.x, pos.y);
     pos.add(vel.copy().scale(dt, dt));
-  
+    
+    ensureInBounds();
+    
     println(" -- prev point = " + prev + ", new = " + pos);
+  }
+  
+  private void ensureInBounds() {
+    if (pos.x < 0) {
+      pos.x = 0;
+      vel.reset(); 
+    }
+    
+    if (pos.x > width) {
+      pos.x = width;
+      vel.reset(); 
+    }
+    
+    if (pos.y < 0) {
+      pos.y = 0;
+      vel.reset(); 
+    }
+    
+    if (pos.y > height) {
+      pos.y = height;
+      vel.reset();
+    } 
   }
   
   public float getKineticEnergy() {

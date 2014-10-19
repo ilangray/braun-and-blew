@@ -1,7 +1,7 @@
 // This is what you think it is
 class Spring extends InterNodeForce {
   
-  private static final float K = 5f;
+  private static final float K = 0.000001f;
   
   public final double restLen;
   
@@ -15,6 +15,13 @@ class Spring extends InterNodeForce {
     println("restlen = " + restLen + ", curr dist = " + getDistance()); 
      
     Vector diff = new Vector(endA.pos, endB.pos);
+    
+    // ensure that the diff's mag is > 1
+    if (diff.getMagnitude() < 1) {
+      println(" __________ NORMALIZED TO GET MAG UP TO 1 _________________");
+      diff.normalize(); 
+    }
+    
     Vector force = diff.scale(-K, -K);
     
     println("magnitude of spring force = " + force.getMagnitude());

@@ -21,7 +21,8 @@ class Simulator {
     updatePositions(dt);
     
     println("ke = " + getKineticEnergy());
-    return getKineticEnergy() > RESTING_ENERGY;
+//    return getKineticEnergy() > RESTING_ENERGY;
+    return true;
   }
   
   private void aggregateForces() {
