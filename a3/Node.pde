@@ -74,20 +74,20 @@ class Node {
   private static final float COLLISION_SCALE = -0.8;
   
   private void ensureInBounds() {
-    if (pos.x < 0) {
-      pos.x = 0;
+    if (pos.x < radius) {
+      pos.x = radius;
       vel.x *= COLLISION_SCALE;
     }
-    else if (pos.x > width) {
-      pos.x = width;      
+    else if (pos.x > width - radius) {
+      pos.x = width - radius;      
       vel.x *= COLLISION_SCALE;
     }
-    else if (pos.y < 0) {
-      pos.y = 0;
+    else if (pos.y < radius) {
+      pos.y = radius;
       vel.y *= COLLISION_SCALE;
     }
-    else if (pos.y > height) {
-      pos.y = height;
+    else if (pos.y > height - radius) {
+      pos.y = height - radius;
       vel.y *= COLLISION_SCALE;
     } 
   }

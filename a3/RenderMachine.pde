@@ -60,6 +60,7 @@ class RenderMachine {
   }
   
   private void circle(Point center, float radius) {
+    ellipseMode(RADIUS);
     ellipse(center.x, center.y, radius, radius);
   }
 }
