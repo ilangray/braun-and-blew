@@ -1,3 +1,5 @@
 
-we did all of the additional requirements
 
+we did all of the additional requirements
+plus we also did tooltips. booyah
+plus edges are colored red/blue based on if they are expanded or contracted
