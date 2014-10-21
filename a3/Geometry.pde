@@ -12,10 +12,21 @@ class Point {
     this.x = x;
     this.y = y;
   }
+
+  public Point scale(float sx, float sy) {
+    this.x *= sx;
+    this.y *= sy; 
+  
+    return this;
+  }
   
   public void add(Vector v) {
     x += v.x;
     y += v.y; 
+  }
+
+  public Point diff(Point other) {
+    return new Point(other.x - x, other.y - y);
   }
   
   public Point offset(Point other) {
