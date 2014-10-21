@@ -8,6 +8,8 @@ CenterPusher cp;
 
 boolean done = false;
 
+boolean first = true;
+
 void setup() {
   size(600, 600);
   frame.setResizable(true);
@@ -27,14 +29,19 @@ float seconds(int ms) {
 }
 
 void draw() {
+  // yoloswag
+  if (first) {
+    rm.renderLabel(new Point(0,0), "hooha");
+    first = false; 
+  }
+  
   if (!done || dragged != null) {
     // update sim
     done = !sm.step(seconds(16));
-
-    cp.push();
-
-    render(); 
   }
+  
+  cp.push();
+  render();
 }
 
 void render() {

@@ -22,7 +22,7 @@ class RenderMachine {
   public void render() {
     renderSprings();
     renderNodes();
-    //renderLabels();
+    renderLabels();
   }
   
   private void renderSprings() {
@@ -52,7 +52,7 @@ class RenderMachine {
     } 
   }
   
-  private void renderLabels(){
+  public void renderLabels(){
     for (Node n : nodes) {
       if(n.containsPoint(mouseX, mouseY)) {
         String label = "Id: " + n.id + ", Mass: " + n.mass;
@@ -78,7 +78,7 @@ class RenderMachine {
   }
   
     // renders the given string as a label above the hitbox
-  private void renderLabel(Point p, String s) {
+  public void renderLabel(Point p, String s) {
     
      float x = p.x;
      float y = p.y;
