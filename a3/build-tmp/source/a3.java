@@ -265,8 +265,9 @@ public void mousePressed() {
 
 public void mouseDragged() {
   if (dragged != null) {
-    dragged.pos.x = clamp(mouseX, 0, width);
-    dragged.pos.y = clamp(mouseY, 0, height);  
+    float r = dragged.radius;
+    dragged.pos.x = clamp(mouseX, (int)r, (int)(width - r));
+    dragged.pos.y = clamp(mouseY, (int)r, (int)(height - r));  
   }
 }
 
