@@ -22,7 +22,7 @@ class RenderMachine {
   public void render() {
     renderSprings();
     renderNodes();
-    renderLabels();
+    //renderLabels();
   }
   
   private void renderSprings() {

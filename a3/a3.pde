@@ -4,6 +4,7 @@
 
 Simulator sm;
 RenderMachine rm;
+CenterPusher cp;
 
 boolean done = false;
 
@@ -17,6 +18,7 @@ void setup() {
   // configur renderer and simulator
   rm = new RenderMachine(w.nodes, w.springs);
   sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
+  cp = new CenterPusher(w.nodes);
 }
 
 // converts ms to seconds
@@ -25,14 +27,12 @@ float seconds(int ms) {
 }
 
 void draw() {
-  if (done) {
-    return; 
-  }
-  
-  // update sim
-  done = !sm.step(seconds(16));
-  
-  if (!done) {
+  if (!done || dragged != null) {
+    // update sim
+    done = !sm.step(seconds(16));
+
+    cp.push();
+
     render(); 
   }
 }

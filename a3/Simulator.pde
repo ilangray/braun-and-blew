@@ -48,7 +48,7 @@ class Simulator {
     for (Node n : nodes) {
       total += n.getKineticEnergy(); 
     }
-    
+        
     return total;
   }
   

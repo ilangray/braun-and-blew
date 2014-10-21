@@ -55,6 +55,7 @@ class Node {
   
   public void updatePosition(float dt) {
     if (fixed) { 
+      netForce.reset();  // Shouldn't accumulate forces if fixed
       return;
     }
     
@@ -68,7 +69,7 @@ class Node {
     
     ensureInBounds();
     
-//    println(" -- prev point = " + prev + ", new = " + pos);
+   // println(" -- prev point = " + prev + ", new = " + pos);
   }
   
   private static final float COLLISION_SCALE = -0.8;
@@ -82,7 +83,8 @@ class Node {
       pos.x = width - radius;      
       vel.x *= COLLISION_SCALE;
     }
-    else if (pos.y < radius) {
+    
+    if (pos.y < radius) {
       pos.y = radius;
       vel.y *= COLLISION_SCALE;
     }
@@ -94,6 +96,8 @@ class Node {
   
   public float getKineticEnergy() {
     float speed = vel.getMagnitude();
-    return 0.5f * mass * speed*speed;   // 0.5 m * (v^2)
+    float ke = 0.5f * mass * speed*speed;
+    println("ke = " + ke + ", speed = " + speed);
+    return ke;   // 0.5 m * (v^2)
   }
 }
