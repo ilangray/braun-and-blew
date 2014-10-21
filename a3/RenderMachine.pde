@@ -4,6 +4,8 @@
  */
 class RenderMachine {
   
+  private final int TEXT_SIZE = 14;
+  
   private final int EMPTY_NODE_COLOR = color(0,0,0);
   private final int MOUSED_NODE_COLOR = color(0, 255, 0);
   
@@ -20,6 +22,7 @@ class RenderMachine {
   public void render() {
     renderSprings();
     renderNodes();
+    renderLabels();
   }
   
   private void renderSprings() {
@@ -49,6 +52,15 @@ class RenderMachine {
     } 
   }
   
+  private void renderLabels(){
+    for (Node n : nodes) {
+      if(n.containsPoint(mouseX, mouseY)) {
+        String label = "Id: " + n.id + ", Mass: " + n.mass;
+        renderLabel(n.pos, label);
+      }
+    }
+  }
+  
   private int getNodeColor(Node n) {
     return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
   }
@@ -59,8 +71,32 @@ class RenderMachine {
     circle(n.pos, n.radius);
   }
   
+  
   private void circle(Point center, float radius) {
     ellipseMode(RADIUS);
     ellipse(center.x, center.y, radius, radius);
   }
+  
+    // renders the given string as a label above the hitbox
+  private void renderLabel(Point p, String s) {
+    
+     float x = p.x;
+     float y = p.y;
+     
+     // set font size because text measurements depend on it
+     textSize(TEXT_SIZE);
+     
+     // bounding rectangle
+     float w = textWidth(s) * 1.1;
+     float h = TEXT_SIZE * 1.3;
+     fill(255,255,255, 200);
+     noStroke();
+     Rect r = new Rect(x - w/2, y - h, w, h);
+     rect(r.x, r.y, r.w, r.h, 3);
+     
+     // text 
+     textAlign(CENTER, BOTTOM);
+     fill(color(0,0,0));
+     text(s, x, y);
+   }
 }

@@ -5,7 +5,7 @@
  */
 class Damper implements ForceSource {
 
-  private static final float K = 1.0f;
+  private static final float K = 1.5f;
 
   private final Node node;
 
