@@ -3,6 +3,8 @@ import processing.data.*;
 import processing.event.*; 
 import processing.opengl.*; 
 
+import java.lang.*; 
+
 import java.util.HashMap; 
 import java.util.ArrayList; 
 import java.io.File; 
@@ -24,6 +26,8 @@ CenterPusher cp;
 
 boolean done = false;
 
+boolean first = true;
+
 public void setup() {
   size(600, 600);
   frame.setResizable(true);
@@ -43,14 +47,19 @@ public float seconds(int ms) {
 }
 
 public void draw() {
+  // yoloswag
+  if (first) {
+    rm.renderLabel(new Point(0,0), "hooha");
+    first = false; 
+  }
+  
   if (!done || dragged != null) {
     // update sim
     done = !sm.step(seconds(16));
-
-    cp.push();
-
-    render(); 
   }
+  
+  cp.push();
+  render();
 }
 
 public void render() {
@@ -166,7 +175,7 @@ class Configurator {
  */
 class Damper implements ForceSource {
 
-  private static final float K = 1.5f;
+  private static final float K = 1.0f;
 
   private final Node node;
 
@@ -502,9 +511,11 @@ class Rect {
 public float clamp(float x, int min, int max) {
   return min(max(x, min), max); 
 }
+
+
 class Node {
-  public final Point pos = new Point();
-  public final Vector vel = new Vector();
+  public Point pos = new Point();
+  public Vector vel = new Vector();
   
   private final Vector netForce = new Vector();
   private Vector acc;
@@ -581,10 +592,12 @@ class Node {
   private void ensureInBounds() {
     if (pos.x < radius) {
       pos.x = radius;
+  
       vel.x *= COLLISION_SCALE;
     }
     else if (pos.x > width - radius) {
-      pos.x = width - radius;      
+      pos.x = width - radius;   
+         
       vel.x *= COLLISION_SCALE;
     }
     
@@ -596,12 +609,23 @@ class Node {
       pos.y = height - radius;
       vel.y *= COLLISION_SCALE;
     } 
+
+    Float p1 = new Float(pos.x);
+    Float p2 = new Float(pos.y);
+    Float v1 = new Float(vel.x);
+    Float v2 = new Float(vel.y);
+
+    // If anything is NaN -- make new Point and Velocity
+    if (p1.isNaN(p1) || p2.isNaN(p2) ||
+        v1.isNaN(v1) || v2.isNaN(v2)) {
+        pos = new Point(random(width), random(height));  // Place new point randomly
+        vel = new Vector(0.0f, 0.0f);  // Start it out with no movement
+    }
   }
   
   public float getKineticEnergy() {
     float speed = vel.getMagnitude();
     float ke = 0.5f * mass * speed*speed;
-    println("ke = " + ke + ", speed = " + speed);
     return ke;   // 0.5 m * (v^2)
   }
 }
@@ -616,7 +640,7 @@ class RenderMachine {
   private final int EMPTY_NODE_COLOR = color(0,0,0);
   private final int MOUSED_NODE_COLOR = color(0, 255, 0);
   
-  private final int SPRING_COLOR = color(255,0,0);
+  private final int SPRING_COLOR = color(0,0,255);
   
   private final ArrayList<Node> nodes;
   private final ArrayList<Spring> springs;
@@ -629,7 +653,7 @@ class RenderMachine {
   public void render() {
     renderSprings();
     renderNodes();
-    //renderLabels();
+    renderLabels();
   }
   
   private void renderSprings() {
@@ -642,13 +666,8 @@ class RenderMachine {
     Point endA = s.endA.pos;
     Point endB = s.endB.pos;
    
-    if (dist(endA.x, endA.y, endB.x, endB.y) < s.restLen) {
-      stroke(SPRING_COLOR);
-      fill(SPRING_COLOR);
-    } else {
-      stroke(color(0, 0, 255));
-      fill(color(0, 0, 255));
-    }
+    stroke(SPRING_COLOR);
+    fill(SPRING_COLOR);
     
     line(endA.x, endA.y, endB.x, endB.y); 
   }
@@ -659,7 +678,7 @@ class RenderMachine {
     } 
   }
   
-  private void renderLabels(){
+  public void renderLabels(){
     for (Node n : nodes) {
       if(n.containsPoint(mouseX, mouseY)) {
         String label = "Id: " + n.id + ", Mass: " + n.mass;
@@ -685,7 +704,7 @@ class RenderMachine {
   }
   
     // renders the given string as a label above the hitbox
-  private void renderLabel(Point p, String s) {
+  public void renderLabel(Point p, String s) {
     
      float x = p.x;
      float y = p.y;
@@ -817,7 +836,8 @@ class Spring extends InterNodeForce {
 // Instances of Coluomb laws
 class Zap extends InterNodeForce {
  
-  private static final float K = 100000f;
+  //private static final float K = 100000f;
+   private static final float K = 1000000f;
   
   public Zap(Node endA, Node endB) {
     super(endA, endB);
@@ -830,7 +850,7 @@ class Zap extends InterNodeForce {
     r = max(1, r);
 
     // compute the magnitude of the coulombs force
-    float mag = K * endA.mass * endB.mass / (r*r);
+    float mag = K / (r*r);
     
     // normalize to extract direction, then scale by mag
     Vector force = new Vector(endA.pos, endB.pos).normalize().scale(mag, mag);

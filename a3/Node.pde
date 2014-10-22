@@ -1,6 +1,8 @@
+import java.lang.*;
+
 class Node {
-  public final Point pos = new Point();
-  public final Vector vel = new Vector();
+  public Point pos = new Point();
+  public Vector vel = new Vector();
   
   private final Vector netForce = new Vector();
   private Vector acc;
@@ -77,10 +79,12 @@ class Node {
   private void ensureInBounds() {
     if (pos.x < radius) {
       pos.x = radius;
+  
       vel.x *= COLLISION_SCALE;
     }
     else if (pos.x > width - radius) {
-      pos.x = width - radius;      
+      pos.x = width - radius;   
+         
       vel.x *= COLLISION_SCALE;
     }
     
@@ -92,6 +96,18 @@ class Node {
       pos.y = height - radius;
       vel.y *= COLLISION_SCALE;
     } 
+
+    Float p1 = new Float(pos.x);
+    Float p2 = new Float(pos.y);
+    Float v1 = new Float(vel.x);
+    Float v2 = new Float(vel.y);
+
+    // If anything is NaN -- make new Point and Velocity
+    if (p1.isNaN(p1) || p2.isNaN(p2) ||
+        v1.isNaN(v1) || v2.isNaN(v2)) {
+        pos = new Point(random(width), random(height));  // Place new point randomly
+        vel = new Vector(0.0, 0.0);  // Start it out with no movement
+    }
   }
   
   public float getKineticEnergy() {
