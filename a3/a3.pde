@@ -10,8 +10,13 @@ boolean done = false;
 
 boolean first = true;
 
+int previous_w;
+int previous_h;
+
 void setup() {
   size(600, 600);
+  previous_w = width;
+  previous_h = height;
   frame.setResizable(true);
  
   // read data
@@ -35,13 +40,16 @@ void draw() {
     first = false; 
   }
   
-  if (!done || dragged != null) {
+  if (!done || dragged != null || previous_w != width || previous_h != height) {
     // update sim
     done = !sm.step(seconds(16));
   }
   
   cp.push();
   render();
+  
+  previous_w = width;
+  previous_h = height;
 }
 
 void render() {
