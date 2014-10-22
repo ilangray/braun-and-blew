@@ -14,7 +14,7 @@ class Zap extends InterNodeForce {
     r = max(1, r);
 
     // compute the magnitude of the coulombs force
-    float mag = K * endA.mass * endB.mass / (r*r);
+    float mag = K / (r*r);
     
     // normalize to extract direction, then scale by mag
     Vector force = new Vector(endA.pos, endB.pos).normalize().scale(mag, mag);

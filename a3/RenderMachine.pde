@@ -9,7 +9,7 @@ class RenderMachine {
   private final int EMPTY_NODE_COLOR = color(0,0,0);
   private final int MOUSED_NODE_COLOR = color(0, 255, 0);
   
-  private final int SPRING_COLOR = color(255,0,0);
+  private final int SPRING_COLOR = color(0,0,255);
   
   private final ArrayList<Node> nodes;
   private final ArrayList<Spring> springs;
@@ -35,13 +35,8 @@ class RenderMachine {
     Point endA = s.endA.pos;
     Point endB = s.endB.pos;
    
-    if (dist(endA.x, endA.y, endB.x, endB.y) < s.restLen) {
-      stroke(SPRING_COLOR);
-      fill(SPRING_COLOR);
-    } else {
-      stroke(color(0, 0, 255));
-      fill(color(0, 0, 255));
-    }
+    stroke(SPRING_COLOR);
+    fill(SPRING_COLOR);
     
     line(endA.x, endA.y, endB.x, endB.y); 
   }
