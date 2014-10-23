@@ -14,7 +14,7 @@ int previous_w;
 int previous_h;
 
 void setup() {
-  size(600, 600);
+  size(800, 600);
   previous_w = width;
   previous_h = height;
   frame.setResizable(true);
