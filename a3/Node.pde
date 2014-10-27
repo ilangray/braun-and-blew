@@ -26,7 +26,7 @@ class Node {
   
   // f = m * a --> a = f / m
   private void updateAcceleration(float dt) {
-//    println("applying netforce = " + netForce);
+//    println("node = " + id + ", netforce = " + netForce);
     
     Vector prev = acc;
     

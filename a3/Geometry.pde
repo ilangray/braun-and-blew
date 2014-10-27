@@ -79,9 +79,7 @@ class Vector {
  
   public Vector normalize() {
      float mag = getMagnitude();
-     scale(1.0f/mag, 1.0f/mag);
-    
-     return this;
+     return scale(1.0f/mag, 1.0f/mag);
   }
  
   public float getMagnitude() {
@@ -90,9 +88,7 @@ class Vector {
  
   // switches the direction of the force
   public Vector reverse() {
-    scale(-1, -1);
-    
-    return this;
+    return scale(-1, -1);
   }
   
   public Vector scale(float sx, float sy) {

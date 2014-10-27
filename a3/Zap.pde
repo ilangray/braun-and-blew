@@ -1,8 +1,7 @@
 // Instances of Coluomb laws
 class Zap extends InterNodeForce {
- 
-  //private static final float K = 100000f;
-   private static final float K = 1000000f;
+
+  private static final float K = 100f;
   
   public Zap(Node endA, Node endB) {
     super(endA, endB);
