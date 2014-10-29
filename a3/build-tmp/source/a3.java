@@ -28,12 +28,17 @@ boolean done = false;
 
 boolean first = true;
 
+int previous_w;
+int previous_h;
+
 public void setup() {
-  size(600, 600);
+  size(800, 600);
+  previous_w = width;
+  previous_h = height;
   frame.setResizable(true);
  
   // read data
-  DieWelt w = new Configurator("data.csv").configure();
+  DieWelt w = new Configurator("connected-9.csv").configure();
   
   // configur renderer and simulator
   rm = new RenderMachine(w.nodes, w.springs);
@@ -53,13 +58,16 @@ public void draw() {
     first = false; 
   }
   
-  if (!done || dragged != null) {
+  if (!done || dragged != null || previous_w != width || previous_h != height) {
     // update sim
     done = !sm.step(seconds(16));
   }
   
   cp.push();
   render();
+  
+  previous_w = width;
+  previous_h = height;
 }
 
 public void render() {
@@ -175,7 +183,7 @@ class Configurator {
  */
 class Damper implements ForceSource {
 
-  private static final float K = 1.0f;
+  private static final float K = 0.5f;
 
   private final Node node;
 
@@ -397,9 +405,7 @@ class Vector {
  
   public Vector normalize() {
      float mag = getMagnitude();
-     scale(1.0f/mag, 1.0f/mag);
-    
-     return this;
+     return scale(1.0f/mag, 1.0f/mag);
   }
  
   public float getMagnitude() {
@@ -408,9 +414,7 @@ class Vector {
  
   // switches the direction of the force
   public Vector reverse() {
-    scale(-1, -1);
-    
-    return this;
+    return scale(-1, -1);
   }
   
   public Vector scale(float sx, float sy) {
@@ -539,7 +543,7 @@ class Node {
   
   // f = m * a --> a = f / m
   private void updateAcceleration(float dt) {
-//    println("applying netforce = " + netForce);
+//    println("node = " + id + ", netforce = " + netForce);
     
     Vector prev = acc;
     
@@ -729,7 +733,7 @@ class RenderMachine {
 // Runs the simulation
 class Simulator {
   
-  private static final float RESTING_ENERGY = 500;
+  private static final float RESTING_ENERGY = 200;
   
   private final ArrayList<Node> nodes;
   private final ArrayList<Spring> springs;
@@ -750,6 +754,7 @@ class Simulator {
     
 //    println("ke = " + getKineticEnergy());
     return getKineticEnergy() > RESTING_ENERGY;
+//    return true;
   }
   
   private void aggregateForces() {
@@ -797,9 +802,9 @@ class Spring extends InterNodeForce {
   
   private static final float K = 2f;
   
-  public final double restLen;
+  public final float restLen;
   
-  public Spring(Node endA, Node endB, double restLen) {
+  public Spring(Node endA, Node endB, float restLen) {
     super(endA, endB);
     this.restLen = restLen;
   }
@@ -807,27 +812,37 @@ class Spring extends InterNodeForce {
   public void applyForce() {
     // force is proportional to the diff between restLen and current idst 
 //    println("restlen = " + restLen + ", curr dist = " + getDistance()); 
-     
+    
+    // a vector from A --> B
     Vector diff = new Vector(endA.pos, endB.pos);
     
+    // compute the current distance
+    float dist = diff.getMagnitude();
+    // compute dx, which is what the force depends on
+    float dx = Math.abs(dist - restLen);
+    
+    // a vector containing just the direction component of A --> B 
+    Vector dir = diff.copy().normalize();
+    
     // ensure that the diff's mag is > 1
-    if (diff.getMagnitude() < 1) {
+//    if (diff.getMagnitude() < 1) {
 //      println(" __________ NORMALIZED TO GET MAG UP TO 1 _________________");
-      diff.normalize(); 
-    }
+//      diff.normalize(); 
+//    }
     
-    Vector force = diff.scale(-K, -K);
-    
-//    println("magnitude of spring force = " + force.getMagnitude());
+//    Vector force = diff.copy().scale(-K, -K);
+
+    Vector force = dir.copy().scale(-K * dx, -K * dx);    
+//    println("spring btwn = [" + endA.id + ", " + endB.id + "], dist = " + dist + ", dx = " + dx + ", force = " + force + ", force mag = " + force.getMagnitude());
     
     if (restLen < getDistance()) {
-//      println("INWARDS");
-      // forces go INWARDS 
+      // forces go INWARDS
+      
       endB.addForce(force);
       endA.addForce(force.reverse());  
     } else {
-//      println("OUTWARDS");
       // forces go OUTWARDS
+      
       endA.addForce(force);
       endB.addForce(force.reverse());
     }
@@ -835,9 +850,8 @@ class Spring extends InterNodeForce {
 }
 // Instances of Coluomb laws
 class Zap extends InterNodeForce {
- 
-  //private static final float K = 100000f;
-   private static final float K = 1000000f;
+
+  private static final float K = 100000f;
   
   public Zap(Node endA, Node endB) {
     super(endA, endB);
