@@ -1,8 +1,8 @@
 
 class Datum {
   
-  String[] keys;
-  float[] values;
+  private String[] keys;
+  private float[] values;
   
   public Datum(String[] keys, float[] values) {
     this.keys = keys;
@@ -17,6 +17,7 @@ class Datum {
     return values[getIndex(k)];
   }
   
+  // returns the index of the given key
   private int getIndex(String k) {
     for (int i = 0; i < keys.length; i++) {
       if (keys[i].equals(k)) {
@@ -26,7 +27,12 @@ class Datum {
     
     return -1;
   } 
+
+  public String toString() {
+    return "Datum{keys = " + keyString() + ", values = " + valueString() + "}";
+  }
   
+  // toString nastiness
   private String keyString() {
     String s = "";
    
@@ -55,7 +61,4 @@ class Datum {
     return s; 
   }
   
-  public String toString() {
-    return "Datum{keys = " + keyString() + ", values = " + valueString() + "}";
-  }
 }

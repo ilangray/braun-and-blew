@@ -8,8 +8,6 @@ class Axis {
   private final int numTicks = 10;
   //private float PERCENT_PADDING = .1;
   
-  
-  
   public Axis(ArrayList<Datum> ds, String dim, float xVal){
     this.datums = ds;
     this.dimension = dim;
@@ -26,6 +24,10 @@ class Axis {
       }
     }
 
+  }
+  
+  public void setXCoordinate(float x) {
+    this.xCoordinate = x;
   }
   
   Point getPoint(Datum d){
