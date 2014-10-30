@@ -2,16 +2,16 @@
 class Kontroller {
   
   private final ArrayList<Datum> data;
-  private final Bar bar;
-  private final FDG fdg;
-  private final Line line;
+//  private final Bar bar;
+//  private final FDG fdg;
+//  private final Line line;
   
   public Kontroller(ArrayList<Datum> data) {
     this.data = data;
     
-    this.bar = null;
-    this.fdg = null;
-    this.line = null;
+//    this.bar = null;
+//    this.fdg = null;
+//    this.line = null;
   } 
   
   public void render() {
@@ -20,14 +20,14 @@ class Kontroller {
     // mouse over
     Datum mousedOver = getMousedOverDatum();
     if (mousedOver != null) {
-      mousedOver.setSelected(true); 
+      mousedOver.setMarked(true); 
     }
     
     // render:
     updateGraphPositions();
-    bar.render();
-    line.render();
-    fdg.render(); 
+//    bar.render();
+//    line.render();
+//    fdg.render(); 
   }
   
   // repositions the graphs based on the current width/height of the screen
@@ -45,13 +45,13 @@ class Kontroller {
   
   private void selectData(ArrayList<Datum> toSelect) {
     for (Datum d : toSelect) {
-      d.setSelected(true);
+      d.setMarked(true);
     } 
   }
   
   private void deselectAllData() {
     for (Datum d : data) {
-      d.setSelected(false);
+      d.setMarked(false);
     } 
   }
   
