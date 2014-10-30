@@ -1,7 +1,7 @@
 
 class Axis {
   private ArrayList<Datum> datums;
-  private String dimension;
+  public String dimension;
   public float xCoordinate;
   private final float maxVal;
   private final float minVal;
