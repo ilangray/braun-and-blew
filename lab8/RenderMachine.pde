@@ -2,7 +2,7 @@
 class RenderMachine {
   
   private final ArrayList<Datum> ds;
-  private final Axis[] axes
+  private final Axis[] axes;
   
   public RenderMachine(ArrayList<Datum> ds, Axis[] axes) {
     this.ds = ds;
@@ -21,7 +21,6 @@ class RenderMachine {
       renderProperty(d, i);
     }
   }
-  
   
   // renders a line from d.getValue(d.getKeys[propIndex]) to d.getValue(d.getKeys[propIndex+1])
   private void renderProperty(Datum d, int propIndex) {

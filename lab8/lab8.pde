@@ -8,10 +8,12 @@ RenderMachine rm = null;
 Axis[] axes = null;
 
 void setup(){
+  size(600, 600);
+  
   data = new Reader().read(FILENAME);
   
   String[] keys = data.get(0).getKeys(); 
-  int dimens = keys.length
+  int dimens = keys.length;
   
   axes = new Axis[dimens];
   for (int i = 0; i < dimens; i++) {
@@ -40,11 +42,11 @@ void positionAxes() {
   int w = width;
   int dimens = axes.length;
   
-  int unitWidth = w / dimens;
+  int unitWidth = w / (dimens - 1);
   int left = 0;
   
   for (Axis axis : axes) {
-    axis.x = left;
+    axis.setXCoordinate(left);
     left += unitWidth;
   }
 }
