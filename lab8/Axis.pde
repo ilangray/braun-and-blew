@@ -3,11 +3,9 @@ class Axis {
   private ArrayList<Datum> datums;
   private String dimension;
   public float xCoordinate;
-  private final float maxVal;
-  private final float minVal;
+  private float maxVal;
+  private float minVal;
   private final int numTicks = 10;
-  
-  
   
   public Axis(ArrayList<Datum> ds, String dim, float xVal){
     this.datums = ds;
@@ -27,8 +25,12 @@ class Axis {
 
   }
   
+  public void setXCoordinate(float x) {
+    this.xCoordinate = x;
+  }
+  
   Point getPoint(Datum d){
-    
+    return null; 
   }
   
   
