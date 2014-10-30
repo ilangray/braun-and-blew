@@ -8,7 +8,7 @@ public class Datum {
 	public final String protocol;
 	private boolean marked = false;
 
-	public Datum (String time, String destIP, String sIP, 
+	public Datum (String time, String destIP, String sourceIP, 
 		String destPort, String operation, String priority, String protocol) {	
 
 		this.time = time;	
