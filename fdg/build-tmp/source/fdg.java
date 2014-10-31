@@ -14,7 +14,7 @@ import java.io.InputStream;
 import java.io.OutputStream; 
 import java.io.IOException; 
 
-public class a3 extends PApplet {
+public class fdg extends PApplet {
 
 
 // this is awesome. lets do some physics yolo swag
@@ -903,7 +903,7 @@ class Zap extends InterNodeForce {
   }
 }
   static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "a3" };
+    String[] appletArgs = new String[] { "fdg" };
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
     } else {
