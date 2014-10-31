@@ -20,7 +20,7 @@ class Kontroller {
     // mouse over
     Datum mousedOver = getMousedOverDatum();
     if (mousedOver != null) {
-      mousedOver.setMarked(true); 
+      mousedOver.setSelected(true); 
     }
     
     // render:
@@ -37,21 +37,25 @@ class Kontroller {
   
   // returns the datum currently moused-over, or null if none.
   private Datum getMousedOverDatum() {
+    Datum mousedOver = null;
     
+    // ask each graph what Datum is moused over
+//    mouseOver = bar.getMousedOverDatum();
+//    mouseOver = line.getMousedOverDatum();
+//    mouseOver = fdg.getMousedOverDatum();
     
-    
-    return null;
+    return mousedOver;
   }
   
   private void selectData(ArrayList<Datum> toSelect) {
     for (Datum d : toSelect) {
-      d.setMarked(true);
+      d.setSelected(true);
     } 
   }
   
   private void deselectAllData() {
     for (Datum d : data) {
-      d.setMarked(false);
+      d.setSelected(false);
     } 
   }
   
