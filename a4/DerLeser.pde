@@ -9,12 +9,15 @@ public class DerLeser {
 		ArrayList<Datum> toReturn = new ArrayList<Datum>();
 		String[] lines = loadStrings(fileName);
 
+		int counter = 0;
 		for (String l : lines) {
 			if (l.startsWith("Time")) {  // Header
 				continue;
 			}
 
-			toReturn.add(createDatum(l));
+			toReturn.add(createDatum(l, counter));
+
+			counter++;
 		}
 
 		return toReturn;
@@ -22,15 +25,16 @@ public class DerLeser {
 
 
 	// Takes in a string that is comma-separated Datum and makes Datum
-	private Datum createDatum(String l) {
+	private Datum createDatum(String l, int counter) {
 		String[] listL = split(l, ",");
 
-		return new Datum(listL[0], listL[3], listL[1], listL[4], 
+		return new Datum(counter, listL[0], listL[3], listL[1], listL[4], 
 			listL[6], listL[5], listL[7]);
 	}
 
 	public void tPrintOne(ArrayList<Datum> d) {
-		Datum dat = d.get(0);
+		Datum dat = d.get(100);
+		println("id = " + dat.id);
 		println("time = " + dat.time);
 		println("destIP = " + dat.destIP);
 		println("sourceIP = " + dat.sourceIP);

@@ -1,4 +1,5 @@
 public class Datum {
+	public final int id;
 	public final String time;	
 	public final String destIP;	
 	public final String sourceIP;
@@ -8,9 +9,10 @@ public class Datum {
 	public final String protocol;
 	private boolean marked = false;
 
-	public Datum (String time, String destIP, String sourceIP, 
+	public Datum (int id, String time, String destIP, String sourceIP, 
 		String destPort, String operation, String priority, String protocol) {	
-
+		
+		this.id = id;
 		this.time = time;	
 		this.destIP = destIP;	
 		this.sourceIP = sourceIP;
