@@ -1,10 +1,11 @@
 
+String FILENAME = "data_aggregate.csv";
 Kontroller kontroller;
 
 void setup() {
   size(600, 400);	
   
-  ArrayList<Datum> data = new DerLeser("data_aggregate.csv").readIn();
+  ArrayList<Datum> data = new DerLeser(FILENAME).readIn();
   kontroller = new Kontroller(data);
 }
 
