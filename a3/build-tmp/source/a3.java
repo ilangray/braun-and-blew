@@ -23,6 +23,7 @@ public class a3 extends PApplet {
 Simulator sm;
 RenderMachine rm;
 CenterPusher cp;
+Rect halfBounds;
 
 boolean done = false;
 
@@ -32,16 +33,17 @@ int previous_w;
 int previous_h;
 
 public void setup() {
-  size(800, 600);
+  size(1400, 800);
   previous_w = width;
   previous_h = height;
   frame.setResizable(true);
  
   // read data
-  DieWelt w = new Configurator("connected-9.csv").configure();
+  DieWelt w = new Configurator("data.csv").configure();
   
   // configur renderer and simulator
   rm = new RenderMachine(w.nodes, w.springs);
+  rm.setAllBounds(halfBounds);
   sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
   cp = new CenterPusher(w.nodes);
 }
@@ -529,11 +531,23 @@ class Node {
   public final float radius;
   
   public boolean fixed = false;
+
+  public Rect bounds;
   
   public Node(int id, float mass) {
     this.id = id;
     this.mass = mass;
     this.radius = sqrt(mass / PI) * 10;
+
+    this.bounds = new Rect(0, 0, width, height);
+  }
+
+  public Rect getBounds() {
+    return bounds;
+  }
+
+  public void setBounds(Rect r) {
+    bounds = r;
   }
   
   public void addForce(Vector f) {
@@ -594,23 +608,31 @@ class Node {
   private static final float COLLISION_SCALE = -0.8f;
   
   private void ensureInBounds() {
-    if (pos.x < radius) {
-      pos.x = radius;
+    if (bounds == null) {
+      bounds = new Rect(0, 0, width, height);
+    }
+
+    float xMin = bounds.x + radius;
+    float xMax = bounds.w + bounds.x - radius;
+    float yMin = bounds.y + radius;
+    float yMax = (bounds.h + bounds.y) - radius;
+    if (pos.x < xMin) {
+      pos.x = xMin;
   
       vel.x *= COLLISION_SCALE;
     }
-    else if (pos.x > width - radius) {
-      pos.x = width - radius;   
+    else if (pos.x > xMax) {
+      pos.x = xMax;   
          
       vel.x *= COLLISION_SCALE;
     }
     
-    if (pos.y < radius) {
-      pos.y = radius;
+    if (pos.y < yMin) {
+      pos.y = yMin;
       vel.y *= COLLISION_SCALE;
     }
-    else if (pos.y > height - radius) {
-      pos.y = height - radius;
+    else if (pos.y > yMax) {
+      pos.y = yMax;
       vel.y *= COLLISION_SCALE;
     } 
 
@@ -653,6 +675,12 @@ class RenderMachine {
     this.nodes = nodes;
     this.springs = springs;
   } 
+
+  public void setAllBounds(Rect r) {
+    for (Node n : nodes) {
+      n.setBounds(r);
+    }
+  }
   
   public void render() {
     renderSprings();

@@ -18,6 +18,12 @@ class RenderMachine {
     this.nodes = nodes;
     this.springs = springs;
   } 
+
+  public void setAllBounds(Rect r) {
+    for (Node n : nodes) {
+      n.setBounds(r);
+    }
+  }
   
   public void render() {
     renderSprings();

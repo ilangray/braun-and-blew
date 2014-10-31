@@ -5,6 +5,7 @@
 Simulator sm;
 RenderMachine rm;
 CenterPusher cp;
+Rect halfBounds;
 
 boolean done = false;
 
@@ -14,16 +15,17 @@ int previous_w;
 int previous_h;
 
 void setup() {
-  size(800, 600);
+  size(1400, 800);
   previous_w = width;
   previous_h = height;
   frame.setResizable(true);
  
   // read data
-  DieWelt w = new Configurator("connected-9.csv").configure();
+  DieWelt w = new Configurator("data.csv").configure();
   
   // configur renderer and simulator
   rm = new RenderMachine(w.nodes, w.springs);
+  rm.setAllBounds(halfBounds);
   sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
   cp = new CenterPusher(w.nodes);
 }
