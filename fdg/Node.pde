@@ -13,14 +13,12 @@ class Node {
   
   public boolean fixed = false;
 
-  public Rect bounds;
+  private Rect bounds = new Rect(0, 0, width, height); // Default val
   
   public Node(int id, float mass) {
     this.id = id;
     this.mass = mass;
     this.radius = sqrt(mass / PI) * 10;
-
-    this.bounds = new Rect(0, 0, width, height);
   }
 
   public Rect getBounds() {

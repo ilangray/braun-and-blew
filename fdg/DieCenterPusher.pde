@@ -3,15 +3,17 @@
  	private static final float PERCENT_DIST = 0.01;
 
  	private final ArrayList<Node> nodes;
+ 	private Rect bounds;
 
- 	public CenterPusher(ArrayList<Node> nodes) {
+ 	public CenterPusher(ArrayList<Node> nodes, Rect bounds) {
  		this.nodes = nodes;
+ 		this.bounds = bounds;
  	}
 
  	public void push() {
- 		if (dragged != null) {
- 			return;
- 		}
+ 		// if (dragged != null) {
+ 		// 	return;
+ 		// }
 
  		applyOffset(getOffset(getBounds()));
  	}

@@ -1,0 +1,5 @@
+class Datum {
+	public Datum() {
+		
+	}
+}
