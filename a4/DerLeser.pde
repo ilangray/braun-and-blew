@@ -1,3 +1,4 @@
+// reader
 public class DerLeser {
 	private final String fileName;
 
