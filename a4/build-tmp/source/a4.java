@@ -4,6 +4,8 @@ import processing.event.*;
 import processing.opengl.*; 
 
 import java.util.*; 
+import java.util.*; 
+import java.util.*; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -65,6 +67,118 @@ abstract class AbstractView {
 	// mouse, or an empty ArrayList if no such datum exists
 	public abstract ArrayList<Datum> getHoveredDatums();
 
+}
+
+// buckets datums by a pair of properties
+// buckets are indexed by either (col,row) or a
+// pair of values for the properties
+class Bucketizer{
+
+	private final ArrayList<Datum> data;
+
+	private final String xProperty;
+	private final String yProperty;
+
+	private final ArrayList<String> xValues;
+	private final ArrayList<String> yValues;
+
+	private final DatumGrid grid;
+
+	private final int maxCount;
+
+	public Bucketizer(ArrayList<Datum> data, String xProperty, String yProperty){
+		this.data = data;
+
+		this.xProperty = xProperty;
+		this.yProperty = yProperty;
+
+		this.xValues = getUniqueValues(data, xProperty);
+		this.yValues = getUniqueValues(data, yProperty);
+
+		this.grid = initGrid();
+		this.maxCount = computeMaxCount();
+	}
+
+	private DatumGrid initGrid() {
+		DatumGrid grid = new DatumGrid(xValues.size(), yValues.size());
+
+		// add everything into the grid
+		for (Datum d : data) {
+			addToGrid(grid, d);
+		}
+
+		return grid;
+	}
+
+	private void addToGrid(DatumGrid grid, Datum d) {
+		// figure out where it should be
+		String xValue = d.getValue(xProperty);
+		String yValue = d.getValue(yProperty);
+
+		int c = xValues.indexOf(xValue);
+		int r = yValues.indexOf(yValue);
+		
+		// grab the ArrayList thats already there
+		ArrayList<Datum> ds = grid.get(c, r);
+
+		// construct if need be
+		if (ds == null) {
+			ds = new ArrayList<Datum>();
+		}
+
+		// add teh datum to the list
+		ds.add(d);
+
+		// put the (new) list back in the grid
+		grid.put(c, r, ds);
+	}
+
+	private int computeMaxCount() {
+		int maxCount = 0;
+		for (int r = 0; r < grid.getHeight(); r++) {
+			for (int c = 0; c < grid.getWidth(); c++) {
+				maxCount = Math.max(maxCount, getCount(c, r));
+			}
+		}
+		return maxCount;
+	}
+
+	public ArrayList<Datum> getDatums(int col, int row) {
+		ArrayList<Datum> ds = grid.get(col, row);
+
+		if (ds == null) {
+			return new ArrayList();
+		} else {
+			return ds;
+		}
+	}
+
+	public int getCount(int col, int row) {
+		return getDatums(col, row).size();
+	}
+
+	public int getMaxCount() {
+		return maxCount;
+	}
+
+	public ArrayList<String> getXValues() {
+		return xValues;
+	}
+
+	public ArrayList<String> getYValues() {
+		return yValues;
+	}	
+
+	// returns all of the unique values for the property on the data
+	private ArrayList<String> getUniqueValues(ArrayList<Datum> data, String property) {
+		HashSet<String> vals = new HashSet<String>();
+
+		for (Datum d : data) {
+			vals.add(d.getValue(property));
+		}
+
+		return new ArrayList<String>(vals);
+	}
 }
 
 
@@ -347,6 +461,10 @@ class Point {
   public String toString() {
     return "Point{x = " + x + ", y = " + y + "}"; 
   }
+
+  public int hashCode() {
+    return (int)Math.pow(x, y);
+  }
 }
 
 class Vector {
@@ -483,78 +601,253 @@ class Rect implements Shape {
 
   return ts;
 }
+
+<T> ArrayList<T> flatten(ArrayList<T>... lists) {
+  ArrayList<T> master = new ArrayList<T>();
+
+  for (ArrayList<T> list : lists) {
+    master.addAll(list);
+  }
+
+  return master;
+}
  
 // clamp like a champ --> "clampion"
 public float clamp(float x, int min, int max) {
   return min(max(x, min), max); 
 }
 
+
+
+class DatumGrid {
+	private final Map<String, ArrayList<Datum>> data;
+
+	private final int w;
+	private final int h;
+
+	public DatumGrid(int w, int h){
+		this.w = w;
+		this.h = h;
+		this.data = new HashMap<String, ArrayList<Datum>>();
+	}
+
+	private String getKey(int col, int row) {
+		return col + "," + row;
+	}
+
+	public void put(int col, int row, ArrayList<Datum> elem) {
+		data.put(getKey(col, row), elem);
+	}
+
+	public ArrayList<Datum> get(int col, int row){
+		return data.get(getKey(col, row));
+	}
+
+	public int getWidth() {
+		return w;
+	}
+
+	public int getHeight() {
+		return h;
+	}
+}
+
+// helpful functions for laying out stuff in a grid
+class GridLayout {
+	
+	private final int cols;
+	private final int rows;
+
+	private Rect bounds;
+
+	public GridLayout(int cols, int rows) {
+		this.cols = cols;
+		this.rows = rows;
+	}
+
+	public Rect getCellBounds(int col, int row) {
+		float w = getCellWidth();
+		float h = getCellHeight();
+
+		float x = col * w;
+		float y = row * h;
+
+		return new Rect(bounds.x + x, bounds.y + y, w, h);
+	}
+
+	// returns null if x,y are not inside the receivers bounds
+	public Point getCellCoords(int x, int y) {
+		float localX = x - bounds.x;
+		float localY = y - bounds.y;
+
+		// println("y = " + y + ", bounds.y = " + bounds.y + ", localY = " + localY);
+
+		int xCoord = (int)(localX / getCellWidth());
+		int yCoord = (int)(localY / getCellHeight());
+
+		Point coord = new Point(xCoord, yCoord);
+		return nullIfOutOfBounds(coord);
+	}
+
+	private Point nullIfOutOfBounds(Point coord) {
+		if (coord.x < 0 || coord.x >= cols) {
+			return null;
+		}
+
+		if (coord.y < 0 || coord.y >= rows) {
+			return null;
+		}
+
+		return coord;
+	}
+
+	public void setBounds(Rect bounds) {
+		this.bounds = bounds;
+	}
+
+	public Rect getBounds() {
+		return bounds;
+	}
+
+	private float getCellWidth() {
+		return bounds.w / cols;
+	}
+
+	private float getCellHeight() {
+		return bounds.h / rows;
+	}
+}
+
+
+
 class Heatmap extends AbstractView {
 
 	private final String xProperty;
 	private final String yProperty;
 
+	private final Bucketizer bucketizer; 
+	private final GridLayout gridLayout;
+
 	public Heatmap(ArrayList<Datum> data, String xProperty, String yProperty) {
 		super(data);
-
 		this.xProperty = xProperty;
 		this.yProperty = yProperty; 
+
+		bucketizer = new Bucketizer(data, xProperty, yProperty);
+		gridLayout = new GridLayout(bucketizer.getXValues().size(), bucketizer.getYValues().size());
+	}
+
+	public void setBounds(Rect bounds) {
+		super.setBounds(bounds);
+		gridLayout.setBounds(bounds);
 	}
 
 	public void render() {
+		for (int col = 0; col < bucketizer.getXValues().size(); col++) {
+			for (int row = 0; row < bucketizer.getYValues().size(); row++) {
 
+				int count = bucketizer.getCount(col, row);
+				Rect bounds = gridLayout.getCellBounds(col, row);
+				int fillColor = getColor(col, row, count);
+
+				noStroke();
+				fill(fillColor);
+				rect(bounds.x, bounds.y, bounds.w, bounds.h);
+
+				fill(color(0,0,0));
+				textSize(5);
+				textAlign(LEFT, TOP);
+				text(count, bounds.x, bounds.y);
+			}
+		}
+	}
+
+	// maps counts to colors
+	private int getColor(int col, int row, int count) {
+		// should this (col,row) be selected?
+		if (isSelected(col, row)) {
+			return color(0, 0, 0);
+		}
+
+		// return interpolated, non-selected color
+		float p = (float)count / bucketizer.getMaxCount();
+		return color(255, 0, 0, p * 255);
+	}
+
+	private boolean isSelected(int col, int row) {
+		ArrayList<Datum> ds = bucketizer.getDatums(col, row);
+
+		for (Datum d : ds) {
+			if (d.isSelected()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public ArrayList<Datum> getHoveredDatums() {
 		// find which cell (port range + time bucket) is under the mouse
+		Point cellHit = gridLayout.getCellCoords(mouseX, mouseY);
 
-		// return all of those datums
-		return new ArrayList<Datum>();
+		// return the datums from that cell
+		if (cellHit == null) {
+			return new ArrayList<Datum>();	
+		} else {
+			return bucketizer.getDatums((int)cellHit.x, (int)cellHit.y);
+		}
 	}
-
 }
 
 class Kontroller {
   
   private final ArrayList<Datum> data;
+
   private final CategoricalView categoricalView;
+  private final TemporalView temporalView;
   
   public Kontroller(ArrayList<Datum> data) {
     this.data = data;
     
     this.categoricalView = new CategoricalView(data);
+    this.temporalView = new TemporalView(data);
   } 
   
   public void render() {
     deselectAllData();
+
+    updateGraphPositions();
     
     // mouse over
     ArrayList<Datum> hovered = getHoveredDatums();
     selectData(hovered);
 
     // render:
-    updateGraphPositions();
     background(color(255, 255, 255));
     categoricalView.render();
+    temporalView.render();
   }
   
   // repositions the graphs based on the current width/height of the screen
   private void updateGraphPositions() {
-    // position in middle 50% of w, middle 90% of h
-    float x = width * 0.25f;
-    float y = height * 0.05f;
+    positionView(temporalView, 0, 0.5f, 0.75f, 0.5f);
+    positionView(categoricalView, 0.75f, 0, 0.25f, 1.0f);
+  }
 
-    float w = width * 0.5f;
-    float h = height * 0.9f;
-
-    categoricalView.setBounds(new Rect(x, y, w, h));
+  private void positionView(AbstractView view, float px, float py, float pw, float ph) {
+    float x = width * px;
+    float y = height * py;
+    float w = width * pw;
+    float h = height * ph;
+    view.setBounds(new Rect(x, y, w, h));
   }
   
   // returns the datum currently moused-over, or null if none.
   private ArrayList<Datum> getHoveredDatums() {
-    
     // ask each graph what Datum is moused over
-    return categoricalView.getHoveredDatums();
+    return flatten( 
+      categoricalView.getHoveredDatums(),
+      temporalView.getHoveredDatums()
+    );
   }
   
   private void selectData(ArrayList<Datum> toSelect) {
@@ -583,7 +876,7 @@ class PieChart extends AbstractView {
 		private final float startAngle;
 		private final float endAngle;
 
-		private int fillColor = color(Math.round(Math.random() * 255), 0, 0);
+		private final int fillColor;// = color(Math.round(Math.random() * 255), 0, 0);
 
 		// set these to change how the WedgeView appears
 		private Point center = new Point(0,0);
