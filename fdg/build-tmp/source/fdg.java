@@ -3,6 +3,7 @@ import processing.data.*;
 import processing.event.*; 
 import processing.opengl.*; 
 
+import java.util.*; 
 import java.lang.*; 
 
 import java.util.HashMap; 
@@ -26,6 +27,7 @@ CenterPusher cp;
 ForceDirectedGraph fdg;
 Rect halfBounds;
 Rect bounds;
+NetworkView nv;
 
 boolean done = false;
 
@@ -39,14 +41,24 @@ public void setup() {
   previous_w = width;
   previous_h = height;
   frame.setResizable(true);
- 
-  // read data
-  
-  bounds = new Rect(width / 3, height / 3, 2*width/3 - width/3, 2*height/3 - height/3);
+  bounds = new Rect(0, 0, width, height);
+  nv = new NetworkView(new DerLeser("data_aggregate.csv").readIn(), bounds);
 
-  DieWelt w = new Configurator("data.csv", bounds).configure();
+  // bounds = new Rect(width / 2, height / 2, width - width/2, height - height/2);
 
-  fdg = new ForceDirectedGraph(w, null);
+
+  nv.setBounds(bounds);
+
+  // DieWelt w = new Configurator("data.csv", bounds).configure();
+
+  // fdg = new ForceDirectedGraph(w.nodes, w.springs, w.zaps, w.dampers, null);
+
+  // if (fdg == null) {
+  //   println("In die Gerate fdg null ist");
+  // }
+
+  // fdg.setBounds(bounds);
+  // fdg.getCenterPusher().setBounds(bounds);
 
 }
 
@@ -56,7 +68,7 @@ public float seconds(int ms) {
 }
 
 public void draw() {
-  fdg.render();
+  nv.render();
 }
 
 
@@ -95,115 +107,121 @@ abstract class AbstractView {
 	public abstract ArrayList<Datum> getHoveredDatums();
 
 }
-// Reads in the file
-class Configurator {
-  public final String fileName;
-  public final Rect bounds;
+// // Reads in the file
+// class Configurator {
+//   public final String fileName;
+//   public final Rect bounds;
 
-  public Configurator(String fileName, Rect bounds) {
-    this.fileName = fileName;
-    this.bounds = bounds;
-  }
+//   public Configurator(String fileName, Rect bounds) {
+//     this.fileName = fileName;
+//     this.bounds = bounds;
+//   }
 
-  public DieWelt configure() {
-    ArrayList<String> al = read();
-    DieWelt world = initWorld(al);
-    placeNodes(world);
-    setAllBounds(world);
-    return world;
-  }
+//   public DieWelt configure() {
+//     ArrayList<String> al = read();
+//     DieWelt world = initWorld(al);
+//     // // setAllBounds(world);
+//     // placeNodes(world);
+//     return world;
+//   }
 
-  // Randomly assigns position of nodes within playing field.
-  // TODO: Currently doesn't prevent nodes from overlapping or from part of a node from hanging off the screen
-  private void placeNodes(DieWelt world) {
-    for (int i = 0; i < world.nodes.size(); i++) {
-      Node toEdit = world.nodes.get(i);
-      toEdit.pos.x = random(bounds.x, bounds.w);
-      toEdit.pos.y = random(bounds.y, bounds.h);
-    }
-  }
+//   // Randomly assigns position of nodes within playing field.
+//   // TODO: Currently doesn't prevent nodes from overlapping or from part of a node from hanging off the screen
+//   private void placeNodes(DieWelt world) {
+//     for (int i = 0; i < world.nodes.size(); i++) {
+//       Node toEdit = world.nodes.get(i);
+//       toEdit.pos.x = random(bounds.x, bounds.w);
+//       toEdit.pos.y = random(bounds.y, bounds.h);
+//     }
+//   }
 
-  private void setAllBounds(DieWelt world) {
-    for (Node n : world.nodes) {
-      n.setBounds(bounds);
-    }
-  }
+//   private void setAllBounds(DieWelt world) {
+//     for (Node n : world.nodes) {
+//       n.setBounds(bounds);
+//     }
+//   }
 
-  // Initializes the nodes and springs from the info from the file.
-  // Creates an ArrayList of Zaps and an ArrayList of Dampers, but these
-  // last two are independent on the input file.
-  // Returns Die Welt.
-  private DieWelt initWorld(ArrayList<String> al) {
-    ArrayList<Node> nodes = new ArrayList<Node>();
-    ArrayList<Spring> springs = new ArrayList<Spring>();
-    ArrayList<Zap> zaps = new ArrayList<Zap>();
-    ArrayList<Damper> dampers = new ArrayList<Damper>();
-    boolean inNodes = false;
+//   // Initializes the nodes and springs from the info from the file.
+//   // Creates an ArrayList of Zaps and an ArrayList of Dampers, but these
+//   // last two are independent on the input file.
+//   // Returns Die Welt.
+//   private DieWelt initWorld(ArrayList<String> al) {
+//     ArrayList<Node> nodes = new ArrayList<Node>();
+//     ArrayList<Spring> springs = new ArrayList<Spring>();
+//     ArrayList<Zap> zaps = new ArrayList<Zap>();
+//     ArrayList<Damper> dampers = new ArrayList<Damper>();
+//     boolean inNodes = false;
 
-    for (int i = 0; i < al.size (); i++) {
-      // If no commas - they are list sizes and we don't need those
-      if (al.get(i).indexOf(',') == -1) {
-        inNodes = !inNodes;
-        continue;
-      }
+//     for (int i = 0; i < al.size (); i++) {
+//       // If no commas - they are list sizes and we don't need those
+//       if (al.get(i).indexOf(',') == -1) {
+//         inNodes = !inNodes;
+//         continue;
+//       }
 
-      // Split on commas
-      String[] listL = split(al.get(i), ',');
+//       // Split on commas
+//       String[] listL = split(al.get(i), ',');
 
-      // If get to this point, not in first line or nodes -- definitely in Springs
-      if (!inNodes) {
-        Spring newSpring = new Spring(getCorrectNode(PApplet.parseInt(listL[0]), nodes), getCorrectNode(PApplet.parseInt(listL[1]), nodes), PApplet.parseInt(listL[2]));
-        springs.add(newSpring);
-      } else {  // We are in Nodes
-        Node newNode = new Node(PApplet.parseInt(listL[0]), PApplet.parseFloat(listL[1]));
-        nodes.add(newNode);
-      }
-    }
+//       // If get to this point, not in first line or nodes -- definitely in Springs
+//       if (!inNodes) {
+//         Spring newSpring = new Spring(getCorrectNode(int(listL[0]), nodes), getCorrectNode(int(listL[1]), nodes), int(listL[2]));
+//         springs.add(newSpring);
+//       } else {  // We are in Nodes
+//         Node newNode = new Node(listL[0], float(listL[1]));
+//         nodes.add(newNode);
+//       }
+//     }
+
     
-    return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes));
-  }
+//     DieWelt w = new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes), bounds);
 
-  // Returns the node with the id
-  // If no node exists with that id, than null is returned
-  public Node getCorrectNode(int idToFind, ArrayList<Node> nodes) {
-    for (int i = 0; i < nodes.size (); i++) {
-      if (nodes.get(i).id == idToFind) {
-        return nodes.get(i);
-      }
-    }
-    return null;
-  }
+//     setAllBounds(w);
+//     placeNodes(w);
+
+//     return w;
+//   }
+
+//   // Returns the node with the id
+//   // If no node exists with that id, than null is returned
+//   public Node getCorrectNode(int idToFind, ArrayList<Node> nodes) {
+//     for (String i = 0; i < nodes.size (); i++) {
+//       if (nodes.get(i).id == idToFind) {
+//         return nodes.get(i);
+//       }
+//     }
+//     return null;
+//   }
   
-  // Makes a bunch of zaps
-  public ArrayList<Zap> createZaps(ArrayList<Node> nodes) {
-    ArrayList<Zap> toReturn = new ArrayList<Zap>();
-    for (int i = 0; i < nodes.size(); i++) {
-      for (int j = (i + 1); j < nodes.size(); j++) {
-        toReturn.add(new Zap(nodes.get(i), nodes.get(j)));
-      }
-    }
-    return toReturn;
-  }
+//   // Makes a bunch of zaps
+//   public ArrayList<Zap> createZaps(ArrayList<Node> nodes) {
+//     ArrayList<Zap> toReturn = new ArrayList<Zap>();
+//     for (int i = 0; i < nodes.size(); i++) {
+//       for (int j = (i + 1); j < nodes.size(); j++) {
+//         toReturn.add(new Zap(nodes.get(i), nodes.get(j)));
+//       }
+//     }
+//     return toReturn;
+//   }
   
-  public ArrayList<Damper> createDampers(ArrayList<Node> nodes) {
-    ArrayList<Damper> toReturn = new ArrayList<Damper>();
-    for (int i = 0; i < nodes.size(); i++) {
-      toReturn.add(new Damper(nodes.get(i)));
-    }
-    return toReturn;
-  }
+//   public ArrayList<Damper> createDampers(ArrayList<Node> nodes) {
+//     ArrayList<Damper> toReturn = new ArrayList<Damper>();
+//     for (int i = 0; i < nodes.size(); i++) {
+//       toReturn.add(new Damper(nodes.get(i)));
+//     }
+//     return toReturn;
+//   }
 
-  // Just reads in lines and puts them in ArrayList -- does nothing else
-  private ArrayList<String> read() {
-    String[] linesNormalArray = loadStrings(fileName);
-    ArrayList<String> lines = new ArrayList<String>();
+//   // Just reads in lines and puts them in ArrayList -- does nothing else
+//   private ArrayList<String> read() {
+//     String[] linesNormalArray = loadStrings(fileName);
+//     ArrayList<String> lines = new ArrayList<String>();
 
-    for (int i = 0; i < linesNormalArray.length; i++) {
-      lines.add(linesNormalArray[i]);
-    } 
-    return lines;
-  }
-}
+//     for (int i = 0; i < linesNormalArray.length; i++) {
+//       lines.add(linesNormalArray[i]);
+//     } 
+//     return lines;
+//   }
+// }
 
 
 /**
@@ -212,7 +230,9 @@ class Configurator {
  */
 class Damper implements ForceSource {
 
-  private static final float K = 0.5f;
+  private static final float K = 2f;
+  // private static final float K = 0;
+
 
   private final Node node;
 
@@ -225,21 +245,139 @@ class Damper implements ForceSource {
     node.addForce(velocity);
   }
 }
-class Datum {
-	public Datum() {
-		
+public class Datum {
+
+	// the names of datum properties
+	public static final String TIME = "time";
+	public static final String DEST_IP = "destIP";
+	public static final String SOURCE_IP = "sourceIP";
+	public static final String DEST_PORT = "destPort";
+	public static final String OPERATION = "operation";
+	public static final String PRIORITY = "priority";
+	public static final String PROTOCOL = "protocol";
+
+	public final int id;
+	public final String time;	
+	public final String destIP;	
+	public final String sourceIP;
+	public final String destPort;
+	public final String operation;
+	public final String priority;
+	public final String protocol;
+
+	private boolean selected = false;
+
+	public Datum (int id, String time, String destIP, String sourceIP, 
+		String destPort, String operation, String priority, String protocol) {	
+
+		this.id = id;
+		this.time = time;	
+		this.destIP = destIP;	
+		this.sourceIP = sourceIP;
+		this.destPort = destPort;
+		this.operation = operation;
+		this.priority = priority;
+		this.protocol = protocol;
 	}
+
+	public boolean isSelected() {
+		return selected;
+	}
+
+	public void setSelected(boolean s) {
+		selected = s;
+	}
+
+	// property should be on of the constants defined above: TIME, DEST_IP, etc
+	public String getValue(String property) {
+		if (property == null) {
+			throw new IllegalArgumentException("Cannot retrieve datum's value for null property");
+		}
+
+		if (property.equals(TIME)) {
+			return time;
+		}
+		if (property.equals(DEST_IP)) {
+			return destIP;
+		}
+		if (property.equals(SOURCE_IP)) {
+			return sourceIP;
+		}
+		if (property.equals(DEST_PORT)) {
+			return destPort;
+		}
+		if (property.equals(OPERATION)) {
+			return operation;
+		}
+		if (property.equals(PRIORITY)) {
+			return priority;
+		}
+		if (property.equals(PROTOCOL)) {
+			return protocol;
+		}
+
+		throw new IllegalArgumentException("Unknown datum property = " + property);
+	}
+
+}
+// reader
+public class DerLeser {
+	private final String fileName;
+
+	public DerLeser (String fileName) {
+		this.fileName = fileName;
+	}
+
+	public ArrayList<Datum> readIn() {
+		ArrayList<Datum> toReturn = new ArrayList<Datum>();
+		String[] lines = loadStrings(fileName);
+
+		int counter = 0;
+		for (String l : lines) {
+			if (l.startsWith("Time")) {  // Header
+				continue;
+			}
+
+			toReturn.add(createDatum(l, counter));
+
+			counter++;
+		}
+
+		return toReturn;
+	}
+
+
+	// Takes in a string that is comma-separated Datum and makes Datum
+	private Datum createDatum(String l, int counter) {
+		String[] listL = split(l, ",");
+
+		return new Datum(counter, listL[0], listL[3], listL[1], listL[4], 
+			listL[6], listL[5], listL[7]);
+	}
+
+	public void tPrintOne(ArrayList<Datum> d) {
+		Datum dat = d.get(100);
+		println("id = " + dat.id);
+		println("time = " + dat.time);
+		println("destIP = " + dat.destIP);
+		println("sourceIP = " + dat.sourceIP);
+		println("destPort = " + dat.destPort);
+		println("operation = " + dat.operation);
+		println("priority = " + dat.priority);
+		println("protocol = " + dat.protocol);
+	}
+
 }
  class CenterPusher {
 
- 	private static final float PERCENT_DIST = 0.01f;
+ 	// private static final float PERCENT_DIST = 0.01;
+ 	private static final float PERCENT_DIST = 0;
 
  	private final ArrayList<Node> nodes;
- 	private Rect bounds;
+ 	private Rect bounds = null;
 
- 	public CenterPusher(ArrayList<Node> nodes, Rect bounds) {
+ 	public CenterPusher(ArrayList<Node> nodes) {
  		this.nodes = nodes;
- 		this.bounds = bounds;
  	}
 
  	public void push() {
@@ -250,11 +388,20 @@ class Datum {
  		applyOffset(getOffset(getBounds()));
  	}
 
+ 	public void setBounds(Rect r) {
+ 		this.bounds = r;
+ 
+ 	}
+
  	private Rect getBounds() {
- 		float left = width;
- 		float top = height;
- 		float right = 0;
- 		float bottom = 0;
+ 		if (bounds == null) {
+ 			println("BOUNDS ARE NULL IN DIE CENTER PUSHER");
+ 			System.exit(1);
+ 		}
+ 		float left = bounds.w;
+ 		float top = bounds.h;
+ 		float right = bounds.x;
+ 		float bottom = bounds.y;
 
  		for (Node n : nodes) {
  			left = min(left, n.pos.x - n.radius);
@@ -267,7 +414,8 @@ class Datum {
 	}
 
 	private Point getOffset(Rect r) {
-		Point screenCenter = new Point(width/2, height/2);
+		Point screenCenter = new Point((bounds.x + bounds.w / 2), 
+			(bounds.y + bounds.h / 2));
 		Point rectCenter = r.getCenter();
 
 		Point diff = rectCenter.diff(screenCenter).scale(PERCENT_DIST, PERCENT_DIST);
@@ -286,19 +434,22 @@ class DieWelt {
   public final ArrayList<Spring> springs;
   public final ArrayList<Zap> zaps;
   public final ArrayList<Damper> dampers;
+  public final Rect bounds;
   
-  public DieWelt(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Zap> zaps, ArrayList<Damper> dampers) {
+  public DieWelt(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Zap> zaps, 
+    ArrayList<Damper> dampers, Rect bounds) {
     this.nodes = nodes;
     this.springs = springs;
     this.zaps = zaps;
     this.dampers = dampers;
+    this.bounds = bounds;
   }
 }
   // the node currently being dragged
   public Node dragged = null;
 
   public Node getNode(int x, int y) {
-    for (Node n : fdg.getSimulator().getNodes()) {
+    for (Node n : nv.fdg.getSimulator().getNodes()) {
       if (n.containsPoint(x, y)) {
         return n;
       } 
@@ -318,7 +469,7 @@ class DieWelt {
   public void mouseDragged() {
     if (dragged != null) {
         if (bounds == null) {
-            println("BOUNDS ARE NULL");
+            println("BOUNDS ARE NULL IN DRAG MANAGER");
             System.exit(1);
         }
         float xMin = bounds.x + dragged.radius;
@@ -341,18 +492,20 @@ class ForceDirectedGraph extends AbstractView {
 	private Simulator sm;
 	private CenterPusher cp;
 
-	public ForceDirectedGraph(DieWelt w, ArrayList<Datum> data) {
+	public ForceDirectedGraph(ArrayList<Node> nodes, ArrayList<Spring> springs,
+		ArrayList<Zap> zaps, ArrayList<Damper> dampers, ArrayList<Datum> data) {
 		super(data);
-		rm = new RenderMachine(w.nodes, w.springs);
-		sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
-		cp = new CenterPusher(w.nodes, this.bounds);		
+
+		rm = new RenderMachine(nodes, springs);
+		sm = new Simulator(nodes, springs, zaps, dampers);
+		cp = new CenterPusher(nodes);		
 	}
 
 	public void render() {
-		 // if (!done || dragged != null || previous_w != width || previous_h != height) {
+		 if (!done || dragged != null || previous_w != width || previous_h != height) {
    		 // update sim
     	done = !sm.step(seconds(16));
-  	// }
+  	}
 
 		background(color(255, 255, 255));
 		cp.push();
@@ -361,6 +514,15 @@ class ForceDirectedGraph extends AbstractView {
 
 	public Simulator getSimulator() {
 		return sm;
+	}
+
+	public CenterPusher getCenterPusher() {
+		return cp;
+	}
+
+	public void setBounds(Rect bounds) {
+		this.bounds = bounds;
+		cp.setBounds(bounds);
 	}
 
 
@@ -592,14 +754,156 @@ public float clamp(float x, int min, int max) {
 }
 
 
+class NetworkView extends AbstractView {
+
+	public final float NODE_WEIGHT = 4;
+	public final float SPRING_LENGTH = 100;
+
+	public ForceDirectedGraph fdg;
+
+	public NetworkView(ArrayList<Datum> data, Rect myBounds) {
+		super(data);
+		ArrayList<Node> nodes = createNodes();
+		ArrayList<Spring> springs = createSprings(nodes);
+		ArrayList<Zap> zaps = createZaps(nodes);
+		ArrayList<Damper> dampers = createDampers(nodes);
+		setAllBounds(nodes, myBounds);
+		placeNodes(nodes, myBounds);
+		fdg = new ForceDirectedGraph(nodes, springs, zaps, dampers, data);
+	}
+
+	private ArrayList<Node> createNodes() {
+		HashSet<String> nodesToMake = getNodesToMake();
+		ArrayList<Node> toReturn = new ArrayList<Node>();
+
+		for (String s : nodesToMake) {
+			toReturn.add(new Node(s, NODE_WEIGHT));
+		}
+
+		return toReturn;
+	}
+
+
+	// HashSet filters out duplicates
+	private HashSet<String> getNodesToMake() {
+		HashSet<String> toReturn = new HashSet<String>();
+
+		for (Datum d : getData()) {
+			toReturn.add(d.destIP);
+			toReturn.add(d.sourceIP);
+		}
+
+		return toReturn;
+	}
+
+
+	public ArrayList<Spring> createSprings(ArrayList<Node> nodes) {
+		ArrayList<Spring> toReturn = new ArrayList<Spring>();
+
+		HashSet<String> springsToMake= getSpringsToMake();
+
+		for (String s : springsToMake) {
+			toReturn.add(makeSpring(s, nodes));
+		}
+
+		return toReturn;
+	}
+
+	// Creates "destIP,sourceIP" strings to tell calling function
+	// which springs to make
+	public HashSet<String> getSpringsToMake() {
+		HashSet<String> toReturn = new HashSet<String>();
+
+		for (Datum d : getData()) {
+			toReturn.add(d.destIP + "," + d.sourceIP);
+		}
+
+		return toReturn;
+	}
+
+	public Spring makeSpring(String s, ArrayList<Node> nodes) {
+		String[] listL = split(s, ",");
+		String endAID = listL[0];
+		String endBID = listL[1];
+
+		return new Spring(getCorrectNode(endAID, nodes), 
+			getCorrectNode(endBID, nodes), SPRING_LENGTH);
+	}
+
+	public Node getCorrectNode(String id, ArrayList<Node> nodes) {
+		for (Node n : nodes) {
+			if (n.id.equals(id)) {
+				return n;
+			}
+		}
+
+		// Didn't find a node, something wrong
+		println("ERROR: Invalid Node ID in getCorrectNode");
+		return null;
+	}
+
+  // Makes a bunch of zaps
+  public ArrayList<Zap> createZaps(ArrayList<Node> nodes) {
+    ArrayList<Zap> toReturn = new ArrayList<Zap>();
+    for (int i = 0; i < nodes.size(); i++) {
+      for (int j = (i + 1); j < nodes.size(); j++) {
+        toReturn.add(new Zap(nodes.get(i), nodes.get(j)));
+      }
+    }
+    return toReturn;
+  }
+
+  public ArrayList<Damper> createDampers(ArrayList<Node> nodes) {
+    ArrayList<Damper> toReturn = new ArrayList<Damper>();
+    for (int i = 0; i < nodes.size(); i++) {
+      toReturn.add(new Damper(nodes.get(i)));
+    }
+
+    return toReturn;
+  }
+
+	public void render() {
+		fdg.render();
+	}
+
+	public ArrayList<Datum> getHoveredDatums() {
+		return null;
+	}
+
+	public void setBounds(Rect bounds) {
+		fdg.setBounds(bounds);
+	}
+
+	private void setAllBounds(ArrayList<Node> nodes, Rect myBounds) {
+    	for (Node n : nodes) {
+      		n.setBounds(myBounds);
+    	}
+	}
+
+  // Randomly assigns position of nodes within playing field.
+  private void placeNodes(ArrayList<Node> nodes, Rect myBounds) {
+    for (int i = 0; i < nodes.size(); i++) {
+      Node toEdit = nodes.get(i);
+      toEdit.pos.x = random(myBounds.x, myBounds.w);
+      toEdit.pos.y = random(myBounds.y, myBounds.h);
+
+      if (toEdit.id.equals("*.1.0-10")) {
+      	toEdit.pos.x = myBounds.x + myBounds.w / 2;
+      	toEdit.pos.y = myBounds.y + myBounds.h / 2;
+      }
+    }
+  }
+}
+
+
 class Node {
   public Point pos = new Point();
   public Vector vel = new Vector();
   
-  private final Vector netForce = new Vector();
+  private Vector netForce = new Vector();
   private Vector acc;
   
-  public final int id;
+  public final String id;
   public final float mass;
   public final float radius;
   
@@ -607,7 +911,7 @@ class Node {
 
   private Rect bounds = new Rect(0, 0, width, height); // Default val
   
-  public Node(int id, float mass) {
+  public Node(String id, float mass) {
     this.id = id;
     this.mass = mass;
     this.radius = sqrt(mass / PI) * 10;
@@ -631,9 +935,38 @@ class Node {
 //    println("node = " + id + ", netforce = " + netForce);
     
     Vector prev = acc;
+
+    // if (id.equals("*.1.0-10")) {
+      // println("PrevAcc = " + prev);
+      // println("Mass is = " + mass);
+      // netForce = new Vector();
+      
+    // }
+
+    Float f1 = new Float(netForce.x);
+    Float f2 = new Float(netForce.y);
+
+    if (f1.isNaN(f1) || f2.isNaN(f2)) {
+      netForce = new Vector();
+    }
+
+    // if (id.equals("*.1.0-10")) {
+    //   println("TROUBLE:");
+    // } else {
+    //   println("okay:");
+    // }
+
+    // println("Netforce = " + netForce);
+
+
     
     float scale = 1.0f / mass;
     this.acc = netForce.copy().scale(scale, scale);
+
+    if (id.equals("*.1.0-10")) {
+      // println("NewAcc = " + acc);
+      // System.exit(1);
+    }
     
 //    println(" -- prev acc = " + prev + ", new = " + acc);
     
@@ -712,6 +1045,14 @@ class Node {
     Float v1 = new Float(vel.x);
     Float v2 = new Float(vel.y);
 
+    if (p1.isNaN(p1) || p2.isNaN(p2)) {
+      // println("POS IS NAN = " + id);
+    }
+
+    if (v1.isNaN(v1) || v2.isNaN(v2)) {
+      // println("VELOCITY NULL = " + id);
+    }
+
     // If anything is NaN -- make new Point and Velocity
     if (p1.isNaN(p1) || p2.isNaN(p2) ||
         v1.isNaN(v1) || v2.isNaN(v2)) {
@@ -724,6 +1065,10 @@ class Node {
     float speed = vel.getMagnitude();
     float ke = 0.5f * mass * speed*speed;
     return ke;   // 0.5 m * (v^2)
+  }
+
+  public String toString() {
+    return "id = " + id + ", mass = " + mass + ";";
   }
 }
 
@@ -900,6 +1245,7 @@ class Simulator {
 class Spring extends InterNodeForce {
   
   private static final float K = 2f;
+  // private static final float K = 0f;
   
   public final float restLen;
   
@@ -946,11 +1292,18 @@ class Spring extends InterNodeForce {
       endB.addForce(force.reverse());
     }
   }
+
+  public String toString() {
+    return "Node 1 = " + endA.id + ", Node 2 = " + endB.id + ", restLen = "
+      + restLen + ";";
+  }
+
 }
 // Instances of Coluomb laws
 class Zap extends InterNodeForce {
 
   private static final float K = 100000f;
+  // private static final float K = 0;
   
   public Zap(Node endA, Node endB) {
     super(endA, endB);

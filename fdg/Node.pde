@@ -4,10 +4,10 @@ class Node {
   public Point pos = new Point();
   public Vector vel = new Vector();
   
-  private final Vector netForce = new Vector();
+  private Vector netForce = new Vector();
   private Vector acc;
   
-  public final int id;
+  public final String id;
   public final float mass;
   public final float radius;
   
@@ -15,7 +15,7 @@ class Node {
 
   private Rect bounds = new Rect(0, 0, width, height); // Default val
   
-  public Node(int id, float mass) {
+  public Node(String id, float mass) {
     this.id = id;
     this.mass = mass;
     this.radius = sqrt(mass / PI) * 10;
@@ -39,9 +39,38 @@ class Node {
 //    println("node = " + id + ", netforce = " + netForce);
     
     Vector prev = acc;
+
+    // if (id.equals("*.1.0-10")) {
+      // println("PrevAcc = " + prev);
+      // println("Mass is = " + mass);
+      // netForce = new Vector();
+      
+    // }
+
+    Float f1 = new Float(netForce.x);
+    Float f2 = new Float(netForce.y);
+
+    if (f1.isNaN(f1) || f2.isNaN(f2)) {
+      netForce = new Vector();
+    }
+
+    // if (id.equals("*.1.0-10")) {
+    //   println("TROUBLE:");
+    // } else {
+    //   println("okay:");
+    // }
+
+    // println("Netforce = " + netForce);
+
+
     
     float scale = 1.0f / mass;
     this.acc = netForce.copy().scale(scale, scale);
+
+    if (id.equals("*.1.0-10")) {
+      // println("NewAcc = " + acc);
+      // System.exit(1);
+    }
     
 //    println(" -- prev acc = " + prev + ", new = " + acc);
     
@@ -120,6 +149,14 @@ class Node {
     Float v1 = new Float(vel.x);
     Float v2 = new Float(vel.y);
 
+    if (p1.isNaN(p1) || p2.isNaN(p2)) {
+      // println("POS IS NAN = " + id);
+    }
+
+    if (v1.isNaN(v1) || v2.isNaN(v2)) {
+      // println("VELOCITY NULL = " + id);
+    }
+
     // If anything is NaN -- make new Point and Velocity
     if (p1.isNaN(p1) || p2.isNaN(p2) ||
         v1.isNaN(v1) || v2.isNaN(v2)) {
@@ -132,5 +169,9 @@ class Node {
     float speed = vel.getMagnitude();
     float ke = 0.5f * mass * speed*speed;
     return ke;   // 0.5 m * (v^2)
+  }
+
+  public String toString() {
+    return "id = " + id + ", mass = " + mass + ";";
   }
 }

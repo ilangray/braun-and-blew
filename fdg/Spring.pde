@@ -2,6 +2,7 @@
 class Spring extends InterNodeForce {
   
   private static final float K = 2f;
+  // private static final float K = 0f;
   
   public final float restLen;
   
@@ -48,4 +49,10 @@ class Spring extends InterNodeForce {
       endB.addForce(force.reverse());
     }
   }
+
+  public String toString() {
+    return "Node 1 = " + endA.id + ", Node 2 = " + endB.id + ", restLen = "
+      + restLen + ";";
+  }
+
 }

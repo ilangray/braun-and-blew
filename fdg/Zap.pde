@@ -2,6 +2,7 @@
 class Zap extends InterNodeForce {
 
   private static final float K = 100000f;
+  // private static final float K = 0;
   
   public Zap(Node endA, Node endB) {
     super(endA, endB);
