@@ -12,7 +12,7 @@ class PieChart extends AbstractView {
 		private final float startAngle;
 		private final float endAngle;
 
-		private int fillColor = color(Math.round(Math.random() * 255), 0, 0);
+		private final int fillColor;// = color(Math.round(Math.random() * 255), 0, 0);
 
 		// set these to change how the WedgeView appears
 		private Point center = new Point(0,0);

@@ -107,6 +107,10 @@ class Point {
   public String toString() {
     return "Point{x = " + x + ", y = " + y + "}"; 
   }
+
+  public int hashCode() {
+    return (int)Math.pow(x, y);
+  }
 }
 
 class Vector {
@@ -232,6 +236,13 @@ class Rect implements Shape {
   public Rect inset(int amount) {
    return new Rect(x + amount, y + amount, w - 2 * amount, h - 2 * amount);
   }
+
+  public Rect inset(int left, int top, int right, int bottom) {
+    float newWidth = w - left - right;
+    float newHeight = h - top - bottom;
+
+    return new Rect(x + left, y + top, newWidth, newHeight);
+  }
 }
   
 <T> ArrayList<T> makeList(T... values) {
@@ -242,6 +253,16 @@ class Rect implements Shape {
   }
 
   return ts;
+}
+
+<T> ArrayList<T> flatten(ArrayList<T>... lists) {
+  ArrayList<T> master = new ArrayList<T>();
+
+  for (ArrayList<T> list : lists) {
+    master.addAll(list);
+  }
+
+  return master;
 }
  
 // clamp like a champ --> "clampion"
