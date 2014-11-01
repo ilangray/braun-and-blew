@@ -590,6 +590,13 @@ class Rect implements Shape {
   public Rect inset(int amount) {
    return new Rect(x + amount, y + amount, w - 2 * amount, h - 2 * amount);
   }
+
+  public Rect inset(int left, int top, int right, int bottom) {
+    float newWidth = w - left - right;
+    float newHeight = h - top - bottom;
+
+    return new Rect(x + left, y + top, newWidth, newHeight);
+  }
 }
   
 <T> ArrayList<T> makeList(T... values) {
@@ -739,10 +746,23 @@ class Heatmap extends AbstractView {
 
 	public void setBounds(Rect bounds) {
 		super.setBounds(bounds);
-		gridLayout.setBounds(bounds);
+
+		int paddingLeft = 60;
+		int paddingBottom = 60;
+
+		gridLayout.setBounds(bounds.inset(paddingLeft, 0, 0, paddingBottom));
 	}
 
 	public void render() {
+		labelCells();
+		renderCells();
+	}
+
+	private void labelCells() {
+
+	}
+
+	private void renderCells() {
 		for (int col = 0; col < bucketizer.getXValues().size(); col++) {
 			for (int row = 0; row < bucketizer.getYValues().size(); row++) {
 
@@ -754,10 +774,10 @@ class Heatmap extends AbstractView {
 				fill(fillColor);
 				rect(bounds.x, bounds.y, bounds.w, bounds.h);
 
-				fill(color(0,0,0));
-				textSize(5);
-				textAlign(LEFT, TOP);
-				text(count, bounds.x, bounds.y);
+				// fill(color(0,0,0));
+				// textSize(5);
+				// textAlign(LEFT, TOP);
+				// text(count, bounds.x, bounds.y);
 			}
 		}
 	}
