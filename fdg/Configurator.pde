@@ -1,15 +1,18 @@
 // Reads in the file
 class Configurator {
   public final String fileName;
+  public final Rect bounds;
 
-  public Configurator(String fileName) {
+  public Configurator(String fileName, Rect bounds) {
     this.fileName = fileName;
+    this.bounds = bounds;
   }
 
   public DieWelt configure() {
     ArrayList<String> al = read();
     DieWelt world = initWorld(al);
     placeNodes(world);
+    setAllBounds(world);
     return world;
   }
 
@@ -18,8 +21,14 @@ class Configurator {
   private void placeNodes(DieWelt world) {
     for (int i = 0; i < world.nodes.size(); i++) {
       Node toEdit = world.nodes.get(i);
-      toEdit.pos.x = random(width);
-      toEdit.pos.y = random(height);
+      toEdit.pos.x = random(bounds.x, bounds.w);
+      toEdit.pos.y = random(bounds.y, bounds.h);
+    }
+  }
+
+  private void setAllBounds(DieWelt world) {
+    for (Node n : world.nodes) {
+      n.setBounds(bounds);
     }
   }
 

@@ -1,37 +1,42 @@
+  // the node currently being dragged
+  public Node dragged = null;
 
-// the node currently being dragged
-Node dragged = null;
-
-Node getNode(int x, int y) {
-  for (Node n : sm.getNodes()) {
-    if (n.containsPoint(x, y)) {
-      return n;
-    } 
+  Node getNode(int x, int y) {
+    for (Node n : fdg.getSimulator().getNodes()) {
+      if (n.containsPoint(x, y)) {
+        return n;
+      } 
+    }
+    return null;
   }
-  return null;
-}
 
-void mousePressed() {
-  // what did we hit?
-  dragged = getNode(mouseX, mouseY);
-  
-  if (dragged != null) {
-    dragged.fixed = true; 
+  void mousePressed() {
+    // what did we hit?
+    dragged = getNode(mouseX, mouseY);
+    
+    if (dragged != null) {
+      dragged.fixed = true; 
+    }
   }
-}
 
-void mouseDragged() {
-  if (dragged != null) {
-    float r = dragged.radius;
-    dragged.pos.x = clamp(mouseX, (int)r, (int)(width - r));
-    dragged.pos.y = clamp(mouseY, (int)r, (int)(height - r));  
+  void mouseDragged() {
+    if (dragged != null) {
+        if (bounds == null) {
+            println("BOUNDS ARE NULL");
+            System.exit(1);
+        }
+        float xMin = bounds.x + dragged.radius;
+        float xMax = bounds.w + bounds.x - dragged.radius;
+        float yMin = bounds.y + dragged.radius;
+        float yMax = (bounds.h + bounds.y) - dragged.radius;
+      dragged.pos.x = clamp(mouseX, (int)xMin, (int)xMax);
+      dragged.pos.y = clamp(mouseY, (int)yMin, (int)yMax);  
+    }
   }
-}
 
-void mouseReleased() {
-  if (dragged != null) {
-    dragged.fixed = false;
-    dragged = null; 
+  void mouseReleased() {
+    if (dragged != null) {
+      dragged.fixed = false;
+      dragged = null; 
+    }
   }
-}
-

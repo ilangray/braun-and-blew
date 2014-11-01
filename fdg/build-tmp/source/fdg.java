@@ -23,7 +23,9 @@ public class fdg extends PApplet {
 Simulator sm;
 RenderMachine rm;
 CenterPusher cp;
+ForceDirectedGraph fdg;
 Rect halfBounds;
+Rect bounds;
 
 boolean done = false;
 
@@ -39,13 +41,13 @@ public void setup() {
   frame.setResizable(true);
  
   // read data
-  DieWelt w = new Configurator("data.csv").configure();
   
-  // configur renderer and simulator
-  rm = new RenderMachine(w.nodes, w.springs);
-  rm.setAllBounds(halfBounds);
-  sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
-  cp = new CenterPusher(w.nodes);
+  bounds = new Rect(width / 3, height / 3, 2*width/3 - width/3, 2*height/3 - height/3);
+
+  DieWelt w = new Configurator("data.csv", bounds).configure();
+
+  fdg = new ForceDirectedGraph(w, null);
+
 }
 
 // converts ms to seconds
@@ -54,41 +56,60 @@ public float seconds(int ms) {
 }
 
 public void draw() {
-  // yoloswag
-  if (first) {
-    rm.renderLabel(new Point(0,0), "hooha");
-    first = false; 
-  }
-  
-  if (!done || dragged != null || previous_w != width || previous_h != height) {
-    // update sim
-    done = !sm.step(seconds(16));
-  }
-  
-  cp.push();
-  render();
-  
-  previous_w = width;
-  previous_h = height;
+  fdg.render();
 }
 
-public void render() {
-  background(color(255,255,255));
-  rm.render();
-}
 
+abstract class AbstractView {
+
+	// an AbstractView has a notion of the data that it is displaying
+	private final ArrayList<Datum> data;
+
+	public AbstractView(ArrayList<Datum> data) {
+		this.data = data;
+	}
+
+	// returns this AbstractView's list of Datums
+	public ArrayList<Datum> getData() {
+		return data;
+	}
+
+	// the bounds of this AbstractView, in pixels, not percentages
+	// this is where the AbstractView should draw itself in render()
+	protected Rect bounds;
+
+	public final Rect getBounds() {
+		return bounds;
+	}
+
+	// sets the bounds of the receiver
+	public void setBounds(Rect bounds) {
+		this.bounds = bounds;
+	}
+
+	// tells the view to render its contents in its bounds
+	public abstract void render();
+
+	// return the Datum(s) that is currently under the 
+	// mouse, or an empty ArrayList if no such datum exists
+	public abstract ArrayList<Datum> getHoveredDatums();
+
+}
 // Reads in the file
 class Configurator {
   public final String fileName;
+  public final Rect bounds;
 
-  public Configurator(String fileName) {
+  public Configurator(String fileName, Rect bounds) {
     this.fileName = fileName;
+    this.bounds = bounds;
   }
 
   public DieWelt configure() {
     ArrayList<String> al = read();
     DieWelt world = initWorld(al);
     placeNodes(world);
+    setAllBounds(world);
     return world;
   }
 
@@ -97,8 +118,14 @@ class Configurator {
   private void placeNodes(DieWelt world) {
     for (int i = 0; i < world.nodes.size(); i++) {
       Node toEdit = world.nodes.get(i);
-      toEdit.pos.x = random(width);
-      toEdit.pos.y = random(height);
+      toEdit.pos.x = random(bounds.x, bounds.w);
+      toEdit.pos.y = random(bounds.y, bounds.h);
+    }
+  }
+
+  private void setAllBounds(DieWelt world) {
+    for (Node n : world.nodes) {
+      n.setBounds(bounds);
     }
   }
 
@@ -198,20 +225,27 @@ class Damper implements ForceSource {
     node.addForce(velocity);
   }
 }
+class Datum {
+	public Datum() {
+		
+	}
+}
  class CenterPusher {
 
  	private static final float PERCENT_DIST = 0.01f;
 
  	private final ArrayList<Node> nodes;
+ 	private Rect bounds;
 
- 	public CenterPusher(ArrayList<Node> nodes) {
+ 	public CenterPusher(ArrayList<Node> nodes, Rect bounds) {
  		this.nodes = nodes;
+ 		this.bounds = bounds;
  	}
 
  	public void push() {
- 		if (dragged != null) {
- 			return;
- 		}
+ 		// if (dragged != null) {
+ 		// 	return;
+ 		// }
 
  		applyOffset(getOffset(getBounds()));
  	}
@@ -260,43 +294,82 @@ class DieWelt {
     this.dampers = dampers;
   }
 }
+  // the node currently being dragged
+  public Node dragged = null;
 
-// the node currently being dragged
-Node dragged = null;
-
-public Node getNode(int x, int y) {
-  for (Node n : sm.getNodes()) {
-    if (n.containsPoint(x, y)) {
-      return n;
-    } 
+  public Node getNode(int x, int y) {
+    for (Node n : fdg.getSimulator().getNodes()) {
+      if (n.containsPoint(x, y)) {
+        return n;
+      } 
+    }
+    return null;
   }
-  return null;
-}
 
-public void mousePressed() {
-  // what did we hit?
-  dragged = getNode(mouseX, mouseY);
-  
-  if (dragged != null) {
-    dragged.fixed = true; 
+  public void mousePressed() {
+    // what did we hit?
+    dragged = getNode(mouseX, mouseY);
+    
+    if (dragged != null) {
+      dragged.fixed = true; 
+    }
   }
-}
 
-public void mouseDragged() {
-  if (dragged != null) {
-    float r = dragged.radius;
-    dragged.pos.x = clamp(mouseX, (int)r, (int)(width - r));
-    dragged.pos.y = clamp(mouseY, (int)r, (int)(height - r));  
+  public void mouseDragged() {
+    if (dragged != null) {
+        if (bounds == null) {
+            println("BOUNDS ARE NULL");
+            System.exit(1);
+        }
+        float xMin = bounds.x + dragged.radius;
+        float xMax = bounds.w + bounds.x - dragged.radius;
+        float yMin = bounds.y + dragged.radius;
+        float yMax = (bounds.h + bounds.y) - dragged.radius;
+      dragged.pos.x = clamp(mouseX, (int)xMin, (int)xMax);
+      dragged.pos.y = clamp(mouseY, (int)yMin, (int)yMax);  
+    }
   }
-}
 
-public void mouseReleased() {
-  if (dragged != null) {
-    dragged.fixed = false;
-    dragged = null; 
+  public void mouseReleased() {
+    if (dragged != null) {
+      dragged.fixed = false;
+      dragged = null; 
+    }
   }
-}
+class ForceDirectedGraph extends AbstractView {
+	private RenderMachine rm;
+	private Simulator sm;
+	private CenterPusher cp;
 
+	public ForceDirectedGraph(DieWelt w, ArrayList<Datum> data) {
+		super(data);
+		rm = new RenderMachine(w.nodes, w.springs);
+		sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
+		cp = new CenterPusher(w.nodes, this.bounds);		
+	}
+
+	public void render() {
+		 // if (!done || dragged != null || previous_w != width || previous_h != height) {
+   		 // update sim
+    	done = !sm.step(seconds(16));
+  	// }
+
+		background(color(255, 255, 255));
+		cp.push();
+		rm.render();
+	}
+
+	public Simulator getSimulator() {
+		return sm;
+	}
+
+
+	// TODO: Actually write this
+	public ArrayList<Datum> getHoveredDatums() {
+		return null;
+	}
+
+}
 
 // A ForceSource is something that can apply forces
 interface ForceSource {
@@ -532,14 +605,12 @@ class Node {
   
   public boolean fixed = false;
 
-  public Rect bounds;
+  private Rect bounds = new Rect(0, 0, width, height); // Default val
   
   public Node(int id, float mass) {
     this.id = id;
     this.mass = mass;
     this.radius = sqrt(mass / PI) * 10;
-
-    this.bounds = new Rect(0, 0, width, height);
   }
 
   public Rect getBounds() {

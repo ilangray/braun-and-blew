@@ -5,7 +5,9 @@
 Simulator sm;
 RenderMachine rm;
 CenterPusher cp;
+ForceDirectedGraph fdg;
 Rect halfBounds;
+Rect bounds;
 
 boolean done = false;
 
@@ -21,13 +23,13 @@ void setup() {
   frame.setResizable(true);
  
   // read data
-  DieWelt w = new Configurator("data.csv").configure();
   
-  // configur renderer and simulator
-  rm = new RenderMachine(w.nodes, w.springs);
-  rm.setAllBounds(halfBounds);
-  sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
-  cp = new CenterPusher(w.nodes);
+  bounds = new Rect(width / 3, height / 3, 2*width/3 - width/3, 2*height/3 - height/3);
+
+  DieWelt w = new Configurator("data.csv", bounds).configure();
+
+  fdg = new ForceDirectedGraph(w, null);
+
 }
 
 // converts ms to seconds
@@ -36,26 +38,6 @@ float seconds(int ms) {
 }
 
 void draw() {
-  // yoloswag
-  if (first) {
-    rm.renderLabel(new Point(0,0), "hooha");
-    first = false; 
-  }
-  
-  if (!done || dragged != null || previous_w != width || previous_h != height) {
-    // update sim
-    done = !sm.step(seconds(16));
-  }
-  
-  cp.push();
-  render();
-  
-  previous_w = width;
-  previous_h = height;
-}
-
-void render() {
-  background(color(255,255,255));
-  rm.render();
+  fdg.render();
 }
 
