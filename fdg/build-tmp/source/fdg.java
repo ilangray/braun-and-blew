@@ -39,24 +39,9 @@ public void setup() {
   previous_w = width;
   previous_h = height;
   frame.setResizable(true);
-  bounds = new Rect(0, 0, width, height);
+  bounds = new Rect(0, 0, width ,height / 3);
   nv = new NetworkView(new DerLeser("data_aggregate.csv").readIn(), bounds);
-
-  // bounds = new Rect(width / 2, height / 2, width - width/2, height - height/2);
-
-
   nv.setBounds(bounds);
-
-  // DieWelt w = new Configurator("data.csv", bounds).configure();
-
-  // fdg = new ForceDirectedGraph(w.nodes, w.springs, w.zaps, w.dampers, null);
-
-  // if (fdg == null) {
-  //   println("In die Gerate fdg null ist");
-  // }
-
-  // fdg.setBounds(bounds);
-  // fdg.getCenterPusher().setBounds(bounds);
 
 }
 
@@ -67,6 +52,7 @@ public float seconds(int ms) {
 
 public void draw() {
   nv.render();
+  nv.getHoveredDatums();
 }
 
 
@@ -327,52 +313,11 @@ class DieWelt {
     this.bounds = bounds;
   }
 }
-  // the node currently being dragged
-  public Node dragged = null;
-
-  public Node getNode(int x, int y) {
-    for (Node n : nv.fdg.getSimulator().getNodes()) {
-      if (n.containsPoint(x, y)) {
-        return n;
-      } 
-    }
-    return null;
-  }
-
-  public void mousePressed() {
-    // what did we hit?
-    dragged = getNode(mouseX, mouseY);
-    
-    if (dragged != null) {
-      dragged.fixed = true; 
-    }
-  }
-
-  public void mouseDragged() {
-    if (dragged != null) {
-        if (bounds == null) {
-            println("BOUNDS ARE NULL IN DRAG MANAGER");
-            System.exit(1);
-        }
-        float xMin = bounds.x + dragged.radius;
-        float xMax = bounds.w + bounds.x - dragged.radius;
-        float yMin = bounds.y + dragged.radius;
-        float yMax = (bounds.h + bounds.y) - dragged.radius;
-      dragged.pos.x = clamp(mouseX, (int)xMin, (int)xMax);
-      dragged.pos.y = clamp(mouseY, (int)yMin, (int)yMax);  
-    }
-  }
-
-  public void mouseReleased() {
-    if (dragged != null) {
-      dragged.fixed = false;
-      dragged = null; 
-    }
-  }
 class ForceDirectedGraph extends AbstractView {
 	private RenderMachine rm;
 	private Simulator sm;
 	private CenterPusher cp;
+	private ArrayList<Node> nodes;
 
 	public ForceDirectedGraph(ArrayList<Node> nodes, ArrayList<Spring> springs,
 		ArrayList<Zap> zaps, ArrayList<Damper> dampers, ArrayList<Datum> data) {
@@ -381,10 +326,11 @@ class ForceDirectedGraph extends AbstractView {
 		rm = new RenderMachine(nodes, springs);
 		sm = new Simulator(nodes, springs, zaps, dampers);
 		cp = new CenterPusher(nodes);		
+		this.nodes = nodes;
 	}
 
 	public void render() {
-		 if (!done || dragged != null || previous_w != width || previous_h != height) {
+		 if (!done || previous_w != width || previous_h != height) {
    		 // update sim
     	done = !sm.step(seconds(16));
   	}
@@ -404,6 +350,10 @@ class ForceDirectedGraph extends AbstractView {
 
 	public RenderMachine getRenderMachine() {
 		return rm;
+	}
+
+	public ArrayList<Node> getNodes() {
+		return nodes;
 	}
 
 	public void setBounds(Rect bounds) {
@@ -567,10 +517,6 @@ class Rect {
     this.h = h;
   }
   
-//  Rect(float x, float y, float w, float h) {
-//    this(round(x), round(y), round(w), round(h));
-//  }
-  
   Rect(Point ul, Point lr) {
     this(ul.x, ul.y, lr.x - ul.x, lr.y - ul.y);
   }
@@ -655,6 +601,7 @@ class NetworkView extends AbstractView {
 		ArrayList<Damper> dampers = createDampers(nodes);
 		setAllBounds(nodes, myBounds);
 		placeNodes(nodes, myBounds);
+		addBackingDatums(nodes);
 		fdg = new ForceDirectedGraph(nodes, springs, zaps, dampers, data);
 	}
 
@@ -753,7 +700,16 @@ class NetworkView extends AbstractView {
 	}
 
 	public ArrayList<Datum> getHoveredDatums() {
-		return null;
+		ArrayList<Datum> toReturn = new ArrayList<Datum>();
+		for (Node n : fdg.getNodes()) {
+			if (n.containsPoint(mouseX, mouseY)) {
+				for (Datum d :  n.datumsEncapsulated) {
+					toReturn.add(d);
+				}
+			}
+		}
+
+		return toReturn;
 	}
 
 	public void setBounds(Rect bounds) {
@@ -780,6 +736,18 @@ class NetworkView extends AbstractView {
     }
   }
 
+  private void addBackingDatums(ArrayList<Node> nodes) {
+  	for (Node n : nodes) {
+  		n.datumsEncapsulated = new ArrayList<Datum>();
+  		for (Datum d : getData()) {
+  			if (n.id.equals(d.destIP) || 
+  				n.id.equals(d.sourceIP)) {
+  				n.datumsEncapsulated.add(d);
+  			}
+  		}
+  	}
+  }
+
   public ForceDirectedGraph getFDG() {
   	return fdg;
   }
@@ -796,6 +764,7 @@ class Node {
   public final String id;
   public final float mass;
   public final float radius;
+  public ArrayList<Datum> datumsEncapsulated = null;
   
   public boolean fixed = false;
 
@@ -826,29 +795,12 @@ class Node {
     
     Vector prev = acc;
 
-    // if (id.equals("*.1.0-10")) {
-      // println("PrevAcc = " + prev);
-      // println("Mass is = " + mass);
-      // netForce = new Vector();
-      
-    // }
-
     Float f1 = new Float(netForce.x);
     Float f2 = new Float(netForce.y);
 
     if (f1.isNaN(f1) || f2.isNaN(f2)) {
       netForce = new Vector();
     }
-
-    // if (id.equals("*.1.0-10")) {
-    //   println("TROUBLE:");
-    // } else {
-    //   println("okay:");
-    // }
-
-    // println("Netforce = " + netForce);
-
-
     
     float scale = 1.0f / mass;
     this.acc = netForce.copy().scale(scale, scale);

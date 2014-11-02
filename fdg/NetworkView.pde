@@ -15,6 +15,7 @@ class NetworkView extends AbstractView {
 		ArrayList<Damper> dampers = createDampers(nodes);
 		setAllBounds(nodes, myBounds);
 		placeNodes(nodes, myBounds);
+		addBackingDatums(nodes);
 		fdg = new ForceDirectedGraph(nodes, springs, zaps, dampers, data);
 	}
 
@@ -113,7 +114,16 @@ class NetworkView extends AbstractView {
 	}
 
 	public ArrayList<Datum> getHoveredDatums() {
-		return null;
+		ArrayList<Datum> toReturn = new ArrayList<Datum>();
+		for (Node n : fdg.getNodes()) {
+			if (n.containsPoint(mouseX, mouseY)) {
+				for (Datum d :  n.datumsEncapsulated) {
+					toReturn.add(d);
+				}
+			}
+		}
+
+		return toReturn;
 	}
 
 	public void setBounds(Rect bounds) {
@@ -138,6 +148,18 @@ class NetworkView extends AbstractView {
       	toEdit.pos.y = myBounds.y + myBounds.h / 2;
       }
     }
+  }
+
+  private void addBackingDatums(ArrayList<Node> nodes) {
+  	for (Node n : nodes) {
+  		n.datumsEncapsulated = new ArrayList<Datum>();
+  		for (Datum d : getData()) {
+  			if (n.id.equals(d.destIP) || 
+  				n.id.equals(d.sourceIP)) {
+  				n.datumsEncapsulated.add(d);
+  			}
+  		}
+  	}
   }
 
   public ForceDirectedGraph getFDG() {

@@ -20,24 +20,9 @@ void setup() {
   previous_w = width;
   previous_h = height;
   frame.setResizable(true);
-  bounds = new Rect(0, 0, width, height);
+  bounds = new Rect(0, 0, width ,height / 3);
   nv = new NetworkView(new DerLeser("data_aggregate.csv").readIn(), bounds);
-
-  // bounds = new Rect(width / 2, height / 2, width - width/2, height - height/2);
-
-
   nv.setBounds(bounds);
-
-  // DieWelt w = new Configurator("data.csv", bounds).configure();
-
-  // fdg = new ForceDirectedGraph(w.nodes, w.springs, w.zaps, w.dampers, null);
-
-  // if (fdg == null) {
-  //   println("In die Gerate fdg null ist");
-  // }
-
-  // fdg.setBounds(bounds);
-  // fdg.getCenterPusher().setBounds(bounds);
 
 }
 
@@ -48,5 +33,6 @@ float seconds(int ms) {
 
 void draw() {
   nv.render();
+  nv.getHoveredDatums();
 }
 

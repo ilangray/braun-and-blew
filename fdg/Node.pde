@@ -10,6 +10,7 @@ class Node {
   public final String id;
   public final float mass;
   public final float radius;
+  public ArrayList<Datum> datumsEncapsulated = null;
   
   public boolean fixed = false;
 
@@ -40,29 +41,12 @@ class Node {
     
     Vector prev = acc;
 
-    // if (id.equals("*.1.0-10")) {
-      // println("PrevAcc = " + prev);
-      // println("Mass is = " + mass);
-      // netForce = new Vector();
-      
-    // }
-
     Float f1 = new Float(netForce.x);
     Float f2 = new Float(netForce.y);
 
     if (f1.isNaN(f1) || f2.isNaN(f2)) {
       netForce = new Vector();
     }
-
-    // if (id.equals("*.1.0-10")) {
-    //   println("TROUBLE:");
-    // } else {
-    //   println("okay:");
-    // }
-
-    // println("Netforce = " + netForce);
-
-
     
     float scale = 1.0f / mass;
     this.acc = netForce.copy().scale(scale, scale);

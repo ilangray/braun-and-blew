@@ -118,10 +118,6 @@ class Rect {
     this.h = h;
   }
   
-//  Rect(float x, float y, float w, float h) {
-//    this(round(x), round(y), round(w), round(h));
-//  }
-  
   Rect(Point ul, Point lr) {
     this(ul.x, ul.y, lr.x - ul.x, lr.y - ul.y);
   }
