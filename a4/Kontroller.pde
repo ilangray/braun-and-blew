@@ -13,7 +13,7 @@ class Kontroller {
     this.categoricalView = new CategoricalView(data);
     this.temporalView = new TemporalView(data);
 
-    Rect bounds = new Rect(0, 0, 0.75 * width, height / 3);
+    Rect bounds = new Rect(0, 0, 0.75 * width, height / 2);
     this.networkView = new NetworkView(data, bounds);
     positionView(networkView, 0, 0, 0.75, 0.5);
   } 
