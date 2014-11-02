@@ -18,7 +18,7 @@ abstract class AbstractView {
 
 	// the bounds of this AbstractView, in pixels, not percentages
 	// this is where the AbstractView should draw itself in render()
-	private Rect bounds;
+	protected Rect bounds;
 
 	public final Rect getBounds() {
 		return bounds;

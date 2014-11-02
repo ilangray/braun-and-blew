@@ -6,6 +6,8 @@ import processing.opengl.*;
 import java.util.*; 
 import java.util.*; 
 import java.util.*; 
+import java.lang.*; 
+import java.util.*; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -21,19 +23,36 @@ public class a4 extends PApplet {
 
 String FILENAME = "data_aggregate.csv";
 Kontroller kontroller;
+NetworkView nv;
+boolean done = false;
 
 public void setup() {
   size(1000, 600);	
-  
+  frame.setResizable(true);
+
+  Rect bounds = new Rect(0, 0, width, height / 3);
+
   ArrayList<Datum> data = new DerLeser(FILENAME).readIn();
-  kontroller = new Kontroller(data);
+  nv = new NetworkView(data, bounds);
+  nv.setBounds(bounds);
+
+  // kontroller = new Kontroller(data);
+}
+
+// converts ms to seconds
+public float seconds(int ms) {
+  return ms / 1000.0f; 
 }
 
 public void draw() {
-  kontroller.render();
+	nv.render();
+  // kontroller.render();
 }
 
 abstract class AbstractView {
+
+	public final int SELECTED_COLOR = color(255, 255, 0);
+	public final int OUTLINE_COLOR = color(40,40,40);
 
 	// an AbstractView has a notion of the data that it is displaying
 	private final ArrayList<Datum> data;
@@ -49,7 +68,7 @@ abstract class AbstractView {
 
 	// the bounds of this AbstractView, in pixels, not percentages
 	// this is where the AbstractView should draw itself in render()
-	private Rect bounds;
+	protected Rect bounds;
 
 	public final Rect getBounds() {
 		return bounds;
@@ -95,8 +114,54 @@ class Bucketizer{
 		this.xValues = getUniqueValues(data, xProperty);
 		this.yValues = getUniqueValues(data, yProperty);
 
+		// sort x and y values
+		Collections.sort(yValues, new Comparator<String>() {
+			public int compare(String s1, String s2) {
+				return compareRange(s1, s2);
+			}
+		});
+		Collections.sort(xValues, new Comparator<String>() {
+			public int compare(String s1, String s2) {
+				return compareTimes(s1, s2);
+			}
+		});
+
 		this.grid = initGrid();
 		this.maxCount = computeMaxCount();
+	}
+
+	private int compareTimes(String t1, String t2) {
+		ArrayList<Integer> times1 = splitTimes(t1);
+		ArrayList<Integer> times2 = splitTimes(t2);
+
+		for (int i = 0; i < times1.size(); i++) {
+			if (times1.get(i) > times2.get(i)) {
+				return 1;
+			}
+			if (times1.get(i) < times2.get(i)) {
+				return -1;
+			}
+		}
+		return 0;
+	}
+
+	private ArrayList<Integer> splitTimes(String time) {
+		String[] parts = trim(split(time, ":"));
+
+		ArrayList<Integer> ints = new ArrayList<Integer>();
+
+		for (String p : parts) {
+			ints.add(Integer.parseInt(p));
+		}
+
+		return ints;
+	}
+
+	private int compareRange(String r1, String r2) {
+		int s1First = Integer.parseInt(trim(split(r1, "-")[0]));
+		int s2First = Integer.parseInt(trim(split(r2, "-")[0]));
+
+		return s1First < s2First ? 1 : -1;
 	}
 
 	private DatumGrid initGrid() {
@@ -229,6 +294,28 @@ class CategoricalView extends AbstractView {
 		}
 	}
 }
+
+/**
+ * A Damper applies a force proportional to a 
+ * node's velocity, in the opposite direction.
+ */
+class Damper implements ForceSource {
+
+  private static final float K = 2f;
+  // private static final float K = 0;
+
+
+  private final Node node;
+
+  public Damper(Node node) {
+    this.node = node;
+  }
+    
+  public void applyForce() {
+    Vector velocity = node.vel.copy().scale(-K, -K);
+    node.addForce(velocity);
+  }
+}
 public class Datum {
 
 	// the names of datum properties
@@ -351,6 +438,149 @@ public class DerLeser {
 		println("protocol = " + dat.protocol);
 	}
 
+}
+ class CenterPusher {
+
+ 	// private static final float PERCENT_DIST = 0.01;
+ 	private static final float PERCENT_DIST = 0;
+
+ 	private final ArrayList<Node> nodes;
+ 	private Rect bounds = null;
+
+ 	public CenterPusher(ArrayList<Node> nodes) {
+ 		this.nodes = nodes;
+ 	}
+
+ 	public void push() {
+ 		// if (dragged != null) {
+ 		// 	return;
+ 		// }
+
+ 		applyOffset(getOffset(getBounds()));
+ 	}
+
+ 	public void setBounds(Rect r) {
+ 		this.bounds = r;
+ 
+ 	}
+
+ 	private Rect getBounds() {
+ 		if (bounds == null) {
+ 			println("BOUNDS ARE NULL IN DIE CENTER PUSHER");
+ 			System.exit(1);
+ 		}
+ 		float left = bounds.w;
+ 		float top = bounds.h;
+ 		float right = bounds.x;
+ 		float bottom = bounds.y;
+
+ 		for (Node n : nodes) {
+ 			left = min(left, n.pos.x - n.radius);
+ 			top = min(top, n.pos.y - n.radius);
+ 			right = max(right, n.pos.x + n.radius);
+ 			bottom = max(bottom, n.pos.y + n.radius);
+		}
+
+ 		return new Rect(left, top, right - left, bottom - top);
+	}
+
+	private Point getOffset(Rect r) {
+		Point screenCenter = new Point((bounds.x + bounds.w / 2), 
+			(bounds.y + bounds.h / 2));
+		Point rectCenter = r.getCenter();
+
+		Point diff = rectCenter.diff(screenCenter).scale(PERCENT_DIST, PERCENT_DIST);
+		return diff;
+	}
+
+	private void applyOffset(Point offset) {
+		for (Node n : nodes) {
+			n.pos.add(new Vector(offset.x, offset.y));
+		}
+	}
+}
+class ForceDirectedGraph extends AbstractView {
+	private RenderMachine rm;
+	private Simulator sm;
+	private CenterPusher cp;
+	private ArrayList<Node> nodes;
+
+	public ForceDirectedGraph(ArrayList<Node> nodes, ArrayList<Spring> springs,
+		ArrayList<Zap> zaps, ArrayList<Damper> dampers, ArrayList<Datum> data) {
+		super(data);
+
+		rm = new RenderMachine(nodes, springs);
+		sm = new Simulator(nodes, springs, zaps, dampers);
+		cp = new CenterPusher(nodes);		
+		this.nodes = nodes;
+	}
+
+	public void render() {
+		 // if (!done || previous_w != width || previous_h != height) {
+    	done = !sm.step(seconds(16));
+  	// }
+
+		background(color(255, 255, 255));
+		cp.push();
+		rm.render();
+	}
+
+	public Simulator getSimulator() {
+		return sm;
+	}
+
+	public CenterPusher getCenterPusher() {
+		return cp;
+	}
+
+	public RenderMachine getRenderMachine() {
+		return rm;
+	}
+
+	public ArrayList<Node> getNodes() {
+		return nodes;
+	}
+
+	public void setBounds(Rect bounds) {
+		this.bounds = bounds;
+		cp.setBounds(bounds);
+	}
+
+
+	// TODO: Actually write this
+	public ArrayList<Datum> getHoveredDatums() {
+		return null;
+	}
+
+}
+
+// A ForceSource is something that can apply forces
+interface ForceSource {
+  // calculate the first applied by this source on its endpoints,
+  // and update the nodes to reflect this force
+  public void applyForce();
+}
+
+/**
+ * An InterNodeForce is a force that acts between two nodes.
+ */
+abstract class InterNodeForce implements ForceSource {
+  public Node endA;
+  public Node endB;
+  
+  public InterNodeForce(Node endA, Node endB) {
+    this.endA = endA;
+    this.endB = endB;
+  }
+  
+  protected float getDistance() {
+    return endB.pos.distFrom(endA.pos);
+//    return dist(endA.pos.x, endA.pos.y, endB.pos.x, endB.pos.y); 
+  }
+  
+  // calculate the first applied by this source on its endpoints,
+  // and update the nodes to reflect this force
+  public abstract void applyForce();
 }
 public interface Shape {}
 
@@ -729,11 +959,19 @@ class GridLayout {
 
 class Heatmap extends AbstractView {
 
+	private static final int PADDING_LEFT = 90;
+	private static final int PADDING_BOTTOM = 60;
+	private static final int FONT_SIZE = 12;
+
 	private final String xProperty;
 	private final String yProperty;
 
 	private final Bucketizer bucketizer; 
 	private final GridLayout gridLayout;
+
+	// layouts that chop up the space available for axis labeling
+	private final GridLayout xLabelLayout;
+	private final GridLayout yLabelLayout;
 
 	public Heatmap(ArrayList<Datum> data, String xProperty, String yProperty) {
 		super(data);
@@ -741,25 +979,109 @@ class Heatmap extends AbstractView {
 		this.yProperty = yProperty; 
 
 		bucketizer = new Bucketizer(data, xProperty, yProperty);
-		gridLayout = new GridLayout(bucketizer.getXValues().size(), bucketizer.getYValues().size());
+
+		int cols = bucketizer.getXValues().size();
+		int rows = bucketizer.getYValues().size();
+
+		gridLayout = new GridLayout(cols, rows);
+		xLabelLayout = new GridLayout(cols, 1);
+		yLabelLayout = new GridLayout(1, rows); 
 	}
 
 	public void setBounds(Rect bounds) {
 		super.setBounds(bounds);
 
-		int paddingLeft = 60;
-		int paddingBottom = 60;
+		// the grid gets inside by the padding left & bottom
+		Rect gridBounds = bounds.inset(PADDING_LEFT, 0, 0, PADDING_BOTTOM);
+		gridLayout.setBounds(gridBounds);
 
-		gridLayout.setBounds(bounds.inset(paddingLeft, 0, 0, paddingBottom));
+		// position the axis layouts
+		yLabelLayout.setBounds(new Rect(bounds.x, bounds.y, PADDING_LEFT, bounds.h - PADDING_BOTTOM));
+		xLabelLayout.setBounds(new Rect(
+			bounds.x + PADDING_LEFT, bounds.y + bounds.h - PADDING_BOTTOM, bounds.w - PADDING_LEFT, PADDING_BOTTOM));
 	}
 
 	public void render() {
+		renderGrid();
 		labelCells();
 		renderCells();
 	}
 
 	private void labelCells() {
+		labelX();
+		labelY();
+	}
 
+	private void renderGrid() {
+		ArrayList<String> xLabels = bucketizer.getXValues();
+		ArrayList<String> yLabels = bucketizer.getYValues();
+
+		// add vertical lines
+		for (int col = 0; col < xLabels.size(); col++) {
+			// grab the top + bottom
+			Rect top = gridLayout.getCellBounds(col, 0);
+			Rect bottom = gridLayout.getCellBounds(col, yLabels.size()-1);
+
+			// draw left edge
+			stroke(color(208,208,208));
+			fill(color(208, 208, 208));
+			line(top.x, top.y, bottom.x, bottom.y + bottom.h + PADDING_BOTTOM - 10);
+
+			// draw right edge on last col
+			if (col == xLabels.size() - 1) {
+				line(top.x + top.w, top.y, bottom.x + bottom.w, bottom.y + bottom.h + PADDING_BOTTOM - 10);
+			}
+		}
+
+		// add horizontal lines
+		for (int row = 0; row < yLabels.size(); row++) {
+			// grab the top + bottom
+			Rect left = gridLayout.getCellBounds(0, row);
+			Rect right = gridLayout.getCellBounds(xLabels.size()-1, row);
+
+			// draw left edge
+			stroke(color(208,208,208));
+			fill(color(208, 208, 208));
+			line(left.x - PADDING_LEFT + 10, left.y, right.x + right.w, right.y);
+
+			// draw bottom line on last row
+			if (row == yLabels.size() - 1) {
+				line(left.x - PADDING_LEFT + 10, left.y + left.h, right.x + right.w, right.y + right.h);
+			}
+		}
+	}
+
+	private void labelX() {
+		ArrayList<String> labels = bucketizer.getXValues();
+		for (int col = 0; col < labels.size(); col++) {
+			Point center = xLabelLayout.getCellBounds(col, 0).getCenter();
+			renderLabel(labels.get(col), center, true);
+		}
+	}
+
+	private void labelY() {
+		ArrayList<String> labels = bucketizer.getYValues();
+		for (int row = 0; row < labels.size(); row++) {
+			Point center = yLabelLayout.getCellBounds(0, row).getCenter();
+			renderLabel(labels.get(row), center, false);
+		}
+	}
+
+	private void renderLabel(String letters, Point center, boolean vertical) {
+		textSize(FONT_SIZE);
+		textAlign(CENTER, CENTER);
+		fill(color(0,0,0));
+		
+		pushMatrix();
+	  	translate(center.x, center.y);
+
+	  	if (vertical) {
+	  		rotate(HALF_PI);	
+	  	}
+		
+		text(letters, 0,0);
+
+		popMatrix();
 	}
 
 	private void renderCells() {
@@ -773,11 +1095,6 @@ class Heatmap extends AbstractView {
 				noStroke();
 				fill(fillColor);
 				rect(bounds.x, bounds.y, bounds.w, bounds.h);
-
-				// fill(color(0,0,0));
-				// textSize(5);
-				// textAlign(LEFT, TOP);
-				// text(count, bounds.x, bounds.y);
 			}
 		}
 	}
@@ -786,7 +1103,7 @@ class Heatmap extends AbstractView {
 	private int getColor(int col, int row, int count) {
 		// should this (col,row) be selected?
 		if (isSelected(col, row)) {
-			return color(0, 0, 0);
+			return SELECTED_COLOR;
 		}
 
 		// return interpolated, non-selected color
@@ -884,6 +1201,320 @@ class Kontroller {
 }
 
 
+class NetworkView extends AbstractView {
+
+	public final float NODE_WEIGHT = 4;
+	public final float SPRING_LENGTH = 100;
+
+	private ForceDirectedGraph fdg;
+
+	public NetworkView(ArrayList<Datum> data, Rect myBounds) {
+		super(data);
+		ArrayList<Node> nodes = createNodes();
+		ArrayList<Spring> springs = createSprings(nodes);
+		ArrayList<Zap> zaps = createZaps(nodes);
+		ArrayList<Damper> dampers = createDampers(nodes);
+		setAllBounds(nodes, myBounds);
+		placeNodes(nodes, myBounds);
+		addBackingDatums(nodes);
+		fdg = new ForceDirectedGraph(nodes, springs, zaps, dampers, data);
+	}
+
+	private ArrayList<Node> createNodes() {
+		HashSet<String> nodesToMake = getNodesToMake();
+		ArrayList<Node> toReturn = new ArrayList<Node>();
+
+		for (String s : nodesToMake) {
+			toReturn.add(new Node(s, NODE_WEIGHT));
+		}
+
+		return toReturn;
+	}
+
+
+	// HashSet filters out duplicates
+	private HashSet<String> getNodesToMake() {
+		HashSet<String> toReturn = new HashSet<String>();
+
+		for (Datum d : getData()) {
+			toReturn.add(d.destIP);
+			toReturn.add(d.sourceIP);
+		}
+
+		return toReturn;
+	}
+
+
+	public ArrayList<Spring> createSprings(ArrayList<Node> nodes) {
+		ArrayList<Spring> toReturn = new ArrayList<Spring>();
+
+		HashSet<String> springsToMake= getSpringsToMake();
+
+		for (String s : springsToMake) {
+			toReturn.add(makeSpring(s, nodes));
+		}
+
+		return toReturn;
+	}
+
+	// Creates "destIP,sourceIP" strings to tell calling function
+	// which springs to make
+	public HashSet<String> getSpringsToMake() {
+		HashSet<String> toReturn = new HashSet<String>();
+
+		for (Datum d : getData()) {
+			toReturn.add(d.destIP + "," + d.sourceIP);
+		}
+
+		return toReturn;
+	}
+
+	public Spring makeSpring(String s, ArrayList<Node> nodes) {
+		String[] listL = split(s, ",");
+		String endAID = listL[0];
+		String endBID = listL[1];
+
+		return new Spring(getCorrectNode(endAID, nodes), 
+			getCorrectNode(endBID, nodes), SPRING_LENGTH);
+	}
+
+	public Node getCorrectNode(String id, ArrayList<Node> nodes) {
+		for (Node n : nodes) {
+			if (n.id.equals(id)) {
+				return n;
+			}
+		}
+
+		// Didn't find a node, something wrong
+		println("ERROR: Invalid Node ID in getCorrectNode");
+		return null;
+	}
+
+  // Makes a bunch of zaps
+  public ArrayList<Zap> createZaps(ArrayList<Node> nodes) {
+    ArrayList<Zap> toReturn = new ArrayList<Zap>();
+    for (int i = 0; i < nodes.size(); i++) {
+      for (int j = (i + 1); j < nodes.size(); j++) {
+        toReturn.add(new Zap(nodes.get(i), nodes.get(j)));
+      }
+    }
+    return toReturn;
+  }
+
+  public ArrayList<Damper> createDampers(ArrayList<Node> nodes) {
+    ArrayList<Damper> toReturn = new ArrayList<Damper>();
+    for (int i = 0; i < nodes.size(); i++) {
+      toReturn.add(new Damper(nodes.get(i)));
+    }
+
+    return toReturn;
+  }
+
+	public void render() {
+		fdg.render();
+	}
+
+	public ArrayList<Datum> getHoveredDatums() {
+		ArrayList<Datum> toReturn = new ArrayList<Datum>();
+		for (Node n : fdg.getNodes()) {
+			if (n.containsPoint(mouseX, mouseY)) {
+				for (Datum d :  n.datumsEncapsulated) {
+					toReturn.add(d);
+				}
+			}
+		}
+
+		return toReturn;
+	}
+
+	public void setBounds(Rect bounds) {
+		fdg.setBounds(bounds);
+	}
+
+	private void setAllBounds(ArrayList<Node> nodes, Rect myBounds) {
+    	for (Node n : nodes) {
+      		n.setBounds(myBounds);
+    	}
+	}
+
+  // Randomly assigns position of nodes within playing field.
+  private void placeNodes(ArrayList<Node> nodes, Rect myBounds) {
+    for (int i = 0; i < nodes.size(); i++) {
+      Node toEdit = nodes.get(i);
+      toEdit.pos.x = random(myBounds.x, myBounds.w);
+      toEdit.pos.y = random(myBounds.y, myBounds.h);
+
+      if (toEdit.id.equals("*.1.0-10")) {
+      	toEdit.pos.x = myBounds.x + myBounds.w / 2;
+      	toEdit.pos.y = myBounds.y + myBounds.h / 2;
+      }
+    }
+  }
+
+  private void addBackingDatums(ArrayList<Node> nodes) {
+  	for (Node n : nodes) {
+  		n.datumsEncapsulated = new ArrayList<Datum>();
+  		for (Datum d : getData()) {
+  			if (n.id.equals(d.destIP) || 
+  				n.id.equals(d.sourceIP)) {
+  				n.datumsEncapsulated.add(d);
+  			}
+  		}
+  	}
+  }
+
+  public ForceDirectedGraph getFDG() {
+  	return fdg;
+  }
+}
+
+
+class Node {
+  public Point pos = new Point();
+  public Vector vel = new Vector();
+  
+  private Vector netForce = new Vector();
+  private Vector acc;
+  
+  public final String id;
+  public final float mass;
+  public final float radius;
+  public ArrayList<Datum> datumsEncapsulated = null;
+  
+  public boolean fixed = false;
+
+  private Rect bounds = new Rect(0, 0, width, height); // Default val
+  
+  public Node(String id, float mass) {
+    this.id = id;
+    this.mass = mass;
+    this.radius = sqrt(mass / PI) * 10;
+  }
+
+  public Rect getBounds() {
+    return bounds;
+  }
+
+  public void setBounds(Rect r) {
+    bounds = r;
+  }
+  
+  public void addForce(Vector f) {
+//    println("adding force = " + f);
+    netForce.add(f);
+  }
+  
+  // f = m * a --> a = f / m
+  private void updateAcceleration(float dt) {
+//    println("node = " + id + ", netforce = " + netForce);
+    
+    Vector prev = acc;
+
+    Float f1 = new Float(netForce.x);
+    Float f2 = new Float(netForce.y);
+
+    if (f1.isNaN(f1) || f2.isNaN(f2)) {
+      netForce = new Vector();
+    }
+    
+    float scale = 1.0f / mass;
+    this.acc = netForce.copy().scale(scale, scale);
+
+    if (id.equals("*.1.0-10")) {
+      // println("NewAcc = " + acc);
+      // System.exit(1);
+    }
+    
+    // reset netForce for next time
+    netForce.reset();
+  }
+  
+  private void updateVelocity(float dt) {
+    Vector prev = vel.copy();
+    
+    vel.add(acc.scale(dt, dt));
+
+  }
+  
+  /**
+   * Hit tests a point against the node's position (radius/center)
+   */
+  public boolean containsPoint(int x, int y) {
+    float dist = dist(pos.x, pos.y, x, y);
+    return dist < radius;
+  }
+  
+  public void updatePosition(float dt) {
+    if (fixed) { 
+      netForce.reset();  // Shouldn't accumulate forces if fixed
+      return;
+    }
+    
+    updateAcceleration(dt);
+    updateVelocity(dt);
+    
+    Point prev = new Point(pos.x, pos.y);
+    pos.add(vel.copy().scale(dt, dt));
+    
+    ensureInBounds();
+  }
+  
+  private static final float COLLISION_SCALE = -0.8f;
+  
+  private void ensureInBounds() {
+    if (bounds == null) {
+      bounds = new Rect(0, 0, width, height);
+    }
+
+    float xMin = bounds.x + radius;
+    float xMax = bounds.w + bounds.x - radius;
+    float yMin = bounds.y + radius;
+    float yMax = (bounds.h + bounds.y) - radius;
+    if (pos.x < xMin) {
+      pos.x = xMin;
+  
+      vel.x *= COLLISION_SCALE;
+    }
+    else if (pos.x > xMax) {
+      pos.x = xMax;   
+         
+      vel.x *= COLLISION_SCALE;
+    }
+    
+    if (pos.y < yMin) {
+      pos.y = yMin;
+      vel.y *= COLLISION_SCALE;
+    }
+    else if (pos.y > yMax) {
+      pos.y = yMax;
+      vel.y *= COLLISION_SCALE;
+    } 
+
+    Float p1 = new Float(pos.x);
+    Float p2 = new Float(pos.y);
+    Float v1 = new Float(vel.x);
+    Float v2 = new Float(vel.y);
+
+    // If anything is NaN -- make new Point and Velocity
+    if (p1.isNaN(p1) || p2.isNaN(p2) ||
+        v1.isNaN(v1) || v2.isNaN(v2)) {
+        pos = new Point(random(width), random(height));  // Place new point randomly
+        vel = new Vector(0.0f, 0.0f);  // Start it out with no movement
+    }
+  }
+  
+  public float getKineticEnergy() {
+    float speed = vel.getMagnitude();
+    float ke = 0.5f * mass * speed*speed;
+    return ke;   // 0.5 m * (v^2)
+  }
+
+  public String toString() {
+    return "id = " + id + ", mass = " + mass + ";";
+  }
+}
+
+
 
 class PieChart extends AbstractView {
 
@@ -896,7 +1527,7 @@ class PieChart extends AbstractView {
 		private final float startAngle;
 		private final float endAngle;
 
-		private final int fillColor;// = color(Math.round(Math.random() * 255), 0, 0);
+		private final int fillColor;
 
 		// set these to change how the WedgeView appears
 		private Point center = new Point(0,0);
@@ -913,12 +1544,12 @@ class PieChart extends AbstractView {
 		// renders, given the center and radius
 		private void render() {
 			ellipseMode(RADIUS);
-			// stroke(color(0,0,0));
+			// stroke(OUTLINE_COLOR);
 			noStroke();
 
 			// set fill color based on whether any element is selected
 			if (containsSelectedDatum()) {
-				fill(color(0,0,0));
+				fill(SELECTED_COLOR);
 			} else {
 				fill(fillColor);	
 			}
@@ -932,7 +1563,7 @@ class PieChart extends AbstractView {
 		// draws the label
 		private void label() {
 			float angle = getMiddleAngle();
-			float r = radius * 1.15f;
+			float r = radius * 1.3f;
 
 			float x = center.x + r * cos(angle);
 			float y = center.y + r * sin(angle);
@@ -991,7 +1622,7 @@ class PieChart extends AbstractView {
 		Point center = bounds.getCenter();
 
 		float limitingDimen = Math.min(bounds.w, bounds.h);
-		float radius = 0.75f * limitingDimen/2;
+		float radius = 0.6f * limitingDimen/2;
 
 		// update radius + center for each WedgeView
 		for (WedgeView wv : wedgeViews) {
@@ -1067,6 +1698,189 @@ class PieChart extends AbstractView {
 	}
 }
 
+/**
+ * Responsible for rendering the current state of the simulation.
+ */
+class RenderMachine {
+  
+  private final int TEXT_SIZE = 14;
+  
+  private final int EMPTY_NODE_COLOR = color(0,0,0);
+  private final int MOUSED_NODE_COLOR = color(0, 255, 0);
+  
+  private final int SPRING_COLOR = color(0,0,255);
+  
+  private final ArrayList<Node> nodes;
+  private final ArrayList<Spring> springs;
+ 
+  public RenderMachine(ArrayList<Node> nodes, ArrayList<Spring> springs) {
+    this.nodes = nodes;
+    this.springs = springs;
+  } 
+
+  public void setAllBounds(Rect r) {
+    for (Node n : nodes) {
+      n.setBounds(r);
+    }
+  }
+  
+  public void render() {
+    renderSprings();
+    renderNodes();
+  }
+  
+  private void renderSprings() {
+    for (Spring s : springs) {
+      renderSpring(s);
+    }
+  }
+  
+  private void renderSpring(Spring s) {
+    Point endA = s.endA.pos;
+    Point endB = s.endB.pos;
+   
+    stroke(SPRING_COLOR);
+    fill(SPRING_COLOR);
+    
+    line(endA.x, endA.y, endB.x, endB.y); 
+  }
+  
+  private void renderNodes() {
+    for (Node n : nodes) {
+      renderNode(n, getNodeColor(n));
+    } 
+  }
+  
+  private int getNodeColor(Node n) {
+    return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
+  }
+  
+  private void renderNode(Node n, int c) {
+    stroke(c);
+    fill(c);
+    circle(n.pos, n.radius);
+  }
+  
+  
+  private void circle(Point center, float radius) {
+    ellipseMode(RADIUS);
+    ellipse(center.x, center.y, radius, radius);
+  }
+}
+// Runs the simulation
+class Simulator {
+  
+  private static final float RESTING_ENERGY = 200;
+  
+  private final ArrayList<Node> nodes;
+  private final ArrayList<Spring> springs;
+  private final ArrayList<Zap> zaps;
+  private final ArrayList<Damper> dampers;
+  
+  public Simulator(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Zap> zaps, ArrayList<Damper> dampers) {
+    this.nodes = nodes;
+    this.springs = springs;
+    this.zaps = zaps;
+    this.dampers = dampers;
+  } 
+  
+  // returns true if the system should be redrawn
+  public boolean step(float dt) {
+    aggregateForces();
+    updatePositions(dt);
+    
+    return getKineticEnergy() > RESTING_ENERGY;
+  }
+  
+  private void aggregateForces() {
+    // tell all of the springs to apply their forces
+    for (Spring s : springs) {
+      s.applyForce(); 
+    }
+    
+    // tell all the dampers to apply their forces
+    for (Damper d : dampers) {
+      d.applyForce(); 
+    }
+    
+    // tell all the zaps to apply their forces
+    for (Zap z : zaps) {
+      z.applyForce(); 
+    }
+    
+  }
+  
+  private float getKineticEnergy() {
+    float total = 0;
+    
+    for (Node n : nodes) {
+      total += n.getKineticEnergy(); 
+    }
+        
+    return total;
+  }
+  
+  // applies nodes' velocities to t
+  private void updatePositions(float dt) {
+    for (Node n : nodes) {
+      n.updatePosition(dt);
+    } 
+  }
+  
+  private ArrayList<Node> getNodes() {
+    return nodes; 
+  }
+  
+}
+// This is what you think it is
+class Spring extends InterNodeForce {
+  
+  private static final float K = 2f;
+  // private static final float K = 0f;
+  
+  public final float restLen;
+  
+  public Spring(Node endA, Node endB, float restLen) {
+    super(endA, endB);
+    this.restLen = restLen;
+  }
+  
+  public void applyForce() {
+    // force is proportional to the diff between restLen and current idst 
+    
+    // a vector from A --> B
+    Vector diff = new Vector(endA.pos, endB.pos);
+    
+    // compute the current distance
+    float dist = diff.getMagnitude();
+    // compute dx, which is what the force depends on
+    float dx = Math.abs(dist - restLen);
+    
+    // a vector containing just the direction component of A --> B 
+    Vector dir = diff.copy().normalize();
+
+    Vector force = dir.copy().scale(-K * dx, -K * dx);    
+    
+    if (restLen < getDistance()) {
+      // forces go INWARDS
+      
+      endB.addForce(force);
+      endA.addForce(force.reverse());  
+    } else {
+      // forces go OUTWARDS
+      
+      endA.addForce(force);
+      endB.addForce(force.reverse());
+    }
+  }
+
+  public String toString() {
+    return "Node 1 = " + endA.id + ", Node 2 = " + endB.id + ", restLen = "
+      + restLen + ";";
+  }
+
+}
+
 // TempuraShrimpView
 class TemporalView extends AbstractView {
 
@@ -1094,6 +1908,33 @@ class TemporalView extends AbstractView {
 	public void render() {
 		heatmap.render();
 	}
+}
+// Instances of Coluomb laws
+class Zap extends InterNodeForce {
+
+  private static final float K = 100000f;
+  // private static final float K = 0;
+  
+  public Zap(Node endA, Node endB) {
+    super(endA, endB);
+  }
+  
+  public void applyForce() {
+    float r = getDistance();
+    
+    // make sure r is always >= 1
+    r = max(1, r);
+
+    // compute the magnitude of the coulombs force
+    float mag = K / (r*r);
+    
+    // normalize to extract direction, then scale by mag
+    Vector force = new Vector(endA.pos, endB.pos).normalize().scale(mag, mag);
+    
+    // apply to end points
+    endB.addForce(force);
+    endA.addForce(force.reverse());
+  }
 }
   static public void main(String[] passedArgs) {
     String[] appletArgs = new String[] { "a4" };
