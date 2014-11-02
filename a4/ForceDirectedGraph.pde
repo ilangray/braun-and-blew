@@ -19,7 +19,7 @@ class ForceDirectedGraph extends AbstractView {
     	done = !sm.step(seconds(16));
   	// }
 
-		background(color(255, 255, 255));
+		// background(color(255, 255, 255));
 		cp.push();
 		rm.render();
 	}

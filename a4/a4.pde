@@ -5,16 +5,11 @@ NetworkView nv;
 boolean done = false;
 
 void setup() {
-  size(1000, 600);	
-  frame.setResizable(true);
+	size(1000, 600);	
+	frame.setResizable(true);
 
-  Rect bounds = new Rect(0, 0, width, height / 3);
-
-  ArrayList<Datum> data = new DerLeser(FILENAME).readIn();
-  nv = new NetworkView(data, bounds);
-  nv.setBounds(bounds);
-
-  // kontroller = new Kontroller(data);
+	ArrayList<Datum> data = new DerLeser(FILENAME).readIn();
+	kontroller = new Kontroller(data);
 }
 
 // converts ms to seconds
@@ -23,6 +18,5 @@ float seconds(int ms) {
 }
 
 void draw() {
-	nv.render();
-  // kontroller.render();
+  	kontroller.render();
 }
