@@ -1,6 +1,9 @@
 
 abstract class AbstractView {
 
+	public final int SELECTED_COLOR = color(255, 255, 0);
+	public final int OUTLINE_COLOR = color(40,40,40);
+
 	// an AbstractView has a notion of the data that it is displaying
 	private final ArrayList<Datum> data;
 
