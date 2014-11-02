@@ -72,8 +72,6 @@ class Node {
       // System.exit(1);
     }
     
-//    println(" -- prev acc = " + prev + ", new = " + acc);
-    
     // reset netForce for next time
     netForce.reset();
   }
@@ -82,8 +80,7 @@ class Node {
     Vector prev = vel.copy();
     
     vel.add(acc.scale(dt, dt));
-    
-//    println(" -- prev vel = " + prev + ", new = " + vel);
+
   }
   
   /**
@@ -100,8 +97,6 @@ class Node {
       return;
     }
     
-//    println("Node w/ id = " + id);
-    
     updateAcceleration(dt);
     updateVelocity(dt);
     
@@ -109,8 +104,6 @@ class Node {
     pos.add(vel.copy().scale(dt, dt));
     
     ensureInBounds();
-    
-   // println(" -- prev point = " + prev + ", new = " + pos);
   }
   
   private static final float COLLISION_SCALE = -0.8;
@@ -148,14 +141,6 @@ class Node {
     Float p2 = new Float(pos.y);
     Float v1 = new Float(vel.x);
     Float v2 = new Float(vel.y);
-
-    if (p1.isNaN(p1) || p2.isNaN(p2)) {
-      // println("POS IS NAN = " + id);
-    }
-
-    if (v1.isNaN(v1) || v2.isNaN(v2)) {
-      // println("VELOCITY NULL = " + id);
-    }
 
     // If anything is NaN -- make new Point and Velocity
     if (p1.isNaN(p1) || p2.isNaN(p2) ||
