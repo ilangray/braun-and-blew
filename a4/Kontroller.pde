@@ -54,7 +54,8 @@ class Kontroller {
     // ask each graph what Datum is moused over
     return flatten( 
       categoricalView.getHoveredDatums(),
-      temporalView.getHoveredDatums()
+      temporalView.getHoveredDatums(),
+      networkView.getHoveredDatums()
     );
   }
   
