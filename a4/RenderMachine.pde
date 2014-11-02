@@ -52,8 +52,22 @@ class RenderMachine {
     } 
   }
   
+  private boolean isSelected(Node n) {
+    for (Datum d : n.datumsEncapsulated) {
+      if (d.isSelected()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private int getNodeColor(Node n) {
-    return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
+    if (isSelected(n)) {
+      return color(255, 255, 0);  // stolen from AbstractView
+    } else {
+      return EMPTY_NODE_COLOR;
+    }
+    // return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
   }
   
   private void renderNode(Node n, int c) {
