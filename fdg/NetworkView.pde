@@ -5,7 +5,7 @@ class NetworkView extends AbstractView {
 	public final float NODE_WEIGHT = 4;
 	public final float SPRING_LENGTH = 100;
 
-	public ForceDirectedGraph fdg;
+	private ForceDirectedGraph fdg;
 
 	public NetworkView(ArrayList<Datum> data, Rect myBounds) {
 		super(data);
@@ -138,5 +138,9 @@ class NetworkView extends AbstractView {
       	toEdit.pos.y = myBounds.y + myBounds.h / 2;
       }
     }
+  }
+
+  public ForceDirectedGraph getFDG() {
+  	return fdg;
   }
 }

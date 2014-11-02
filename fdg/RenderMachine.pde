@@ -79,7 +79,7 @@ class RenderMachine {
   }
   
     // renders the given string as a label above the hitbox
-  public void renderLabel(Point p, String s) {
+  private void renderLabel(Point p, String s) {
     
      float x = p.x;
      float y = p.y;

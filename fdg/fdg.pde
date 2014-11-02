@@ -49,6 +49,12 @@ float seconds(int ms) {
 }
 
 void draw() {
+  if (first) {
+    first = false;
+    ForceDirectedGraph fdg = nv.getFDG();
+    RenderMachine rm = fdg.getRenderMachine();
+    rm.renderLabel(new Point(0, 0), "yoloswag ist toll!");
+  }
   nv.render();
 }
 
