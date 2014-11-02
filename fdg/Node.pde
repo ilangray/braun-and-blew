@@ -4,10 +4,10 @@ class Node {
   public Point pos = new Point();
   public Vector vel = new Vector();
   
-  private final Vector netForce = new Vector();
+  private Vector netForce = new Vector();
   private Vector acc;
   
-  public final int id;
+  public final String id;
   public final float mass;
   public final float radius;
   
@@ -15,7 +15,7 @@ class Node {
 
   private Rect bounds = new Rect(0, 0, width, height); // Default val
   
-  public Node(int id, float mass) {
+  public Node(String id, float mass) {
     this.id = id;
     this.mass = mass;
     this.radius = sqrt(mass / PI) * 10;
@@ -39,11 +39,38 @@ class Node {
 //    println("node = " + id + ", netforce = " + netForce);
     
     Vector prev = acc;
+
+    // if (id.equals("*.1.0-10")) {
+      // println("PrevAcc = " + prev);
+      // println("Mass is = " + mass);
+      // netForce = new Vector();
+      
+    // }
+
+    Float f1 = new Float(netForce.x);
+    Float f2 = new Float(netForce.y);
+
+    if (f1.isNaN(f1) || f2.isNaN(f2)) {
+      netForce = new Vector();
+    }
+
+    // if (id.equals("*.1.0-10")) {
+    //   println("TROUBLE:");
+    // } else {
+    //   println("okay:");
+    // }
+
+    // println("Netforce = " + netForce);
+
+
     
     float scale = 1.0f / mass;
     this.acc = netForce.copy().scale(scale, scale);
-    
-//    println(" -- prev acc = " + prev + ", new = " + acc);
+
+    if (id.equals("*.1.0-10")) {
+      // println("NewAcc = " + acc);
+      // System.exit(1);
+    }
     
     // reset netForce for next time
     netForce.reset();
@@ -53,8 +80,7 @@ class Node {
     Vector prev = vel.copy();
     
     vel.add(acc.scale(dt, dt));
-    
-//    println(" -- prev vel = " + prev + ", new = " + vel);
+
   }
   
   /**
@@ -71,8 +97,6 @@ class Node {
       return;
     }
     
-//    println("Node w/ id = " + id);
-    
     updateAcceleration(dt);
     updateVelocity(dt);
     
@@ -80,8 +104,6 @@ class Node {
     pos.add(vel.copy().scale(dt, dt));
     
     ensureInBounds();
-    
-   // println(" -- prev point = " + prev + ", new = " + pos);
   }
   
   private static final float COLLISION_SCALE = -0.8;
@@ -132,5 +154,9 @@ class Node {
     float speed = vel.getMagnitude();
     float ke = 0.5f * mass * speed*speed;
     return ke;   // 0.5 m * (v^2)
+  }
+
+  public String toString() {
+    return "id = " + id + ", mass = " + mass + ";";
   }
 }

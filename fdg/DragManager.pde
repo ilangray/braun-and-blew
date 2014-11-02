@@ -2,7 +2,7 @@
   public Node dragged = null;
 
   Node getNode(int x, int y) {
-    for (Node n : fdg.getSimulator().getNodes()) {
+    for (Node n : nv.fdg.getSimulator().getNodes()) {
       if (n.containsPoint(x, y)) {
         return n;
       } 
@@ -22,7 +22,7 @@
   void mouseDragged() {
     if (dragged != null) {
         if (bounds == null) {
-            println("BOUNDS ARE NULL");
+            println("BOUNDS ARE NULL IN DRAG MANAGER");
             System.exit(1);
         }
         float xMin = bounds.x + dragged.radius;

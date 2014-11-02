@@ -8,10 +8,9 @@ CenterPusher cp;
 ForceDirectedGraph fdg;
 Rect halfBounds;
 Rect bounds;
+NetworkView nv;
 
 boolean done = false;
-
-boolean first = true;
 
 int previous_w;
 int previous_h;
@@ -21,14 +20,24 @@ void setup() {
   previous_w = width;
   previous_h = height;
   frame.setResizable(true);
- 
-  // read data
-  
-  bounds = new Rect(width / 3, height / 3, 2*width/3 - width/3, 2*height/3 - height/3);
+  bounds = new Rect(0, 0, width, height);
+  nv = new NetworkView(new DerLeser("data_aggregate.csv").readIn(), bounds);
 
-  DieWelt w = new Configurator("data.csv", bounds).configure();
+  // bounds = new Rect(width / 2, height / 2, width - width/2, height - height/2);
 
-  fdg = new ForceDirectedGraph(w, null);
+
+  nv.setBounds(bounds);
+
+  // DieWelt w = new Configurator("data.csv", bounds).configure();
+
+  // fdg = new ForceDirectedGraph(w.nodes, w.springs, w.zaps, w.dampers, null);
+
+  // if (fdg == null) {
+  //   println("In die Gerate fdg null ist");
+  // }
+
+  // fdg.setBounds(bounds);
+  // fdg.getCenterPusher().setBounds(bounds);
 
 }
 
@@ -38,6 +47,6 @@ float seconds(int ms) {
 }
 
 void draw() {
-  fdg.render();
+  nv.render();
 }
 

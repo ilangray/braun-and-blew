@@ -1,13 +1,13 @@
  class CenterPusher {
 
- 	private static final float PERCENT_DIST = 0.01;
+ 	// private static final float PERCENT_DIST = 0.01;
+ 	private static final float PERCENT_DIST = 0;
 
  	private final ArrayList<Node> nodes;
- 	private Rect bounds;
+ 	private Rect bounds = null;
 
- 	public CenterPusher(ArrayList<Node> nodes, Rect bounds) {
+ 	public CenterPusher(ArrayList<Node> nodes) {
  		this.nodes = nodes;
- 		this.bounds = bounds;
  	}
 
  	public void push() {
@@ -18,11 +18,20 @@
  		applyOffset(getOffset(getBounds()));
  	}
 
+ 	public void setBounds(Rect r) {
+ 		this.bounds = r;
+ 
+ 	}
+
  	private Rect getBounds() {
- 		float left = width;
- 		float top = height;
- 		float right = 0;
- 		float bottom = 0;
+ 		if (bounds == null) {
+ 			println("BOUNDS ARE NULL IN DIE CENTER PUSHER");
+ 			System.exit(1);
+ 		}
+ 		float left = bounds.w;
+ 		float top = bounds.h;
+ 		float right = bounds.x;
+ 		float bottom = bounds.y;
 
  		for (Node n : nodes) {
  			left = min(left, n.pos.x - n.radius);
@@ -35,7 +44,8 @@
 	}
 
 	private Point getOffset(Rect r) {
-		Point screenCenter = new Point(width/2, height/2);
+		Point screenCenter = new Point((bounds.x + bounds.w / 2), 
+			(bounds.y + bounds.h / 2));
 		Point rectCenter = r.getCenter();
 
 		Point diff = rectCenter.diff(screenCenter).scale(PERCENT_DIST, PERCENT_DIST);
