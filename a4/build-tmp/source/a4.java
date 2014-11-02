@@ -68,7 +68,7 @@ abstract class AbstractView {
 
 	// the bounds of this AbstractView, in pixels, not percentages
 	// this is where the AbstractView should draw itself in render()
-	protected Rect bounds;
+	public Rect bounds;
 
 	public final Rect getBounds() {
 		return bounds;
@@ -542,7 +542,7 @@ class ForceDirectedGraph extends AbstractView {
 	}
 
 	public void setBounds(Rect bounds) {
-		this.bounds = bounds;
+		super.setBounds(bounds);
 		cp.setBounds(bounds);
 	}
 

@@ -41,7 +41,7 @@ class ForceDirectedGraph extends AbstractView {
 	}
 
 	public void setBounds(Rect bounds) {
-		this.bounds = bounds;
+		super.setBounds(bounds);
 		cp.setBounds(bounds);
 	}
 
