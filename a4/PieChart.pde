@@ -12,7 +12,7 @@ class PieChart extends AbstractView {
 		private final float startAngle;
 		private final float endAngle;
 
-		private final int fillColor;// = color(Math.round(Math.random() * 255), 0, 0);
+		private final int fillColor;
 
 		// set these to change how the WedgeView appears
 		private Point center = new Point(0,0);
@@ -29,12 +29,12 @@ class PieChart extends AbstractView {
 		// renders, given the center and radius
 		private void render() {
 			ellipseMode(RADIUS);
-			// stroke(color(0,0,0));
+			// stroke(OUTLINE_COLOR);
 			noStroke();
 
 			// set fill color based on whether any element is selected
 			if (containsSelectedDatum()) {
-				fill(color(0,0,0));
+				fill(SELECTED_COLOR);
 			} else {
 				fill(fillColor);	
 			}
@@ -48,7 +48,7 @@ class PieChart extends AbstractView {
 		// draws the label
 		private void label() {
 			float angle = getMiddleAngle();
-			float r = radius * 1.15;
+			float r = radius * 1.3;
 
 			float x = center.x + r * cos(angle);
 			float y = center.y + r * sin(angle);
@@ -107,7 +107,7 @@ class PieChart extends AbstractView {
 		Point center = bounds.getCenter();
 
 		float limitingDimen = Math.min(bounds.w, bounds.h);
-		float radius = 0.75 * limitingDimen/2;
+		float radius = 0.6 * limitingDimen/2;
 
 		// update radius + center for each WedgeView
 		for (WedgeView wv : wedgeViews) {

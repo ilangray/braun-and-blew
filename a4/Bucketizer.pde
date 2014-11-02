@@ -25,8 +25,54 @@ class Bucketizer{
 		this.xValues = getUniqueValues(data, xProperty);
 		this.yValues = getUniqueValues(data, yProperty);
 
+		// sort x and y values
+		Collections.sort(yValues, new Comparator<String>() {
+			public int compare(String s1, String s2) {
+				return compareRange(s1, s2);
+			}
+		});
+		Collections.sort(xValues, new Comparator<String>() {
+			public int compare(String s1, String s2) {
+				return compareTimes(s1, s2);
+			}
+		});
+
 		this.grid = initGrid();
 		this.maxCount = computeMaxCount();
+	}
+
+	private int compareTimes(String t1, String t2) {
+		ArrayList<Integer> times1 = splitTimes(t1);
+		ArrayList<Integer> times2 = splitTimes(t2);
+
+		for (int i = 0; i < times1.size(); i++) {
+			if (times1.get(i) > times2.get(i)) {
+				return 1;
+			}
+			if (times1.get(i) < times2.get(i)) {
+				return -1;
+			}
+		}
+		return 0;
+	}
+
+	private ArrayList<Integer> splitTimes(String time) {
+		String[] parts = trim(split(time, ":"));
+
+		ArrayList<Integer> ints = new ArrayList<Integer>();
+
+		for (String p : parts) {
+			ints.add(Integer.parseInt(p));
+		}
+
+		return ints;
+	}
+
+	private int compareRange(String r1, String r2) {
+		int s1First = Integer.parseInt(trim(split(r1, "-")[0]));
+		int s2First = Integer.parseInt(trim(split(r2, "-")[0]));
+
+		return s1First < s2First ? 1 : -1;
 	}
 
 	private DatumGrid initGrid() {
