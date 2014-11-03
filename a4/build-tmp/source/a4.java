@@ -1770,12 +1770,43 @@ class RenderMachine {
   public void render() {
     renderSprings();
     renderNodes();
+    renderLabels();
   }
   
   private void renderSprings() {
     for (Spring s : springs) {
       renderSpring(s);
     }
+  }
+
+  public void renderLabels(){
+    for (Node n : nodes) {
+      if(n.containsPoint(mouseX, mouseY)) {
+        String label = "IP: " + n.id + ", Num: " + n.datumsEncapsulated.size();
+        renderLabel(n.pos, label);
+    }
+  }
+}
+
+public void renderLabel(Point p, String s) {  
+     float x = p.x;
+     float y = p.y;
+     
+     // set font size because text measurements depend on it
+     textSize(TEXT_SIZE);
+     
+     // bounding rectangle
+     float w = textWidth(s) * 1.1f;
+     float h = TEXT_SIZE * 1.3f;
+     fill(255,255,255, 200);
+     noStroke();
+     Rect r = new Rect(x - w/2, y - h, w, h);
+     rect(r.x, r.y, r.w, r.h, 3);
+     
+     // text 
+     textAlign(CENTER, BOTTOM);
+     fill(color(0,0,0));
+     text(s, x, y);
   }
   
   private void renderSpring(Spring s) {
