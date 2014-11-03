@@ -127,7 +127,21 @@ class NetworkView extends AbstractView {
   }
 
 	public void render() {
+		renderTitle();
 		fdg.render();
+	}
+
+	private void renderTitle() {
+		fill(color(0,0,0));
+
+		textAlign(LEFT, BOTTOM);
+
+		textSize(25);
+		text("Network View", 10, 35);
+
+		fill(color(0,0,0,128));
+		textSize(15);
+		text("a map of inter-computer communications", 185, 30);
 	}
 
 	public ArrayList<Datum> getHoveredDatums() {
@@ -144,8 +158,11 @@ class NetworkView extends AbstractView {
 	}
 
 	public void setBounds(Rect bounds) {
-		setAllBounds(bounds);
-		fdg.setBounds(bounds);
+		super.setBounds(bounds);
+
+		Rect fdgBounds = bounds.inset(0, 30, 0, 0);
+		setAllBounds(fdgBounds);
+		fdg.setBounds(fdgBounds);
 	}
 
 	private void setAllBounds(Rect myBounds) {

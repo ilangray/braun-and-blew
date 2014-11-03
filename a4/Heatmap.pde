@@ -60,6 +60,9 @@ class Heatmap extends AbstractView {
 		ArrayList<String> xLabels = bucketizer.getXValues();
 		ArrayList<String> yLabels = bucketizer.getYValues();
 
+		// gotta set the weight 
+		strokeWeight(1);
+
 		// add vertical lines
 		for (int col = 0; col < xLabels.size(); col++) {
 			// grab the top + bottom

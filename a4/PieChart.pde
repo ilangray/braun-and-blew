@@ -181,4 +181,8 @@ class PieChart extends AbstractView {
 
 		return groups;
 	}
+
+	private String getProperty() {
+		return property;
+	}
 }

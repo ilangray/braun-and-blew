@@ -32,6 +32,24 @@ class Kontroller {
     categoricalView.render();
     temporalView.render();
     networkView.render();
+
+    // separators go on top
+    renderSeparators();
+  }
+
+  private void renderSeparators() {
+    stroke(color(0,0,0));
+    strokeWeight(3);
+
+    // bottom edge of network
+    Rect netBounds = networkView.getBounds();
+    float netBottom = netBounds.y + netBounds.h;
+    line(netBounds.x, netBottom, netBounds.x + netBounds.w, netBottom);
+
+    // left edge of categorical
+    Rect catBounds = categoricalView.getBounds();
+    float catBottom = catBounds.y + catBounds.h;
+    line(catBounds.x, catBounds.y, catBounds.x, catBottom);
   }
   
   // repositions the graphs based on the current width/height of the screen
