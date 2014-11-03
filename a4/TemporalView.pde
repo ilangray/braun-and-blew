@@ -20,7 +20,7 @@ class TemporalView extends AbstractView {
 
 		// pass these bounds off to the heatmap, which 
 		// occupies all of the TemporalView's space
-		heatmap.setBounds(bounds.inset(0, 40, 0, 0));
+		heatmap.setBounds(bounds.inset(0, 40, 10, 0));
 	}
 
 	public void render() {
