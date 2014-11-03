@@ -5,10 +5,19 @@ class Spring extends InterNodeForce {
   // private static final float K = 0f;
   
   public final float restLen;
+  private int weight = 3;
   
   public Spring(Node endA, Node endB, float restLen) {
     super(endA, endB);
     this.restLen = restLen;
+  }
+
+  public int getWeight() {
+    return weight;
+  }
+
+  public void setWeight(int w) {
+    weight = w;
   }
   
   public void applyForce() {

@@ -5,6 +5,7 @@
 class RenderMachine {
   
   private final int TEXT_SIZE = 14;
+  private final int STROKE_WEIGHT = 1;
   
   private final int EMPTY_NODE_COLOR = color(0,0,0);
   private final int MOUSED_NODE_COLOR = color(0, 255, 0);
@@ -43,7 +44,9 @@ class RenderMachine {
     stroke(SPRING_COLOR);
     fill(SPRING_COLOR);
     
+    strokeWeight(s.weight);
     line(endA.x, endA.y, endB.x, endB.y); 
+    strokeWeight(STROKE_WEIGHT);
   }
   
   private void renderNodes() {

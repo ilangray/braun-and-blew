@@ -5,7 +5,7 @@ import processing.opengl.*;
 
 import java.util.*; 
 import java.util.*; 
-import java.util.*; 
+import java.util.Map; 
 import java.lang.*; 
 import java.util.*; 
 
@@ -27,16 +27,11 @@ NetworkView nv;
 boolean done = false;
 
 public void setup() {
-  size(1000, 600);	
-  frame.setResizable(true);
+	size(1000, 600);	
+	frame.setResizable(true);
 
-  Rect bounds = new Rect(0, 0, width, height / 3);
-
-  ArrayList<Datum> data = new DerLeser(FILENAME).readIn();
-  nv = new NetworkView(data, bounds);
-  nv.setBounds(bounds);
-
-  // kontroller = new Kontroller(data);
+	ArrayList<Datum> data = new DerLeser(FILENAME).readIn();
+	kontroller = new Kontroller(data);
 }
 
 // converts ms to seconds
@@ -45,8 +40,7 @@ public float seconds(int ms) {
 }
 
 public void draw() {
-	nv.render();
-  // kontroller.render();
+  	kontroller.render();
 }
 
 abstract class AbstractView {
@@ -520,7 +514,7 @@ class ForceDirectedGraph extends AbstractView {
     	done = !sm.step(seconds(16));
   	// }
 
-		background(color(255, 255, 255));
+		// background(color(255, 255, 255));
 		cp.push();
 		rm.render();
 	}
@@ -1139,6 +1133,7 @@ class Kontroller {
   
   private final ArrayList<Datum> data;
 
+  private final NetworkView networkView;
   private final CategoricalView categoricalView;
   private final TemporalView temporalView;
   
@@ -1147,27 +1142,33 @@ class Kontroller {
     
     this.categoricalView = new CategoricalView(data);
     this.temporalView = new TemporalView(data);
+
+    Rect bounds = new Rect(0, 0, 0.75f * width, height / 2);
+    this.networkView = new NetworkView(data, bounds);
+    positionView(networkView, 0, 0, 0.75f, 0.5f);
   } 
   
   public void render() {
-    deselectAllData();
-
+    // reposition everything
     updateGraphPositions();
     
-    // mouse over
+    // hover
     ArrayList<Datum> hovered = getHoveredDatums();
+    deselectAllData();
     selectData(hovered);
 
     // render:
     background(color(255, 255, 255));
     categoricalView.render();
     temporalView.render();
+    networkView.render();
   }
   
   // repositions the graphs based on the current width/height of the screen
   private void updateGraphPositions() {
     positionView(temporalView, 0, 0.5f, 0.75f, 0.5f);
     positionView(categoricalView, 0.75f, 0, 0.25f, 1.0f);
+    positionView(networkView, 0, 0, 0.75f, 0.5f);
   }
 
   private void positionView(AbstractView view, float px, float py, float pw, float ph) {
@@ -1183,7 +1184,8 @@ class Kontroller {
     // ask each graph what Datum is moused over
     return flatten( 
       categoricalView.getHoveredDatums(),
-      temporalView.getHoveredDatums()
+      temporalView.getHoveredDatums(),
+      networkView.getHoveredDatums()
     );
   }
   
@@ -1205,6 +1207,7 @@ class NetworkView extends AbstractView {
 
 	public final float NODE_WEIGHT = 4;
 	public final float SPRING_LENGTH = 100;
+	public final int MAX_SPRING_THICKNESS = 4;
 
 	private ForceDirectedGraph fdg;
 
@@ -1217,6 +1220,7 @@ class NetworkView extends AbstractView {
 		setAllBounds(nodes, myBounds);
 		placeNodes(nodes, myBounds);
 		addBackingDatums(nodes);
+		scaleSpringThickness(springs);
 		fdg = new ForceDirectedGraph(nodes, springs, zaps, dampers, data);
 	}
 
@@ -1245,13 +1249,13 @@ class NetworkView extends AbstractView {
 	}
 
 
-	public ArrayList<Spring> createSprings(ArrayList<Node> nodes) {
+	private ArrayList<Spring> createSprings(ArrayList<Node> nodes) {
 		ArrayList<Spring> toReturn = new ArrayList<Spring>();
 
-		HashSet<String> springsToMake= getSpringsToMake();
+		HashMap<String, Integer> springsToMake= getSpringsToMake();
 
-		for (String s : springsToMake) {
-			toReturn.add(makeSpring(s, nodes));
+		for (Map.Entry me : springsToMake.entrySet()) {
+			toReturn.add(makeSpring(me, nodes));			
 		}
 
 		return toReturn;
@@ -1259,26 +1263,38 @@ class NetworkView extends AbstractView {
 
 	// Creates "destIP,sourceIP" strings to tell calling function
 	// which springs to make
-	public HashSet<String> getSpringsToMake() {
-		HashSet<String> toReturn = new HashSet<String>();
+	private HashMap<String, Integer> getSpringsToMake() {
+		HashMap<String, Integer> toReturn = new HashMap<String, Integer>();
 
 		for (Datum d : getData()) {
-			toReturn.add(d.destIP + "," + d.sourceIP);
+			String toBeKey = d.destIP + "," + d.sourceIP;
+			if (toReturn.get(toBeKey) ==  null) { // First time seeing it
+				toReturn.put(toBeKey, 1);  // First one seen
+			} else {  // Seen it before
+				toReturn.put(toBeKey, toReturn.get(toBeKey) + 1); // Increment #
+			}
 		}
 
 		return toReturn;
 	}
 
-	public Spring makeSpring(String s, ArrayList<Node> nodes) {
-		String[] listL = split(s, ",");
+	private Spring makeSpring(Map.Entry me, ArrayList<Node> nodes) {
+		String k = (String)me.getKey();  // UGLY CASTING YUK
+		Integer weightPoint = (Integer)me.getValue();
+		int weight = weightPoint.intValue();
+		String[] listL = split(k, ",");
 		String endAID = listL[0];
 		String endBID = listL[1];
 
-		return new Spring(getCorrectNode(endAID, nodes), 
+		Spring spring = new Spring(getCorrectNode(endAID, nodes), 
 			getCorrectNode(endBID, nodes), SPRING_LENGTH);
+
+		spring.setWeight(weight);
+
+		return spring;
 	}
 
-	public Node getCorrectNode(String id, ArrayList<Node> nodes) {
+	private Node getCorrectNode(String id, ArrayList<Node> nodes) {
 		for (Node n : nodes) {
 			if (n.id.equals(id)) {
 				return n;
@@ -1291,7 +1307,7 @@ class NetworkView extends AbstractView {
 	}
 
   // Makes a bunch of zaps
-  public ArrayList<Zap> createZaps(ArrayList<Node> nodes) {
+  private ArrayList<Zap> createZaps(ArrayList<Node> nodes) {
     ArrayList<Zap> toReturn = new ArrayList<Zap>();
     for (int i = 0; i < nodes.size(); i++) {
       for (int j = (i + 1); j < nodes.size(); j++) {
@@ -1301,7 +1317,7 @@ class NetworkView extends AbstractView {
     return toReturn;
   }
 
-  public ArrayList<Damper> createDampers(ArrayList<Node> nodes) {
+  private ArrayList<Damper> createDampers(ArrayList<Node> nodes) {
     ArrayList<Damper> toReturn = new ArrayList<Damper>();
     for (int i = 0; i < nodes.size(); i++) {
       toReturn.add(new Damper(nodes.get(i)));
@@ -1361,6 +1377,28 @@ class NetworkView extends AbstractView {
   			}
   		}
   	}
+  }
+
+  // Finds the most weighted spring, sets this to MAX_SPRING_THICKNESS
+  // and the scales the rest of the springs
+  private void scaleSpringThickness(ArrayList<Spring> springs) {
+  	int currentMaxThickness = getCurrentMaxThickness(springs);
+
+  	for (Spring s : springs) {
+  		s.setWeight((s.getWeight() * MAX_SPRING_THICKNESS) / currentMaxThickness);
+  	}
+  }
+
+  private int getCurrentMaxThickness(ArrayList<Spring> springs) {
+  	int maxW = 0;
+
+  	for (Spring s : springs) {
+  		if (s.getWeight() > maxW) {
+  			maxW = s.getWeight();
+  		}
+  	}
+
+  	return maxW;
   }
 
   public ForceDirectedGraph getFDG() {
@@ -1704,6 +1742,7 @@ class PieChart extends AbstractView {
 class RenderMachine {
   
   private final int TEXT_SIZE = 14;
+  private final int STROKE_WEIGHT = 1;
   
   private final int EMPTY_NODE_COLOR = color(0,0,0);
   private final int MOUSED_NODE_COLOR = color(0, 255, 0);
@@ -1742,7 +1781,9 @@ class RenderMachine {
     stroke(SPRING_COLOR);
     fill(SPRING_COLOR);
     
+    strokeWeight(s.weight);
     line(endA.x, endA.y, endB.x, endB.y); 
+    strokeWeight(STROKE_WEIGHT);
   }
   
   private void renderNodes() {
@@ -1751,8 +1792,22 @@ class RenderMachine {
     } 
   }
   
+  private boolean isSelected(Node n) {
+    for (Datum d : n.datumsEncapsulated) {
+      if (d.isSelected()) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private int getNodeColor(Node n) {
-    return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
+    if (isSelected(n)) {
+      return color(255, 255, 0);  // stolen from AbstractView
+    } else {
+      return EMPTY_NODE_COLOR;
+    }
+    // return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
   }
   
   private void renderNode(Node n, int c) {
@@ -1839,10 +1894,19 @@ class Spring extends InterNodeForce {
   // private static final float K = 0f;
   
   public final float restLen;
+  private int weight = 3;
   
   public Spring(Node endA, Node endB, float restLen) {
     super(endA, endB);
     this.restLen = restLen;
+  }
+
+  public int getWeight() {
+    return weight;
+  }
+
+  public void setWeight(int w) {
+    weight = w;
   }
   
   public void applyForce() {
