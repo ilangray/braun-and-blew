@@ -6,17 +6,20 @@ class NetworkView extends AbstractView {
 	public final float SPRING_LENGTH = 100;
 	public final int MAX_SPRING_THICKNESS = 4;
 
+	private final ArrayList<Node> nodes;
+
 	private ForceDirectedGraph fdg;
 
 	public NetworkView(ArrayList<Datum> data, Rect myBounds) {
 		super(data);
 		ArrayList<Node> nodes = createNodes();
-		ArrayList<Spring> springs = createSprings(nodes);
-		ArrayList<Zap> zaps = createZaps(nodes);
-		ArrayList<Damper> dampers = createDampers(nodes);
-		setAllBounds(nodes, myBounds);
-		placeNodes(nodes, myBounds);
-		addBackingDatums(nodes);
+		this.nodes = nodes;
+		ArrayList<Spring> springs = createSprings();
+		ArrayList<Zap> zaps = createZaps();
+		ArrayList<Damper> dampers = createDampers();
+		setAllBounds(myBounds);
+		placeNodes(myBounds);
+		addBackingDatums();
 		scaleSpringThickness(springs);
 		fdg = new ForceDirectedGraph(nodes, springs, zaps, dampers, data);
 	}
@@ -46,13 +49,13 @@ class NetworkView extends AbstractView {
 	}
 
 
-	private ArrayList<Spring> createSprings(ArrayList<Node> nodes) {
+	private ArrayList<Spring> createSprings() {
 		ArrayList<Spring> toReturn = new ArrayList<Spring>();
 
 		HashMap<String, Integer> springsToMake= getSpringsToMake();
 
 		for (Map.Entry me : springsToMake.entrySet()) {
-			toReturn.add(makeSpring(me, nodes));			
+			toReturn.add(makeSpring(me));			
 		}
 
 		return toReturn;
@@ -75,7 +78,7 @@ class NetworkView extends AbstractView {
 		return toReturn;
 	}
 
-	private Spring makeSpring(Map.Entry me, ArrayList<Node> nodes) {
+	private Spring makeSpring(Map.Entry me) {
 		String k = (String)me.getKey();  // UGLY CASTING YUK
 		Integer weightPoint = (Integer)me.getValue();
 		int weight = weightPoint.intValue();
@@ -83,15 +86,15 @@ class NetworkView extends AbstractView {
 		String endAID = listL[0];
 		String endBID = listL[1];
 
-		Spring spring = new Spring(getCorrectNode(endAID, nodes), 
-			getCorrectNode(endBID, nodes), SPRING_LENGTH);
+		Spring spring = new Spring(getCorrectNode(endAID), 
+			getCorrectNode(endBID), SPRING_LENGTH);
 
 		spring.setWeight(weight);
 
 		return spring;
 	}
 
-	private Node getCorrectNode(String id, ArrayList<Node> nodes) {
+	private Node getCorrectNode(String id) {
 		for (Node n : nodes) {
 			if (n.id.equals(id)) {
 				return n;
@@ -104,7 +107,7 @@ class NetworkView extends AbstractView {
 	}
 
   // Makes a bunch of zaps
-  private ArrayList<Zap> createZaps(ArrayList<Node> nodes) {
+  private ArrayList<Zap> createZaps() {
     ArrayList<Zap> toReturn = new ArrayList<Zap>();
     for (int i = 0; i < nodes.size(); i++) {
       for (int j = (i + 1); j < nodes.size(); j++) {
@@ -114,7 +117,7 @@ class NetworkView extends AbstractView {
     return toReturn;
   }
 
-  private ArrayList<Damper> createDampers(ArrayList<Node> nodes) {
+  private ArrayList<Damper> createDampers() {
     ArrayList<Damper> toReturn = new ArrayList<Damper>();
     for (int i = 0; i < nodes.size(); i++) {
       toReturn.add(new Damper(nodes.get(i)));
@@ -141,17 +144,18 @@ class NetworkView extends AbstractView {
 	}
 
 	public void setBounds(Rect bounds) {
+		setAllBounds(bounds);
 		fdg.setBounds(bounds);
 	}
 
-	private void setAllBounds(ArrayList<Node> nodes, Rect myBounds) {
+	private void setAllBounds(Rect myBounds) {
     	for (Node n : nodes) {
       		n.setBounds(myBounds);
     	}
 	}
 
   // Randomly assigns position of nodes within playing field.
-  private void placeNodes(ArrayList<Node> nodes, Rect myBounds) {
+  private void placeNodes(Rect myBounds) {
     for (int i = 0; i < nodes.size(); i++) {
       Node toEdit = nodes.get(i);
       toEdit.pos.x = random(myBounds.x, myBounds.w);
@@ -164,7 +168,7 @@ class NetworkView extends AbstractView {
     }
   }
 
-  private void addBackingDatums(ArrayList<Node> nodes) {
+  private void addBackingDatums() {
   	for (Node n : nodes) {
   		n.datumsEncapsulated = new ArrayList<Datum>();
   		for (Datum d : getData()) {
