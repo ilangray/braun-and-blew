@@ -142,8 +142,20 @@ class Heatmap extends AbstractView {
 				noStroke();
 				fill(fillColor);
 				rect(bounds.x, bounds.y, bounds.w, bounds.h);
+
+				// if hit, render label
+				if (bounds.containsPoint(mouseX, mouseY)) {
+					renderLabel(bounds.getCenter(), "" + count);
+				}
 			}
 		}
+	}
+
+	private void renderLabel(Point p, String s) {  
+		textSize(14);
+		textAlign(CENTER, CENTER);
+		fill(color(0,0,0));
+		text(s, p.x, p.y);
 	}
 
 	// maps counts to colors

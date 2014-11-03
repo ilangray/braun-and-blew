@@ -43,6 +43,27 @@ class PieChart extends AbstractView {
 			float end = Math.max(startAngle, endAngle);
 
 			arc(center.x, center.y, radius, radius, start, end, PIE);
+
+			// if moused over, also draw the total number of datums
+			if (containsPoint(mouse)) {
+				float middleAngle = getMiddleAngle();
+
+				Point labelCenter = new Point(center.x + radius/2 * cos(middleAngle),
+											  center.y + radius/2 * sin(middleAngle));
+
+				if (Math.abs(endAngle - startAngle) == TWO_PI) {
+					labelCenter = center;
+				}
+
+				renderLabel(labelCenter, "" + data.size());
+			}
+		}
+
+		private void renderLabel(Point p, String s) {  
+			textSize(14);
+			textAlign(CENTER, CENTER);
+			fill(color(0,0,0));
+			text(s, p.x, p.y);
 		}
 
 		// draws the label
@@ -93,6 +114,9 @@ class PieChart extends AbstractView {
   	// the WedgeViews that render the segments of the PieChart
   	private final ArrayList<WedgeView> wedgeViews;
 
+  	// where is the mouse? filled before calling render on the wedges
+  	private Point mouse;
+
 	public PieChart(ArrayList<Datum> data, String property) {
 		super(data);
 
@@ -131,6 +155,8 @@ class PieChart extends AbstractView {
 	}
 
 	public void render() {
+		mouse = new Point(mouseX, mouseY);
+
 		// render + label each WedgeView
 		for (WedgeView wv : wedgeViews) {
 			wv.render();
