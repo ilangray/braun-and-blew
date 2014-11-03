@@ -40,6 +40,6 @@ class TemporalView extends AbstractView {
 
 		fill(color(0,0,0,128));
 		textSize(15);
-		text("a heatmap of port range activity by time", x + 200, y + 30);
+		text("a heatmap of activity on port ranges vs. time", x + 200, y + 30);
 	}
 }
