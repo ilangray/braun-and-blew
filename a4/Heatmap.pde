@@ -32,6 +32,10 @@ class Heatmap extends AbstractView {
 		yLabelLayout = new GridLayout(1, rows); 
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		return null;
+	}
+
 	public void setBounds(Rect bounds) {
 		super.setBounds(bounds);
 

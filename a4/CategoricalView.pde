@@ -16,6 +16,12 @@ class CategoricalView extends AbstractView {
 		pieCharts = makeList(operation, priority, protocol);
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		ArrayList<Datum> ds = new ArrayList<Datum>();
+
+		return ds;
+	}
+
 	// unions the hovered elements from all pie charts
 	public ArrayList<Datum> getHoveredDatums() {
 		ArrayList<Datum> hovered = new ArrayList<Datum>();

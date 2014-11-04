@@ -20,3 +20,19 @@ float seconds(int ms) {
 void draw() {
   	kontroller.render();
 }
+
+void mousePressed() { 
+	kontroller.getMouseHandler().mousePressed();
+}
+
+void mouseDragged() { 
+	kontroller.getMouseHandler().mouseDragged();
+}
+
+void mouseReleased() { 
+	kontroller.getMouseHandler().mouseReleased();
+}
+
+void mouseClicked() { 
+	kontroller.getMouseHandler().mouseClicked();
+}

@@ -24,6 +24,48 @@ class NetworkView extends AbstractView {
 		fdg = new ForceDirectedGraph(nodes, springs, zaps, dampers, data);
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		ArrayList<Datum> ds = new ArrayList<Datum>();
+
+		for (Node n : nodes) {
+			if (intersects(r, n) || intersects(n, r)) {
+				ds.addAll(n.datumsEncapsulated);
+			}
+		}
+
+		println("" + ds.size() + " nodes are selected in rect");
+
+		return ds;
+	}
+
+	// returns true iff the given rect intersects the given circle
+	private boolean intersects(Rect r, Node n) {
+		int minX = Math.round(r.x);
+		int maxX = Math.round(r.x + r.w);
+
+		int minY = Math.round(r.y);
+		int maxY = Math.round(r.y + r.h);
+
+		return n.containsPoint(minX, minY) || 
+			   n.containsPoint(minX, maxY) ||
+			   n.containsPoint(maxX, minY) ||
+			   n.containsPoint(maxX, maxY);
+	}
+
+	// this is an abomination against the lord
+	private boolean intersects(Node n, Rect r) {
+		int minX = Math.round(n.pos.x - n.radius);
+		int maxX = Math.round(n.pos.x + n.radius);
+
+		int minY = Math.round(n.pos.y - n.radius);
+		int maxY = Math.round(n.pos.y + n.radius);
+
+		return r.containsPoint(minX, minY) || 
+			   r.containsPoint(minX, maxY) ||
+			   r.containsPoint(maxX, minY) ||
+			   r.containsPoint(maxX, maxY);
+	}
+
 	private ArrayList<Node> createNodes() {
 		HashSet<String> nodesToMake = getNodesToMake();
 		ArrayList<Node> toReturn = new ArrayList<Node>();

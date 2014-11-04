@@ -14,6 +14,10 @@ class ForceDirectedGraph extends AbstractView {
 		this.nodes = nodes;
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		return null;
+	}
+
 	public void render() {
 		 // if (!done || previous_w != width || previous_h != height) {
     	done = !sm.step(seconds(16));

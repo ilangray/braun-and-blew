@@ -36,4 +36,7 @@ abstract class AbstractView {
 	// mouse, or an empty ArrayList if no such datum exists
 	public abstract ArrayList<Datum> getHoveredDatums();
 
+	// return the Datum(s) that are currently under the given rectangle.
+	public abstract ArrayList<Datum> getSelectedDatums(Rect r);
+
 }

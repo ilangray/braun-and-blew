@@ -6,6 +6,8 @@ class Kontroller {
   private final NetworkView networkView;
   private final CategoricalView categoricalView;
   private final TemporalView temporalView;
+
+  private SelectionController selectionController;
   
   public Kontroller(ArrayList<Datum> data) {
     this.data = data;
@@ -16,6 +18,10 @@ class Kontroller {
     Rect bounds = new Rect(0, 0, 0.75 * width, height / 2);
     this.networkView = new NetworkView(data, bounds);
     positionView(networkView, 0, 0, 0.75, 0.5);
+
+    selectionController = new RectSelectionController(
+      makeList(networkView, categoricalView, temporalView)
+    );
   } 
   
   public void render() {
@@ -23,7 +29,7 @@ class Kontroller {
     updateGraphPositions();
     
     // hover
-    ArrayList<Datum> hovered = getHoveredDatums();
+    ArrayList<Datum> hovered = selectionController.getSelectedDatums();
     deselectAllData();
     selectData(hovered);
 
@@ -35,6 +41,8 @@ class Kontroller {
 
     // separators go on top
     renderSeparators();
+
+    selectionController.render();
   }
 
   private void renderSeparators() {
@@ -67,16 +75,6 @@ class Kontroller {
     view.setBounds(new Rect(x, y, w, h));
   }
   
-  // returns the datum currently moused-over, or null if none.
-  private ArrayList<Datum> getHoveredDatums() {
-    // ask each graph what Datum is moused over
-    return flatten( 
-      categoricalView.getHoveredDatums(),
-      temporalView.getHoveredDatums(),
-      networkView.getHoveredDatums()
-    );
-  }
-  
   private void selectData(ArrayList<Datum> toSelect) {
     for (Datum d : toSelect) {
       d.setSelected(true);
@@ -87,5 +85,9 @@ class Kontroller {
     for (Datum d : data) {
       d.setSelected(false);
     } 
+  }
+
+  public MouseHandler getMouseHandler() {
+    return selectionController;
   }
 }

@@ -176,7 +176,7 @@ class Vector {
 }
   
 class Rect implements Shape {
-  public final float x, y, w, h;
+  public float x, y, w, h;
   
   Rect(float x, float y, float w, float h) {
     this.x = x;
@@ -253,6 +253,16 @@ class Rect implements Shape {
   }
 
   return ts;
+}
+
+<T> ArrayList<T> flatten(ArrayList<ArrayList<T>> lists) {
+  ArrayList<T> master = new ArrayList<T>();
+
+  for (ArrayList<T> list : lists) {
+    master.addAll(list);
+  }
+
+  return master;
 }
 
 <T> ArrayList<T> flatten(ArrayList<T>... lists) {

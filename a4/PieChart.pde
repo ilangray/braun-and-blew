@@ -140,6 +140,10 @@ class PieChart extends AbstractView {
 		}
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		return null;
+	}
+
 	public ArrayList<Datum> getHoveredDatums() {
 		Point mouse = new Point(mouseX, mouseY);
 
