@@ -5,4 +5,8 @@ class OrSelectionController extends RectSelectionController {
 		super(views);
 	}
 
+	// the subclass should merge the results from each AbstractView
+	protected ArrayList<Datum> accumulate(ArrayList<ArrayList<Datum>> datums) {
+		return flatten(datums);
+	}
 }

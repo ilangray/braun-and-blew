@@ -1,5 +1,5 @@
 
-class RectSelectionController extends AccumulatingSelectionController {
+abstract class RectSelectionController extends AccumulatingSelectionController {
 
 	// previous rectangles currently being tracked
 	private final ArrayList<Rect> rects = new ArrayList<Rect>();
@@ -87,11 +87,6 @@ class RectSelectionController extends AccumulatingSelectionController {
 		}
 
 		return rs;
-	}
-
-	// the subclass should merge the results from each AbstractView
-	protected ArrayList<Datum> accumulate(ArrayList<ArrayList<Datum>> datums) {
-		return flatten(datums);
 	}
 
 	// the subclass should extract the selected datums from the given view

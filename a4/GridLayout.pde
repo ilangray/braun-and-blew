@@ -36,6 +36,18 @@ class GridLayout {
 		return nullIfOutOfBounds(coord);
 	}
 
+	public int getCellXCoord(float x) {
+		float localX = x - bounds.x;
+		int xCoord = (int)(localX / getCellWidth());
+		return xCoord;
+	}
+
+	public int getCellYCoord(float y) {
+		float localY = y - bounds.y;
+		int yCoord = (int)(localY / getCellHeight());
+		return yCoord;
+	}
+
 	private Point nullIfOutOfBounds(Point coord) {
 		if (coord.x < 0 || coord.x >= cols) {
 			return null;

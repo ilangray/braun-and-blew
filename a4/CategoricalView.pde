@@ -18,7 +18,6 @@ class CategoricalView extends AbstractView {
 
 	public ArrayList<Datum> getSelectedDatums(Rect r) {
 		ArrayList<Datum> ds = new ArrayList<Datum>();
-
 		return ds;
 	}
 

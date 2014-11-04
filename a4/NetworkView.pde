@@ -28,7 +28,7 @@ class NetworkView extends AbstractView {
 		ArrayList<Datum> ds = new ArrayList<Datum>();
 
 		for (Node n : nodes) {
-			if (intersects(r, n) || intersects(n, r)) {
+			if (intersects(n, r)) {
 				ds.addAll(n.datumsEncapsulated);
 			}
 		}
@@ -38,21 +38,6 @@ class NetworkView extends AbstractView {
 		return ds;
 	}
 
-	// returns true iff the given rect intersects the given circle
-	private boolean intersects(Rect r, Node n) {
-		int minX = Math.round(r.x);
-		int maxX = Math.round(r.x + r.w);
-
-		int minY = Math.round(r.y);
-		int maxY = Math.round(r.y + r.h);
-
-		return n.containsPoint(minX, minY) || 
-			   n.containsPoint(minX, maxY) ||
-			   n.containsPoint(maxX, minY) ||
-			   n.containsPoint(maxX, maxY);
-	}
-
-	// this is an abomination against the lord
 	private boolean intersects(Node n, Rect r) {
 		int minX = Math.round(n.pos.x - n.radius);
 		int maxX = Math.round(n.pos.x + n.radius);

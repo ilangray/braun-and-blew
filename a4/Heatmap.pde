@@ -33,7 +33,24 @@ class Heatmap extends AbstractView {
 	}
 
 	public ArrayList<Datum> getSelectedDatums(Rect r) {
-		return null;
+		
+		// figure out the most extreme cells hit
+		int startC = gridLayout.getCellXCoord(r.x);
+		int endC = gridLayout.getCellXCoord(r.x + r.w);
+
+		int startR = gridLayout.getCellYCoord(r.y);
+		int endR = gridLayout.getCellYCoord(r.y + r.h);
+
+		// grab everything in between
+		ArrayList<Datum> ds = makeList();
+
+		for (int col = startC; col <= endC; col++) {
+			for (int row = startR; row <= endR; row++) {
+				ds.addAll(bucketizer.getDatums(col, row));
+			}
+		}
+
+		return ds;
 	}
 
 	public void setBounds(Rect bounds) {

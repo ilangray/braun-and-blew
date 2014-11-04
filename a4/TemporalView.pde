@@ -12,9 +12,7 @@ class TemporalView extends AbstractView {
 	}
 
 	public ArrayList<Datum> getSelectedDatums(Rect r) {
-		ArrayList<Datum> ds = new ArrayList<Datum>();
-
-		return ds;
+		return heatmap.getSelectedDatums(r);
 	}
 
 	public ArrayList<Datum> getHoveredDatums() {

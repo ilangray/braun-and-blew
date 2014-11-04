@@ -19,7 +19,7 @@ class Kontroller {
     this.networkView = new NetworkView(data, bounds);
     positionView(networkView, 0, 0, 0.75, 0.5);
 
-    selectionController = new RectSelectionController(
+    selectionController = new OrSelectionController(
       makeList(networkView, categoricalView, temporalView)
     );
   } 
@@ -63,7 +63,7 @@ class Kontroller {
   // repositions the graphs based on the current width/height of the screen
   private void updateGraphPositions() {
     positionView(temporalView, 0, 0.5, 0.75, 0.5);
-    positionView(categoricalView, 0.75, 0, 0.25, 1.0);
+    positionView(categoricalView, 0.75, 0.1, 0.25, 0.9);
     positionView(networkView, 0, 0, 0.75, 0.5);
   }
 
@@ -89,5 +89,19 @@ class Kontroller {
 
   public MouseHandler getMouseHandler() {
     return selectionController;
+  }
+
+  public void setSelectionController(String name) {
+    if (name.equals("Hover")) {
+      selectionController = new HoverSelectionController(
+        makeList(networkView, categoricalView, temporalView)
+      );
+    }
+
+    if (name.equals("Or")) {
+      selectionController = new OrSelectionController(
+        makeList(networkView, categoricalView, temporalView)
+      );
+    }
   }
 }
