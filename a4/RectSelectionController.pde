@@ -6,6 +6,7 @@ class RectSelectionController extends AccumulatingSelectionController {
 
 	// the rect currently being expanded, or null if none exists.
 	private Rect currentSelection;
+	private Point touchdownLocation;
 
 	public RectSelectionController(ArrayList<AbstractView> views) {
 		super(views);
@@ -47,16 +48,23 @@ class RectSelectionController extends AccumulatingSelectionController {
 	public void mousePressed() { 
 		println("mouse pressed!");
 		currentSelection = new Rect(mouseX, mouseY, 0, 0);
+
+		touchdownLocation = new Point(mouseX, mouseY);
 	}
 	
 	// fails if you go upper left of starting point?
 	public void mouseDragged() { 
-		float x = currentSelection.x;
-		float y = currentSelection.y;
+		float origX = touchdownLocation.x;
+		float origY = touchdownLocation.y;
 
-		float w = mouseX - x;
-		float h = mouseY - y;
+		float w = Math.abs(mouseX - origX);
+		float h = Math.abs(mouseY - origY);
 
+		float x = Math.min(origX, mouseX);
+		float y = Math.min(origY, mouseY);
+
+		currentSelection.x = x;
+		currentSelection.y = y;
 		currentSelection.w = w;
 		currentSelection.h = h;
 	}
