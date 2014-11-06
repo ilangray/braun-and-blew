@@ -5,6 +5,7 @@ import processing.opengl.*;
 
 import java.util.*; 
 import java.util.*; 
+import java.util.*; 
 import java.util.Map; 
 import java.lang.*; 
 import java.util.*; 
@@ -26,12 +27,17 @@ Kontroller kontroller;
 NetworkView nv;
 boolean done = false;
 
+ArrayList<String> MODES = makeList("Hover", "Or");
+int currentMode = 0;
+
 public void setup() {
 	size(1000, 600);	
 	frame.setResizable(true);
 
 	ArrayList<Datum> data = new DerLeser(FILENAME).readIn();
 	kontroller = new Kontroller(data);
+
+	kontroller.setSelectionController(MODES.get(currentMode));
 }
 
 // converts ms to seconds
@@ -41,6 +47,35 @@ public float seconds(int ms) {
 
 public void draw() {
   	kontroller.render();
+
+  	textAlign(CENTER, BOTTOM);
+  	textSize(20);
+  	fill(color(0,0,0));
+  	stroke(color(0,0,0));
+  	text(MODES.get(currentMode), 0.875f * width, 0.05f * height);
+}
+
+public void mousePressed() { 
+	kontroller.getMouseHandler().mousePressed();
+}
+
+public void mouseDragged() { 
+	kontroller.getMouseHandler().mouseDragged();
+}
+
+public void mouseReleased() { 
+	kontroller.getMouseHandler().mouseReleased();
+}
+
+public void mouseClicked() { 
+	kontroller.getMouseHandler().mouseClicked();
+
+	// if hits button, rotate
+}
+
+public void keyPressed() {
+	currentMode = (currentMode + 1) % MODES.size();
+	kontroller.setSelectionController(MODES.get(currentMode));
 }
 
 abstract class AbstractView {
@@ -80,6 +115,55 @@ abstract class AbstractView {
 	// mouse, or an empty ArrayList if no such datum exists
 	public abstract ArrayList<Datum> getHoveredDatums();
 
+	// return the Datum(s) that are currently under the given rectangle.
+	public abstract ArrayList<Datum> getSelectedDatums(Rect r);
+
+}
+
+
+
+class AndSelectionController extends RectSelectionController {
+
+	public AndSelectionController(ArrayList<AbstractView> views) {
+		super(views);
+	}
+
+	// the subclass should merge the results from each AbstractView
+	protected ArrayList<Datum> accumulate(ArrayList<ArrayList<Datum>> datums) {
+
+		Set<Integer> ids = new HashSet<Integer>();
+
+		// start with the first set of datums' ids
+		ids.addAll(getIds(datums.get(0)));
+
+		for (ArrayList<Datum> ds : datums) {
+			ids.retainAll(getIds(ds));
+		}
+
+		return getDatumsWithIds(flatten(datums), ids);
+	}
+
+	private ArrayList<Integer> getIds(ArrayList<Datum> ds) {
+		ArrayList<Integer> ids = new ArrayList<Integer>();
+
+		for (Datum d : ds) {
+			ids.add(d.id);
+		}
+
+		return ids;
+	}
+
+	private ArrayList<Datum> getDatumsWithIds(ArrayList<Datum> ds, Set<Integer> ids) {
+		ArrayList<Datum> out = new ArrayList<Datum>();
+
+		for (Datum d : ds) {
+			if (ids.contains(d.id)) {
+				out.add(d);
+			}
+		}
+
+		return out;
+	}
 }
 
 // buckets datums by a pair of properties
@@ -257,6 +341,11 @@ class CategoricalView extends AbstractView {
 		pieCharts = makeList(operation, priority, protocol);
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		ArrayList<Datum> ds = new ArrayList<Datum>();
+		return ds;
+	}
+
 	// unions the hovered elements from all pie charts
 	public ArrayList<Datum> getHoveredDatums() {
 		ArrayList<Datum> hovered = new ArrayList<Datum>();
@@ -271,20 +360,85 @@ class CategoricalView extends AbstractView {
 	public void setBounds(Rect bounds) {
 		super.setBounds(bounds);
 
+		Rect pieBounds = bounds.inset(0, 40, 0, 0);
+		layoutPieCharts(pieBounds);
+	}
+
+	private void layoutPieCharts(Rect bounds) {
+		ArrayList<Rect> rects = getPieChartBounds(bounds);
+
+		for (int i = 0; i < rects.size(); ++i) {
+			Rect r = rects.get(i);
+			PieChart pc = pieCharts.get(i);
+
+			pc.setBounds(r.inset(0, 20, 0, 0));
+		}
+	}
+
+	private ArrayList<Rect> getPieChartBounds(Rect bounds) {
+		ArrayList<Rect> rects = new ArrayList<Rect>();
 		float unitHeight = bounds.h / pieCharts.size();
 
 		// reposition each of the pie charts
 		for (int i = 0; i < pieCharts.size(); i++) {
 			float top = bounds.y + unitHeight * i;
-
-			Rect pieBounds = new Rect(bounds.x, top, bounds.w, unitHeight);
-			pieCharts.get(i).setBounds(pieBounds);
+			rects.add(new Rect(bounds.x, top, bounds.w, unitHeight));
 		}
+
+		return rects;
 	}
 
 	public void render() {
+		renderTitle();
+		renderPieCharts();
+		renderPieChartTitles();
+		renderSeparators();
+	}
+
+	private void renderPieChartTitles() {
+		fill(color(0,0,0,128));
+		textSize(15);
+		textAlign(CENTER, BOTTOM);
+
+		for (PieChart pc : pieCharts) {
+			Rect bounds = pc.getBounds();
+
+			float x = pc.getBounds().getCenter().x;
+			float y = pc.getBounds().y;
+			text("by " + pc.getProperty() + ":", x, y);
+		}
+	}
+
+	private void renderPieCharts() {
 		for (PieChart pc : pieCharts) {
 			pc.render();
+		}
+	}
+
+	private void renderTitle() {
+		textAlign(CENTER, BOTTOM);
+
+		float x = getBounds().x;
+		float y = getBounds().y;
+
+		Point center = getBounds().getCenter();
+
+		fill(color(0,0,0));
+		textSize(25);
+		text("Categorical View", center.x, y + 35);
+	}
+
+	private void renderSeparators() {
+		strokeWeight(1);
+
+		for (int i = 1; i < pieCharts.size(); i++) {
+			PieChart pc = pieCharts.get(i);
+			Rect bounds = pc.getBounds();
+
+			float y = bounds.y - 25;
+
+			stroke(color(0,0,0,128));
+			line(bounds.x, y, bounds.x + bounds.w, y);
 		}
 	}
 }
@@ -507,6 +661,10 @@ class ForceDirectedGraph extends AbstractView {
 		sm = new Simulator(nodes, springs, zaps, dampers);
 		cp = new CenterPusher(nodes);		
 		this.nodes = nodes;
+	}
+
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		return null;
 	}
 
 	public void render() {
@@ -754,7 +912,7 @@ class Vector {
 }
   
 class Rect implements Shape {
-  public final float x, y, w, h;
+  public float x, y, w, h;
   
   Rect(float x, float y, float w, float h) {
     this.x = x;
@@ -831,6 +989,16 @@ class Rect implements Shape {
   }
 
   return ts;
+}
+
+<T> ArrayList<T> flatten(ArrayList<ArrayList<T>> lists) {
+  ArrayList<T> master = new ArrayList<T>();
+
+  for (ArrayList<T> list : lists) {
+    master.addAll(list);
+  }
+
+  return master;
 }
 
 <T> ArrayList<T> flatten(ArrayList<T>... lists) {
@@ -920,6 +1088,18 @@ class GridLayout {
 		return nullIfOutOfBounds(coord);
 	}
 
+	public int getCellXCoord(float x) {
+		float localX = x - bounds.x;
+		int xCoord = (int)(localX / getCellWidth());
+		return xCoord;
+	}
+
+	public int getCellYCoord(float y) {
+		float localY = y - bounds.y;
+		int yCoord = (int)(localY / getCellHeight());
+		return yCoord;
+	}
+
 	private Point nullIfOutOfBounds(Point coord) {
 		if (coord.x < 0 || coord.x >= cols) {
 			return null;
@@ -982,6 +1162,27 @@ class Heatmap extends AbstractView {
 		yLabelLayout = new GridLayout(1, rows); 
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		
+		// figure out the most extreme cells hit
+		int startC = gridLayout.getCellXCoord(r.x);
+		int endC = gridLayout.getCellXCoord(r.x + r.w);
+
+		int startR = gridLayout.getCellYCoord(r.y);
+		int endR = gridLayout.getCellYCoord(r.y + r.h);
+
+		// grab everything in between
+		ArrayList<Datum> ds = makeList();
+
+		for (int col = startC; col <= endC; col++) {
+			for (int row = startR; row <= endR; row++) {
+				ds.addAll(bucketizer.getDatums(col, row));
+			}
+		}
+
+		return ds;
+	}
+
 	public void setBounds(Rect bounds) {
 		super.setBounds(bounds);
 
@@ -1009,6 +1210,9 @@ class Heatmap extends AbstractView {
 	private void renderGrid() {
 		ArrayList<String> xLabels = bucketizer.getXValues();
 		ArrayList<String> yLabels = bucketizer.getYValues();
+
+		// gotta set the weight 
+		strokeWeight(1);
 
 		// add vertical lines
 		for (int col = 0; col < xLabels.size(); col++) {
@@ -1089,8 +1293,20 @@ class Heatmap extends AbstractView {
 				noStroke();
 				fill(fillColor);
 				rect(bounds.x, bounds.y, bounds.w, bounds.h);
+
+				// if hit, render label
+				if (bounds.containsPoint(mouseX, mouseY)) {
+					renderLabel(bounds.getCenter(), "" + count);
+				}
 			}
 		}
+	}
+
+	private void renderLabel(Point p, String s) {  
+		textSize(14);
+		textAlign(CENTER, CENTER);
+		fill(color(0,0,0));
+		text(s, p.x, p.y);
 	}
 
 	// maps counts to colors
@@ -1129,6 +1345,23 @@ class Heatmap extends AbstractView {
 	}
 }
 
+class HoverSelectionController extends AccumulatingSelectionController {
+
+	public HoverSelectionController(ArrayList<AbstractView> views) {
+		super(views);
+	}
+
+	// the subclass should extract the selected datums from the given view
+	protected ArrayList<Datum> getSelectedDatums(AbstractView view) {
+		return view.getHoveredDatums();
+	}
+
+	// the subclass should merge the results from each AbstractView
+	protected ArrayList<Datum> accumulate(ArrayList<ArrayList<Datum>> datums) {
+		return flatten(datums);
+	}
+}
+
 class Kontroller {
   
   private final ArrayList<Datum> data;
@@ -1136,6 +1369,8 @@ class Kontroller {
   private final NetworkView networkView;
   private final CategoricalView categoricalView;
   private final TemporalView temporalView;
+
+  private SelectionController selectionController;
   
   public Kontroller(ArrayList<Datum> data) {
     this.data = data;
@@ -1146,6 +1381,10 @@ class Kontroller {
     Rect bounds = new Rect(0, 0, 0.75f * width, height / 2);
     this.networkView = new NetworkView(data, bounds);
     positionView(networkView, 0, 0, 0.75f, 0.5f);
+
+    selectionController = new OrSelectionController(
+      makeList(networkView, categoricalView, temporalView)
+    );
   } 
   
   public void render() {
@@ -1153,7 +1392,7 @@ class Kontroller {
     updateGraphPositions();
     
     // hover
-    ArrayList<Datum> hovered = getHoveredDatums();
+    ArrayList<Datum> hovered = selectionController.getSelectedDatums();
     deselectAllData();
     selectData(hovered);
 
@@ -1162,12 +1401,32 @@ class Kontroller {
     categoricalView.render();
     temporalView.render();
     networkView.render();
+
+    // separators go on top
+    renderSeparators();
+
+    selectionController.render();
+  }
+
+  private void renderSeparators() {
+    stroke(color(0,0,0));
+    strokeWeight(3);
+
+    // bottom edge of network
+    Rect netBounds = networkView.getBounds();
+    float netBottom = netBounds.y + netBounds.h;
+    line(netBounds.x, netBottom, netBounds.x + netBounds.w, netBottom);
+
+    // left edge of categorical
+    Rect catBounds = categoricalView.getBounds();
+    float catBottom = catBounds.y + catBounds.h;
+    line(catBounds.x, catBounds.y, catBounds.x, catBottom);
   }
   
   // repositions the graphs based on the current width/height of the screen
   private void updateGraphPositions() {
     positionView(temporalView, 0, 0.5f, 0.75f, 0.5f);
-    positionView(categoricalView, 0.75f, 0, 0.25f, 1.0f);
+    positionView(categoricalView, 0.75f, 0.1f, 0.25f, 0.9f);
     positionView(networkView, 0, 0, 0.75f, 0.5f);
   }
 
@@ -1177,16 +1436,6 @@ class Kontroller {
     float w = width * pw;
     float h = height * ph;
     view.setBounds(new Rect(x, y, w, h));
-  }
-  
-  // returns the datum currently moused-over, or null if none.
-  private ArrayList<Datum> getHoveredDatums() {
-    // ask each graph what Datum is moused over
-    return flatten( 
-      categoricalView.getHoveredDatums(),
-      temporalView.getHoveredDatums(),
-      networkView.getHoveredDatums()
-    );
   }
   
   private void selectData(ArrayList<Datum> toSelect) {
@@ -1199,6 +1448,24 @@ class Kontroller {
     for (Datum d : data) {
       d.setSelected(false);
     } 
+  }
+
+  public MouseHandler getMouseHandler() {
+    return selectionController;
+  }
+
+  public void setSelectionController(String name) {
+    if (name.equals("Hover")) {
+      selectionController = new HoverSelectionController(
+        makeList(networkView, categoricalView, temporalView)
+      );
+    }
+
+    if (name.equals("Or")) {
+      selectionController = new OrSelectionController(
+        makeList(networkView, categoricalView, temporalView)
+      );
+    }
   }
 }
 
@@ -1225,6 +1492,33 @@ class NetworkView extends AbstractView {
 		addBackingDatums();
 		scaleSpringThickness(springs);
 		fdg = new ForceDirectedGraph(nodes, springs, zaps, dampers, data);
+	}
+
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		ArrayList<Datum> ds = new ArrayList<Datum>();
+
+		for (Node n : nodes) {
+			if (intersects(n, r)) {
+				ds.addAll(n.datumsEncapsulated);
+			}
+		}
+
+		println("" + ds.size() + " nodes are selected in rect");
+
+		return ds;
+	}
+
+	private boolean intersects(Node n, Rect r) {
+		int minX = Math.round(n.pos.x - n.radius);
+		int maxX = Math.round(n.pos.x + n.radius);
+
+		int minY = Math.round(n.pos.y - n.radius);
+		int maxY = Math.round(n.pos.y + n.radius);
+
+		return r.containsPoint(minX, minY) || 
+			   r.containsPoint(minX, maxY) ||
+			   r.containsPoint(maxX, minY) ||
+			   r.containsPoint(maxX, maxY);
 	}
 
 	private ArrayList<Node> createNodes() {
@@ -1330,7 +1624,21 @@ class NetworkView extends AbstractView {
   }
 
 	public void render() {
+		renderTitle();
 		fdg.render();
+	}
+
+	private void renderTitle() {
+		fill(color(0,0,0));
+
+		textAlign(LEFT, BOTTOM);
+
+		textSize(25);
+		text("Network View", 10, 35);
+
+		fill(color(0,0,0,128));
+		textSize(15);
+		text("a map of inter-computer communications", 185, 30);
 	}
 
 	public ArrayList<Datum> getHoveredDatums() {
@@ -1347,8 +1655,11 @@ class NetworkView extends AbstractView {
 	}
 
 	public void setBounds(Rect bounds) {
-		setAllBounds(bounds);
-		fdg.setBounds(bounds);
+		super.setBounds(bounds);
+
+		Rect fdgBounds = bounds.inset(0, 30, 0, 0);
+		setAllBounds(fdgBounds);
+		fdg.setBounds(fdgBounds);
 	}
 
 	private void setAllBounds(Rect myBounds) {
@@ -1556,6 +1867,18 @@ class Node {
   }
 }
 
+class OrSelectionController extends RectSelectionController {
+
+	public OrSelectionController(ArrayList<AbstractView> views) {
+		super(views);
+	}
+
+	// the subclass should merge the results from each AbstractView
+	protected ArrayList<Datum> accumulate(ArrayList<ArrayList<Datum>> datums) {
+		return flatten(datums);
+	}
+}
+
 
 
 class PieChart extends AbstractView {
@@ -1600,6 +1923,27 @@ class PieChart extends AbstractView {
 			float end = Math.max(startAngle, endAngle);
 
 			arc(center.x, center.y, radius, radius, start, end, PIE);
+
+			// if moused over, also draw the total number of datums
+			if (containsPoint(mouse)) {
+				float middleAngle = getMiddleAngle();
+
+				Point labelCenter = new Point(center.x + radius/2 * cos(middleAngle),
+											  center.y + radius/2 * sin(middleAngle));
+
+				if (Math.abs(endAngle - startAngle) == TWO_PI) {
+					labelCenter = center;
+				}
+
+				renderLabel(labelCenter, "" + data.size());
+			}
+		}
+
+		private void renderLabel(Point p, String s) {  
+			textSize(14);
+			textAlign(CENTER, CENTER);
+			fill(color(0,0,0));
+			text(s, p.x, p.y);
 		}
 
 		// draws the label
@@ -1650,6 +1994,9 @@ class PieChart extends AbstractView {
   	// the WedgeViews that render the segments of the PieChart
   	private final ArrayList<WedgeView> wedgeViews;
 
+  	// where is the mouse? filled before calling render on the wedges
+  	private Point mouse;
+
 	public PieChart(ArrayList<Datum> data, String property) {
 		super(data);
 
@@ -1673,6 +2020,10 @@ class PieChart extends AbstractView {
 		}
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		return null;
+	}
+
 	public ArrayList<Datum> getHoveredDatums() {
 		Point mouse = new Point(mouseX, mouseY);
 
@@ -1688,6 +2039,8 @@ class PieChart extends AbstractView {
 	}
 
 	public void render() {
+		mouse = new Point(mouseX, mouseY);
+
 		// render + label each WedgeView
 		for (WedgeView wv : wedgeViews) {
 			wv.render();
@@ -1737,6 +2090,112 @@ class PieChart extends AbstractView {
 		}
 
 		return groups;
+	}
+
+	private String getProperty() {
+		return property;
+	}
+}
+
+abstract class RectSelectionController extends AccumulatingSelectionController {
+
+	// previous rectangles currently being tracked
+	private final ArrayList<Rect> rects = new ArrayList<Rect>();
+
+	// the rect currently being expanded, or null if none exists.
+	private Rect currentSelection;
+	private Point touchdownLocation;
+
+	public RectSelectionController(ArrayList<AbstractView> views) {
+		super(views);
+	}
+
+	// render all of the rectangles
+	public void render() {
+		// int count = rects.size() + (currentSelection == null ? 0 : 1);
+		// println("rendering " + count + " rects");
+
+		for (Rect r : rects) {
+			renderRect(r);
+		}
+
+		if (currentSelection != null) {
+			renderRect(currentSelection);	
+		}
+	}
+
+	private final int RECT_FILL = color(0,0,0,85);
+	private final int RECT_STROKE = color(0,0,0,200);
+
+	private void renderRect(Rect r) {
+		fill(RECT_FILL);
+		stroke(RECT_STROKE);
+		rect(r.x, r.y, r.w, r.h);
+	}
+
+	private void commitCurrentRect() {
+		rects.add(currentSelection);
+		currentSelection = null;
+	}
+
+	private void clearRectangles() {
+		rects.clear();
+		currentSelection = null;
+	}
+
+	public void mousePressed() { 
+		println("mouse pressed!");
+		currentSelection = new Rect(mouseX, mouseY, 0, 0);
+
+		touchdownLocation = new Point(mouseX, mouseY);
+	}
+	
+	// fails if you go upper left of starting point?
+	public void mouseDragged() { 
+		float origX = touchdownLocation.x;
+		float origY = touchdownLocation.y;
+
+		float w = Math.abs(mouseX - origX);
+		float h = Math.abs(mouseY - origY);
+
+		float x = Math.min(origX, mouseX);
+		float y = Math.min(origY, mouseY);
+
+		currentSelection.x = x;
+		currentSelection.y = y;
+		currentSelection.w = w;
+		currentSelection.h = h;
+	}
+
+	public void mouseReleased() { 
+		commitCurrentRect();
+	}
+
+	public void mouseClicked() { 
+		if (mouseButton == RIGHT) {
+			clearRectangles();
+		}
+	}
+
+	private ArrayList<Rect> getAllRects() {
+		ArrayList<Rect> rs = new ArrayList<Rect>(rects);
+
+		if (currentSelection != null) {
+			rs.add(currentSelection);
+		}
+
+		return rs;
+	}
+
+	// the subclass should extract the selected datums from the given view
+	protected ArrayList<Datum> getSelectedDatums(AbstractView view) {
+		ArrayList<ArrayList<Datum>> ds = new ArrayList<ArrayList<Datum>>();
+
+		for (Rect r : getAllRects()) {
+			ds.add(view.getSelectedDatums(r));
+		}
+
+		return flatten(ds);
 	}
 }
 
@@ -1856,6 +2315,58 @@ public void renderLabel(Point p, String s) {
     ellipseMode(RADIUS);
     ellipse(center.x, center.y, radius, radius);
   }
+}
+
+interface MouseHandler {
+	public void mousePressed();
+	public void mouseDragged();
+	public void mouseReleased();
+	public void mouseClicked();
+}
+
+interface SelectionController extends MouseHandler {
+
+	// the controller should return the datums that are selected
+	public ArrayList<Datum> getSelectedDatums();
+
+	// allows the controller to render stuff relating to selections
+	public void render();
+}
+
+//
+abstract class AccumulatingSelectionController implements SelectionController {
+
+	private ArrayList<AbstractView> views;
+
+	public AccumulatingSelectionController(ArrayList<AbstractView> views) {
+		this.views = views;
+	}
+
+	public ArrayList<Datum> getSelectedDatums() {
+		ArrayList<ArrayList<Datum>> datums = new ArrayList<ArrayList<Datum>>();
+
+		for (AbstractView view : views) {
+			datums.add(getSelectedDatums(view));
+		}
+
+		return accumulate(datums);
+	}
+
+	// the subclass should extract the selected datums from the given view
+	abstract protected ArrayList<Datum> getSelectedDatums(AbstractView view);
+
+	// the subclass should merge the results from each AbstractView
+	abstract protected ArrayList<Datum> accumulate(ArrayList<ArrayList<Datum>> datums);
+
+	// default impl does nothing
+	public void render() {}
+
+	// default impls of the mousehandler functions,
+	// so you can override only what the subclass needs
+	public void mousePressed() { }
+	public void mouseDragged() { }
+	public void mouseReleased() { }
+	public void mouseClicked() { }
 }
 // Runs the simulation
 class Simulator {
@@ -1992,6 +2503,10 @@ class TemporalView extends AbstractView {
 		heatmap = new Heatmap(data, Datum.TIME, Datum.DEST_PORT);
 	}
 
+	public ArrayList<Datum> getSelectedDatums(Rect r) {
+		return heatmap.getSelectedDatums(r);
+	}
+
 	public ArrayList<Datum> getHoveredDatums() {
 		return heatmap.getHoveredDatums();
 	}
@@ -2001,11 +2516,27 @@ class TemporalView extends AbstractView {
 
 		// pass these bounds off to the heatmap, which 
 		// occupies all of the TemporalView's space
-		heatmap.setBounds(bounds);
+		heatmap.setBounds(bounds.inset(0, 40, 10, 0));
 	}
 
 	public void render() {
+		renderTitle();
 		heatmap.render();
+	}
+
+	private void renderTitle() {
+		textAlign(LEFT, BOTTOM);
+
+		float x = getBounds().x;
+		float y = getBounds().y;
+
+		fill(color(0,0,0));
+		textSize(25);
+		text("Temporal View", x + 10, y + 35);
+
+		fill(color(0,0,0,128));
+		textSize(15);
+		text("a heatmap of activity on port ranges vs. time", x + 200, y + 30);
 	}
 }
 // Instances of Coluomb laws
