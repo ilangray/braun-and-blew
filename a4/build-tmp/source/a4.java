@@ -271,20 +271,85 @@ class CategoricalView extends AbstractView {
 	public void setBounds(Rect bounds) {
 		super.setBounds(bounds);
 
+		Rect pieBounds = bounds.inset(0, 40, 0, 0);
+		layoutPieCharts(pieBounds);
+	}
+
+	private void layoutPieCharts(Rect bounds) {
+		ArrayList<Rect> rects = getPieChartBounds(bounds);
+
+		for (int i = 0; i < rects.size(); ++i) {
+			Rect r = rects.get(i);
+			PieChart pc = pieCharts.get(i);
+
+			pc.setBounds(r.inset(0, 20, 0, 0));
+		}
+	}
+
+	private ArrayList<Rect> getPieChartBounds(Rect bounds) {
+		ArrayList<Rect> rects = new ArrayList<Rect>();
 		float unitHeight = bounds.h / pieCharts.size();
 
 		// reposition each of the pie charts
 		for (int i = 0; i < pieCharts.size(); i++) {
 			float top = bounds.y + unitHeight * i;
-
-			Rect pieBounds = new Rect(bounds.x, top, bounds.w, unitHeight);
-			pieCharts.get(i).setBounds(pieBounds);
+			rects.add(new Rect(bounds.x, top, bounds.w, unitHeight));
 		}
+
+		return rects;
 	}
 
 	public void render() {
+		renderTitle();
+		renderPieCharts();
+		renderPieChartTitles();
+		renderSeparators();
+	}
+
+	private void renderPieChartTitles() {
+		fill(color(0,0,0,128));
+		textSize(15);
+		textAlign(CENTER, BOTTOM);
+
+		for (PieChart pc : pieCharts) {
+			Rect bounds = pc.getBounds();
+
+			float x = pc.getBounds().getCenter().x;
+			float y = pc.getBounds().y;
+			text("by " + pc.getProperty() + ":", x, y);
+		}
+	}
+
+	private void renderPieCharts() {
 		for (PieChart pc : pieCharts) {
 			pc.render();
+		}
+	}
+
+	private void renderTitle() {
+		textAlign(CENTER, BOTTOM);
+
+		float x = getBounds().x;
+		float y = getBounds().y;
+
+		Point center = getBounds().getCenter();
+
+		fill(color(0,0,0));
+		textSize(25);
+		text("Categorical View", center.x, y + 35);
+	}
+
+	private void renderSeparators() {
+		strokeWeight(1);
+
+		for (int i = 1; i < pieCharts.size(); i++) {
+			PieChart pc = pieCharts.get(i);
+			Rect bounds = pc.getBounds();
+
+			float y = bounds.y - 25;
+
+			stroke(color(0,0,0,128));
+			line(bounds.x, y, bounds.x + bounds.w, y);
 		}
 	}
 }
@@ -435,8 +500,8 @@ public class DerLeser {
 }
  class CenterPusher {
 
- 	// private static final float PERCENT_DIST = 0.01;
- 	private static final float PERCENT_DIST = 0;
+ 	private static final float PERCENT_DIST = 0.01f;
+ 	// private static final float PERCENT_DIST = 0;
 
  	private final ArrayList<Node> nodes;
  	private Rect bounds = null;
@@ -1010,6 +1075,9 @@ class Heatmap extends AbstractView {
 		ArrayList<String> xLabels = bucketizer.getXValues();
 		ArrayList<String> yLabels = bucketizer.getYValues();
 
+		// gotta set the weight 
+		strokeWeight(1);
+
 		// add vertical lines
 		for (int col = 0; col < xLabels.size(); col++) {
 			// grab the top + bottom
@@ -1089,8 +1157,20 @@ class Heatmap extends AbstractView {
 				noStroke();
 				fill(fillColor);
 				rect(bounds.x, bounds.y, bounds.w, bounds.h);
+
+				// if hit, render label
+				if (bounds.containsPoint(mouseX, mouseY)) {
+					renderLabel(bounds.getCenter(), "" + count);
+				}
 			}
 		}
+	}
+
+	private void renderLabel(Point p, String s) {  
+		textSize(14);
+		textAlign(CENTER, CENTER);
+		fill(color(0,0,0));
+		text(s, p.x, p.y);
 	}
 
 	// maps counts to colors
@@ -1162,6 +1242,24 @@ class Kontroller {
     categoricalView.render();
     temporalView.render();
     networkView.render();
+
+    // separators go on top
+    renderSeparators();
+  }
+
+  private void renderSeparators() {
+    stroke(color(0,0,0));
+    strokeWeight(3);
+
+    // bottom edge of network
+    Rect netBounds = networkView.getBounds();
+    float netBottom = netBounds.y + netBounds.h;
+    line(netBounds.x, netBottom, netBounds.x + netBounds.w, netBottom);
+
+    // left edge of categorical
+    Rect catBounds = categoricalView.getBounds();
+    float catBottom = catBounds.y + catBounds.h;
+    line(catBounds.x, catBounds.y, catBounds.x, catBottom);
   }
   
   // repositions the graphs based on the current width/height of the screen
@@ -1330,7 +1428,21 @@ class NetworkView extends AbstractView {
   }
 
 	public void render() {
+		renderTitle();
 		fdg.render();
+	}
+
+	private void renderTitle() {
+		fill(color(0,0,0));
+
+		textAlign(LEFT, BOTTOM);
+
+		textSize(25);
+		text("Network View", 10, 35);
+
+		fill(color(0,0,0,128));
+		textSize(15);
+		text("a map of inter-computer communications", 185, 30);
 	}
 
 	public ArrayList<Datum> getHoveredDatums() {
@@ -1347,8 +1459,11 @@ class NetworkView extends AbstractView {
 	}
 
 	public void setBounds(Rect bounds) {
-		setAllBounds(bounds);
-		fdg.setBounds(bounds);
+		super.setBounds(bounds);
+
+		Rect fdgBounds = bounds.inset(0, 30, 0, 0);
+		setAllBounds(fdgBounds);
+		fdg.setBounds(fdgBounds);
 	}
 
 	private void setAllBounds(Rect myBounds) {
@@ -1600,6 +1715,27 @@ class PieChart extends AbstractView {
 			float end = Math.max(startAngle, endAngle);
 
 			arc(center.x, center.y, radius, radius, start, end, PIE);
+
+			// if moused over, also draw the total number of datums
+			if (containsPoint(mouse)) {
+				float middleAngle = getMiddleAngle();
+
+				Point labelCenter = new Point(center.x + radius/2 * cos(middleAngle),
+											  center.y + radius/2 * sin(middleAngle));
+
+				if (Math.abs(endAngle - startAngle) == TWO_PI) {
+					labelCenter = center;
+				}
+
+				renderLabel(labelCenter, "" + data.size());
+			}
+		}
+
+		private void renderLabel(Point p, String s) {  
+			textSize(14);
+			textAlign(CENTER, CENTER);
+			fill(color(0,0,0));
+			text(s, p.x, p.y);
 		}
 
 		// draws the label
@@ -1650,6 +1786,9 @@ class PieChart extends AbstractView {
   	// the WedgeViews that render the segments of the PieChart
   	private final ArrayList<WedgeView> wedgeViews;
 
+  	// where is the mouse? filled before calling render on the wedges
+  	private Point mouse;
+
 	public PieChart(ArrayList<Datum> data, String property) {
 		super(data);
 
@@ -1688,6 +1827,8 @@ class PieChart extends AbstractView {
 	}
 
 	public void render() {
+		mouse = new Point(mouseX, mouseY);
+
 		// render + label each WedgeView
 		for (WedgeView wv : wedgeViews) {
 			wv.render();
@@ -1737,6 +1878,10 @@ class PieChart extends AbstractView {
 		}
 
 		return groups;
+	}
+
+	private String getProperty() {
+		return property;
 	}
 }
 
@@ -2001,11 +2146,27 @@ class TemporalView extends AbstractView {
 
 		// pass these bounds off to the heatmap, which 
 		// occupies all of the TemporalView's space
-		heatmap.setBounds(bounds);
+		heatmap.setBounds(bounds.inset(0, 40, 10, 0));
 	}
 
 	public void render() {
+		renderTitle();
 		heatmap.render();
+	}
+
+	private void renderTitle() {
+		textAlign(LEFT, BOTTOM);
+
+		float x = getBounds().x;
+		float y = getBounds().y;
+
+		fill(color(0,0,0));
+		textSize(25);
+		text("Temporal View", x + 10, y + 35);
+
+		fill(color(0,0,0,128));
+		textSize(15);
+		text("a heatmap of activity on port ranges vs. time", x + 200, y + 30);
 	}
 }
 // Instances of Coluomb laws

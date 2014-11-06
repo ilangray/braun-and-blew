@@ -1,7 +1,7 @@
  class CenterPusher {
 
- 	// private static final float PERCENT_DIST = 0.01;
- 	private static final float PERCENT_DIST = 0;
+ 	private static final float PERCENT_DIST = 0.01;
+ 	// private static final float PERCENT_DIST = 0;
 
  	private final ArrayList<Node> nodes;
  	private Rect bounds = null;
