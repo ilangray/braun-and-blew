@@ -22,9 +22,9 @@ class Datum {
   private String[] authors;
   private Link[] links;
   
-  public Datum(int id, String[] keys, Link[] links) {
+  public Datum(int id, String[] authors, Link[] links) {
     this.id = id;
-    this.keys = keys;
+    this.authors = authors;
     this.links = links;
   }
   

@@ -1,0 +1,10 @@
+
+what each of us team members did in this project, yo:
+
+  we all planned the architecture together.
+
+  igray: physics
+  blewi: bounds checking, tooltips, helped with physics
+  pbrau: parsing, helped with physics
+
+
