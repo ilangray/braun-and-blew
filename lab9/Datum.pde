@@ -50,4 +50,13 @@ class Datum {
     
     return 0;
   } 
+  
+  public boolean containsAuthor(String query) {
+    for (String author : authors) {
+      if (author.equals(query)) {
+        return true;
+      } 
+    }
+    return false;
+  }
 }

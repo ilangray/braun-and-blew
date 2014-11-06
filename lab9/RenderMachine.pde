@@ -13,11 +13,46 @@ class RenderMachine {
   
   private final ArrayList<Node> nodes;
   private final ArrayList<Spring> springs;
+  private final ArrayList<Link> externalLinks;
  
-  public RenderMachine(ArrayList<Node> nodes, ArrayList<Spring> springs) {
+  public RenderMachine(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Link> externalLinks) {
     this.nodes = nodes;
     this.springs = springs;
+    this.externalLinks = externalLinks;
   } 
+  
+  private void renderExternalLinks(ArrayList<Heatmap> heatmaps) {
+    for (Link externalLink : externalLinks) {
+      renderExternalLink(externalLink, heatmaps);
+    } 
+  }
+  
+  private void renderExternalLink(Link link, ArrayList<Heatmap> heatmaps) {
+    Point endA = getLinkEnd(link.authorA, heatmaps);
+    Point endB = getLinkEnd(link.authorB, heatmaps);
+   
+    fill(color(0,0,0));
+    stroke(color(0,0,0));
+    line(endA.x, endA.y, endB.x, endB.y); 
+  }
+  
+  private Point getLinkEnd(String author, ArrayList<Heatmap> heatmaps) {
+    // find the node containing that author
+    int index = getNodeByAuthor(author);
+    Heatmap hm = heatmaps.get(index);
+    return hm.getLabel(author);
+  }
+
+  // returns node index
+  private int getNodeByAuthor(String author) {
+    for (int i = 0; i < nodes.size(); i++) {
+      if (nodes.get(i).datum.containsAuthor(author)) {
+        return i; 
+      }
+    }
+    
+    return -1;
+  }
 
   public void setAllBounds(Rect r) {
     for (Node n : nodes) {
@@ -27,7 +62,8 @@ class RenderMachine {
   
   public void render() {
     renderSprings();
-    renderNodes();
+    ArrayList<Heatmap> hms = renderNodes();
+    renderExternalLinks(hms);
     renderLabels();
   }
   
@@ -47,10 +83,15 @@ class RenderMachine {
     line(endA.x, endA.y, endB.x, endB.y); 
   }
   
-  private void renderNodes() {
+  // returns the heatmaps
+  private ArrayList<Heatmap> renderNodes() {
+    ArrayList<Heatmap> heatmaps = new ArrayList<Heatmap>();
+    
     for (Node n : nodes) {
-      renderNode(n, getNodeColor(n));
+      heatmaps.add(renderNode(n, getNodeColor(n)));
     } 
+    
+    return heatmaps;
   }
   
   public void renderLabels(){
@@ -66,10 +107,18 @@ class RenderMachine {
     return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
   }
   
-  private void renderNode(Node n, int c) {
-    stroke(c);
-    fill(c);
-    circle(n.pos, n.radius);
+  // this now uses a heatmap
+  private Heatmap renderNode(Node n, int c) {
+    Heatmap map = new Heatmap(n.data);
+    
+    float r = n.radius;
+    float x = n.center.x;
+    float y = n.center.y;
+    
+    map.setBounds(new Rect(x - r, y - r, 2*r, 2*r));
+    map.render();
+    
+    return map;
   }
   
   
