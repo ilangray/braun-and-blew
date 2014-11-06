@@ -1,14 +1,12 @@
 
 // this is awesome. lets do some physics yolo swag
 
-
 Simulator sm;
 RenderMachine rm;
 CenterPusher cp;
 Rect halfBounds;
 
 boolean done = false;
-
 boolean first = true;
 
 int previous_w;
@@ -21,7 +19,7 @@ void setup() {
   frame.setResizable(true);
  
   // read data
-  DieWelt w = new Configurator("data.csv").configure();
+  DieWelt w = new Configurator("data1.csv").configure();
   
   // configur renderer and simulator
   rm = new RenderMachine(w.nodes, w.springs);
