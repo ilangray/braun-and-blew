@@ -3,6 +3,7 @@ import processing.data.*;
 import processing.event.*; 
 import processing.opengl.*; 
 
+import java.util.*; 
 import java.lang.*; 
 
 import java.util.HashMap; 
@@ -76,6 +77,45 @@ public void render() {
   rm.render();
 }
 
+
+abstract class AbstractView {
+
+	public final int SELECTED_COLOR = color(255, 255, 0);
+	public final int OUTLINE_COLOR = color(40,40,40);
+
+	// an AbstractView has a notion of the data that it is displaying
+	private final ArrayList<Datum> data;
+
+	public AbstractView(ArrayList<Datum> data) {
+		this.data = data;
+	}
+
+	// returns this AbstractView's list of Datums
+	public ArrayList<Datum> getData() {
+		return data;
+	}
+
+	// the bounds of this AbstractView, in pixels, not percentages
+	// this is where the AbstractView should draw itself in render()
+	public Rect bounds;
+
+	public final Rect getBounds() {
+		return bounds;
+	}
+
+	// sets the bounds of the receiver
+	public void setBounds(Rect bounds) {
+		this.bounds = bounds;
+	}
+
+	// tells the view to render its contents in its bounds
+	public abstract void render();
+
+	// return the Datum(s) that is currently under the 
+	// mouse, or an empty ArrayList if no such datum exists
+	public abstract ArrayList<Datum> getHoveredDatums();
+
+}
 // Reads in the file
 class Configurator {
   public final String fileName;
@@ -181,55 +221,6 @@ class Configurator {
 
       return null;
     }
-
-    // Node n =  nodes.get(3);
-    // println("Authors:");
-    // ArrayList<String> a = n.datum.getAllAuthors();
-    // ArrayList<Link> l = n.datum.getAllLinks();
-    // for (String s : a) {
-    //   println(s);
-    // }
-
-    // println("Linkz");
-    // for (Link zzz : l) {
-    //   println(zzz);
-    // }
-
-    
-
-  // Initializes the nodes and springs from the info from the file.
-  // Creates an ArrayList of Zaps and an ArrayList of Dampers, but these
-  // last two are independent on the input file.
-  // Returns Die Welt.
-  // private DieWelt initWorld(ArrayList<String> al) {
-  //   ArrayList<Node> nodes = new ArrayList<Node>();
-  //   ArrayList<Spring> springs = new ArrayList<Spring>();
-  //   ArrayList<Zap> zaps = new ArrayList<Zap>();
-  //   ArrayList<Damper> dampers = new ArrayList<Damper>();
-  //   boolean inNodes = false;
-
-  //   for (int i = 0; i < al.size (); i++) {
-  //     // If no commas - they are list sizes and we don't need those
-  //     if (al.get(i).indexOf(',') == -1) {
-  //       inNodes = !inNodes;
-  //       continue;
-  //     }
-
-  //     // Split on commas
-  //     String[] listL = split(al.get(i), ',');
-
-  //     // If get to this point, not in first line or nodes -- definitely in Springs
-  //     if (!inNodes) {
-  //       Spring newSpring = new Spring(getCorrectNode(int(listL[0]), nodes), getCorrectNode(int(listL[1]), nodes), int(listL[2]));
-  //       springs.add(newSpring);
-  //     } else {  // We are in Nodes
-  //       Node newNode = new Node(int(listL[0]), float(listL[1]));
-  //       nodes.add(newNode);
-  //     }
-  //   }
-    
-  //   return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes));
-  // }
 
   // Returns the node with the id
   // If no node exists with that id, than null is returned
@@ -345,6 +336,15 @@ class Datum {
     
     return 0;
   } 
+  
+  public boolean containsAuthor(String query) {
+    for (String author : authors) {
+      if (author.equals(query)) {
+        return true;
+      } 
+    }
+    return false;
+  }
 }
  class CenterPusher {
 
@@ -669,200 +669,247 @@ public float clamp(float x, int min, int max) {
   return min(max(x, min), max); 
 }
 
-// import java.util.*;
+// helpful functions for laying out stuff in a grid
+class GridLayout {
+	
+	private final int cols;
+	private final int rows;
 
-// class Heatmap extends AbstractView {
+	private Rect bounds;
 
-// 	private static final int PADDING_LEFT = 90;
-// 	private static final int PADDING_BOTTOM = 60;
-// 	private static final int FONT_SIZE = 12;
+	public GridLayout(int cols, int rows) {
+		this.cols = cols;
+		this.rows = rows;
+	}
 
-// 	private final String xProperty;
-// 	private final String yProperty;
+	public Rect getCellBounds(int col, int row) {
+		float w = getCellWidth();
+		float h = getCellHeight();
 
-// 	private final Bucketizer bucketizer; 
-// 	private final GridLayout gridLayout;
+		float x = col * w;
+		float y = row * h;
 
-// 	// layouts that chop up the space available for axis labeling
-// 	private final GridLayout xLabelLayout;
-// 	private final GridLayout yLabelLayout;
+		return new Rect(bounds.x + x, bounds.y + y, w, h);
+	}
 
-// 	public Heatmap(ArrayList<Datum> data, String xProperty, String yProperty) {
-// 		super(data);
-// 		this.xProperty = xProperty;
-// 		this.yProperty = yProperty; 
+	// returns null if x,y are not inside the receivers bounds
+	public Point getCellCoords(int x, int y) {
+		float localX = x - bounds.x;
+		float localY = y - bounds.y;
 
-// 		bucketizer = new Bucketizer(data, xProperty, yProperty);
+		// println("y = " + y + ", bounds.y = " + bounds.y + ", localY = " + localY);
 
-// 		int cols = bucketizer.getXValues().size();
-// 		int rows = bucketizer.getYValues().size();
+		int xCoord = (int)(localX / getCellWidth());
+		int yCoord = (int)(localY / getCellHeight());
 
-// 		gridLayout = new GridLayout(cols, rows);
-// 		xLabelLayout = new GridLayout(cols, 1);
-// 		yLabelLayout = new GridLayout(1, rows); 
-// 	}
+		Point coord = new Point(xCoord, yCoord);
+		return nullIfOutOfBounds(coord);
+	}
 
-// 	public void setBounds(Rect bounds) {
-// 		super.setBounds(bounds);
+	private Point nullIfOutOfBounds(Point coord) {
+		if (coord.x < 0 || coord.x >= cols) {
+			return null;
+		}
 
-// 		// the grid gets inside by the padding left & bottom
-// 		Rect gridBounds = bounds.inset(PADDING_LEFT, 0, 0, PADDING_BOTTOM);
-// 		gridLayout.setBounds(gridBounds);
+		if (coord.y < 0 || coord.y >= rows) {
+			return null;
+		}
 
-// 		// position the axis layouts
-// 		yLabelLayout.setBounds(new Rect(bounds.x, bounds.y, PADDING_LEFT, bounds.h - PADDING_BOTTOM));
-// 		xLabelLayout.setBounds(new Rect(
-// 			bounds.x + PADDING_LEFT, bounds.y + bounds.h - PADDING_BOTTOM, bounds.w - PADDING_LEFT, PADDING_BOTTOM));
-// 	}
+		return coord;
+	}
 
-// 	public void render() {
-// 		renderGrid();
-// 		labelCells();
-// 		renderCells();
-// 	}
+	public void setBounds(Rect bounds) {
+		this.bounds = bounds;
+	}
 
-// 	private void labelCells() {
-// 		labelX();
-// 		labelY();
-// 	}
+	public Rect getBounds() {
+		return bounds;
+	}
 
-// 	private void renderGrid() {
-// 		ArrayList<String> xLabels = bucketizer.getXValues();
-// 		ArrayList<String> yLabels = bucketizer.getYValues();
+	private float getCellWidth() {
+		return bounds.w / cols;
+	}
 
-// 		// gotta set the weight 
-// 		strokeWeight(1);
+	private float getCellHeight() {
+		return bounds.h / rows;
+	}
+}
 
-// 		// add vertical lines
-// 		for (int col = 0; col < xLabels.size(); col++) {
-// 			// grab the top + bottom
-// 			Rect top = gridLayout.getCellBounds(col, 0);
-// 			Rect bottom = gridLayout.getCellBounds(col, yLabels.size()-1);
 
-// 			// draw left edge
-// 			stroke(color(208,208,208));
-// 			fill(color(208, 208, 208));
-// 			line(top.x, top.y, bottom.x, bottom.y + bottom.h + PADDING_BOTTOM - 10);
+class Heatmap extends AbstractView {
 
-// 			// draw right edge on last col
-// 			if (col == xLabels.size() - 1) {
-// 				line(top.x + top.w, top.y, bottom.x + bottom.w, bottom.y + bottom.h + PADDING_BOTTOM - 10);
-// 			}
-// 		}
+	private static final int PADDING_LEFT = 90;
+	private static final int PADDING_BOTTOM = 60;
+	private static final int FONT_SIZE = 12;
 
-// 		// add horizontal lines
-// 		for (int row = 0; row < yLabels.size(); row++) {
-// 			// grab the top + bottom
-// 			Rect left = gridLayout.getCellBounds(0, row);
-// 			Rect right = gridLayout.getCellBounds(xLabels.size()-1, row);
+        private final Datum datum;
 
-// 			// draw left edge
-// 			stroke(color(208,208,208));
-// 			fill(color(208, 208, 208));
-// 			line(left.x - PADDING_LEFT + 10, left.y, right.x + right.w, right.y);
+	private final GridLayout gridLayout;
 
-// 			// draw bottom line on last row
-// 			if (row == yLabels.size() - 1) {
-// 				line(left.x - PADDING_LEFT + 10, left.y + left.h, right.x + right.w, right.y + right.h);
-// 			}
-// 		}
-// 	}
+	// layouts that chop up the space available for axis labeling
+	private final GridLayout xLabelLayout;
+	private final GridLayout yLabelLayout;
 
-// 	private void labelX() {
-// 		ArrayList<String> labels = bucketizer.getXValues();
-// 		for (int col = 0; col < labels.size(); col++) {
-// 			Point center = xLabelLayout.getCellBounds(col, 0).getCenter();
-// 			renderLabel(labels.get(col), center, true);
-// 		}
-// 	}
+	public Heatmap(Datum datum) {
+		super(null);
+                this.datum = datum;
 
-// 	private void labelY() {
-// 		ArrayList<String> labels = bucketizer.getYValues();
-// 		for (int row = 0; row < labels.size(); row++) {
-// 			Point center = yLabelLayout.getCellBounds(0, row).getCenter();
-// 			renderLabel(labels.get(row), center, false);
-// 		}
-// 	}
+		gridLayout = new GridLayout(cols, rows);
+		xLabelLayout = new GridLayout(cols, 1);
+		yLabelLayout = new GridLayout(1, rows); 
+	}
 
-// 	private void renderLabel(String letters, Point center, boolean vertical) {
-// 		textSize(FONT_SIZE);
-// 		textAlign(CENTER, CENTER);
-// 		fill(color(0,0,0));
-		
-// 		pushMatrix();
-// 	  	translate(center.x, center.y);
+	public void setBounds(Rect bounds) {
+		super.setBounds(bounds);
 
-// 	  	if (vertical) {
-// 	  		rotate(HALF_PI);	
-// 	  	}
-		
-// 		text(letters, 0,0);
+		// the grid gets inside by the padding left & bottom
+		Rect gridBounds = bounds.inset(PADDING_LEFT, 0, 0, PADDING_BOTTOM);
+		gridLayout.setBounds(gridBounds);
 
-// 		popMatrix();
-// 	}
+		// position the axis layouts
+		yLabelLayout.setBounds(new Rect(bounds.x, bounds.y, PADDING_LEFT, bounds.h - PADDING_BOTTOM));
+		xLabelLayout.setBounds(new Rect(
+			bounds.x + PADDING_LEFT, bounds.y + bounds.h - PADDING_BOTTOM, bounds.w - PADDING_LEFT, PADDING_BOTTOM));
+	}
 
-// 	private void renderCells() {
-// 		for (int col = 0; col < bucketizer.getXValues().size(); col++) {
-// 			for (int row = 0; row < bucketizer.getYValues().size(); row++) {
+        // returns the center of the label for the given value
+        public Point getLabel(String value) {
+          int index = getValues().indexOf(value);
+          
+          return yLabelLayout.getCellBounds(0, index).getCenter();
+        }
 
-// 				int count = bucketizer.getCount(col, row);
-// 				Rect bounds = gridLayout.getCellBounds(col, row);
-// 				int fillColor = getColor(col, row, count);
+	public void render() {
+		renderGrid();
+		labelCells();
+		renderCells();
+	}
 
-// 				noStroke();
-// 				fill(fillColor);
-// 				rect(bounds.x, bounds.y, bounds.w, bounds.h);
+	private void labelCells() {
+		labelX();
+		labelY();
+	}
 
-// 				// if hit, render label
-// 				if (bounds.containsPoint(mouseX, mouseY)) {
-// 					renderLabel(bounds.getCenter(), "" + count);
-// 				}
-// 			}
-// 		}
-// 	}
+        private ArrayList<String> getValues() {
+                return new ArrayList<String>(datum.authors);
+        }
 
-// 	private void renderLabel(Point p, String s) {  
-// 		textSize(14);
-// 		textAlign(CENTER, CENTER);
-// 		fill(color(0,0,0));
-// 		text(s, p.x, p.y);
-// 	}
+	private void renderGrid() {
+		ArrayList<String> xLabels = getValues();
+		ArrayList<String> yLabels = getValues();
 
-// 	// maps counts to colors
-// 	private int getColor(int col, int row, int count) {
-// 		// should this (col,row) be selected?
-// 		if (isSelected(col, row)) {
-// 			return SELECTED_COLOR;
-// 		}
+		// gotta set the weight 
+		strokeWeight(1);
 
-// 		// return interpolated, non-selected color
-// 		float p = (float)count / bucketizer.getMaxCount();
-// 		return color(255, 0, 0, p * 255);
-// 	}
+		// add vertical lines
+		for (int col = 0; col < xLabels.size(); col++) {
+			// grab the top + bottom
+			Rect top = gridLayout.getCellBounds(col, 0);
+			Rect bottom = gridLayout.getCellBounds(col, yLabels.size()-1);
 
-// 	private boolean isSelected(int col, int row) {
-// 		ArrayList<Datum> ds = bucketizer.getDatums(col, row);
+			// draw left edge
+			stroke(color(208,208,208));
+			fill(color(208, 208, 208));
+			line(top.x, top.y, bottom.x, bottom.y + bottom.h + PADDING_BOTTOM - 10);
 
-// 		for (Datum d : ds) {
-// 			if (d.isSelected()) {
-// 				return true;
-// 			}
-// 		}
-// 		return false;
-// 	}
+			// draw right edge on last col
+			if (col == xLabels.size() - 1) {
+				line(top.x + top.w, top.y, bottom.x + bottom.w, bottom.y + bottom.h + PADDING_BOTTOM - 10);
+			}
+		}
 
-// 	public ArrayList<Datum> getHoveredDatums() {
-// 		// find which cell (port range + time bucket) is under the mouse
-// 		Point cellHit = gridLayout.getCellCoords(mouseX, mouseY);
+		// add horizontal lines
+		for (int row = 0; row < yLabels.size(); row++) {
+			// grab the top + bottom
+			Rect left = gridLayout.getCellBounds(0, row);
+			Rect right = gridLayout.getCellBounds(xLabels.size()-1, row);
 
-// 		// return the datums from that cell
-// 		if (cellHit == null) {
-// 			return new ArrayList<Datum>();	
-// 		} else {
-// 			return bucketizer.getDatums((int)cellHit.x, (int)cellHit.y);
-// 		}
-// 	}
-// }
+			// draw left edge
+			stroke(color(208,208,208));
+			fill(color(208, 208, 208));
+			line(left.x - PADDING_LEFT + 10, left.y, right.x + right.w, right.y);
+
+			// draw bottom line on last row
+			if (row == yLabels.size() - 1) {
+				line(left.x - PADDING_LEFT + 10, left.y + left.h, right.x + right.w, right.y + right.h);
+			}
+		}
+	}
+
+	private void labelX() {
+		ArrayList<String> labels = getValues();
+		for (int col = 0; col < labels.size(); col++) {
+			Point center = xLabelLayout.getCellBounds(col, 0).getCenter();
+			renderLabel(labels.get(col), center, true);
+		}
+	}
+
+	private void labelY() {
+		ArrayList<String> labels = getValues();
+		for (int row = 0; row < labels.size(); row++) {
+			Point center = yLabelLayout.getCellBounds(0, row).getCenter();
+			renderLabel(labels.get(row), center, false);
+		}
+	}
+
+	private void renderLabel(String letters, Point center, boolean vertical) {
+		textSize(FONT_SIZE);
+		textAlign(CENTER, CENTER);
+		fill(color(0,0,0));
+		text(letters, 0,0);
+
+		popMatrix();
+	}
+
+	private void renderCells() {
+                ArrayList<String> authors = getValues();
+                
+		for (int col = 0; col < authors.size(); col++) {
+			for (int row = 0; row < authors.size(); row++) {
+
+                                int count = datum.getLink(authors.get(col), authors.get(row));
+				Rect bounds = gridLayout.getCellBounds(col, row);
+				int fillColor = getColor(col, row, count);
+
+				noStroke();
+				fill(fillColor);
+				rect(bounds.x, bounds.y, bounds.w, bounds.h);
+
+				// if hit, render label
+				if (bounds.containsPoint(mouseX, mouseY)) {
+					renderLabel(bounds.getCenter(), "" + count);
+				}
+			}
+		}
+	}
+
+	private void renderLabel(Point p, String s) {  
+		textSize(14);
+		textAlign(CENTER, CENTER);
+		fill(color(0,0,0));
+		text(s, p.x, p.y);
+	}
+
+	// maps counts to colors
+	private int getColor(int col, int row, int count) {
+		// should this (col,row) be selected?
+		if (isSelected(col, row)) {
+			return SELECTED_COLOR;
+		}
+
+		// return interpolated, non-selected color
+		float p = (float)count / 5;
+		return color(255, 0, 0, p * 255);
+	}
+
+	private boolean isSelected(int col, int row) {
+		return false;
+	}
+
+	public ArrayList<Datum> getHoveredDatums() {
+		return new ArrayList<Datum>();
+	}
+}
 
 
 class Node {
@@ -1019,11 +1066,46 @@ class RenderMachine {
   
   private final ArrayList<Node> nodes;
   private final ArrayList<Spring> springs;
+  private final ArrayList<Link> externalLinks;
  
-  public RenderMachine(ArrayList<Node> nodes, ArrayList<Spring> springs) {
+  public RenderMachine(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Link> externalLinks) {
     this.nodes = nodes;
     this.springs = springs;
+    this.externalLinks = externalLinks;
   } 
+  
+  private void renderExternalLinks(ArrayList<Heatmap> heatmaps) {
+    for (Link externalLink : externalLinks) {
+      renderExternalLink(externalLink, heatmaps);
+    } 
+  }
+  
+  private void renderExternalLink(Link link, ArrayList<Heatmap> heatmaps) {
+    Point endA = getLinkEnd(link.authorA, heatmaps);
+    Point endB = getLinkEnd(link.authorB, heatmaps);
+   
+    fill(color(0,0,0));
+    stroke(color(0,0,0));
+    line(endA.x, endA.y, endB.x, endB.y); 
+  }
+  
+  private Point getLinkEnd(String author, ArrayList<Heatmap> heatmaps) {
+    // find the node containing that author
+    int index = getNodeByAuthor(author);
+    Heatmap hm = heatmaps.get(index);
+    return hm.getLabel(author);
+  }
+
+  // returns node index
+  private int getNodeByAuthor(String author) {
+    for (int i = 0; i < nodes.size(); i++) {
+      if (nodes.get(i).datum.containsAuthor(author)) {
+        return i; 
+      }
+    }
+    
+    return -1;
+  }
 
   public void setAllBounds(Rect r) {
     for (Node n : nodes) {
@@ -1033,7 +1115,8 @@ class RenderMachine {
   
   public void render() {
     renderSprings();
-    renderNodes();
+    ArrayList<Heatmap> hms = renderNodes();
+    renderExternalLinks(hms);
     renderLabels();
   }
   
@@ -1053,10 +1136,15 @@ class RenderMachine {
     line(endA.x, endA.y, endB.x, endB.y); 
   }
   
-  private void renderNodes() {
+  // returns the heatmaps
+  private ArrayList<Heatmap> renderNodes() {
+    ArrayList<Heatmap> heatmaps = new ArrayList<Heatmap>();
+    
     for (Node n : nodes) {
-      renderNode(n, getNodeColor(n));
+      heatmaps.add(renderNode(n, getNodeColor(n)));
     } 
+    
+    return heatmaps;
   }
   
   public void renderLabels(){
@@ -1072,10 +1160,18 @@ class RenderMachine {
     return n.containsPoint(mouseX, mouseY) ? MOUSED_NODE_COLOR : EMPTY_NODE_COLOR;
   }
   
-  private void renderNode(Node n, int c) {
-    stroke(c);
-    fill(c);
-    circle(n.pos, n.radius);
+  // this now uses a heatmap
+  private Heatmap renderNode(Node n, int c) {
+    Heatmap map = new Heatmap(n.data);
+    
+    float r = n.radius;
+    float x = n.center.x;
+    float y = n.center.y;
+    
+    map.setBounds(new Rect(x - r, y - r, 2*r, 2*r));
+    map.render();
+    
+    return map;
   }
   
   

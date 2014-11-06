@@ -104,55 +104,6 @@ class Configurator {
       return null;
     }
 
-    // Node n =  nodes.get(3);
-    // println("Authors:");
-    // ArrayList<String> a = n.datum.getAllAuthors();
-    // ArrayList<Link> l = n.datum.getAllLinks();
-    // for (String s : a) {
-    //   println(s);
-    // }
-
-    // println("Linkz");
-    // for (Link zzz : l) {
-    //   println(zzz);
-    // }
-
-    
-
-  // Initializes the nodes and springs from the info from the file.
-  // Creates an ArrayList of Zaps and an ArrayList of Dampers, but these
-  // last two are independent on the input file.
-  // Returns Die Welt.
-  // private DieWelt initWorld(ArrayList<String> al) {
-  //   ArrayList<Node> nodes = new ArrayList<Node>();
-  //   ArrayList<Spring> springs = new ArrayList<Spring>();
-  //   ArrayList<Zap> zaps = new ArrayList<Zap>();
-  //   ArrayList<Damper> dampers = new ArrayList<Damper>();
-  //   boolean inNodes = false;
-
-  //   for (int i = 0; i < al.size (); i++) {
-  //     // If no commas - they are list sizes and we don't need those
-  //     if (al.get(i).indexOf(',') == -1) {
-  //       inNodes = !inNodes;
-  //       continue;
-  //     }
-
-  //     // Split on commas
-  //     String[] listL = split(al.get(i), ',');
-
-  //     // If get to this point, not in first line or nodes -- definitely in Springs
-  //     if (!inNodes) {
-  //       Spring newSpring = new Spring(getCorrectNode(int(listL[0]), nodes), getCorrectNode(int(listL[1]), nodes), int(listL[2]));
-  //       springs.add(newSpring);
-  //     } else {  // We are in Nodes
-  //       Node newNode = new Node(int(listL[0]), float(listL[1]));
-  //       nodes.add(newNode);
-  //     }
-  //   }
-    
-  //   return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes));
-  // }
-
   // Returns the node with the id
   // If no node exists with that id, than null is returned
   public Node getCorrectNode(int idToFind, ArrayList<Node> nodes) {
@@ -194,4 +145,3 @@ class Configurator {
     return lines;
   }
 }
-
