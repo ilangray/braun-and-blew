@@ -6,17 +6,18 @@ class Node {
   
   private final Vector netForce = new Vector();
   private Vector acc;
-  
-  public final int id;
+ 
   public final float mass;
   public final float radius;
+  
+  public final Datum datum;
   
   public boolean fixed = false;
 
   public Rect bounds;
   
-  public Node(int id, float mass) {
-    this.id = id;
+  public Node(Datum datum, float mass) {
+    this.datum = datum;
     this.mass = mass;
     this.radius = sqrt(mass / PI) * 10;
 
