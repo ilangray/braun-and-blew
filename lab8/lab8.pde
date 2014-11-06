@@ -7,6 +7,8 @@ ArrayList<Datum> data = null;
 RenderMachine rm = null;
 Axis[] axes = null;
 
+public final float W_PADDING = 40;
+
 void setup(){
   size(600, 600);
   
@@ -42,8 +44,8 @@ void positionAxes() {
   int w = width;
   int dimens = axes.length;
   
-  int unitWidth = w / (dimens - 1);
-  int left = 0;
+  int unitWidth = (w - 2*(int)W_PADDING) / (dimens - 1);
+  int left = (int)W_PADDING;
   
   for (Axis axis : axes) {
     axis.setXCoordinate(left);

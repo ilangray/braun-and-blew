@@ -13,6 +13,9 @@ class RenderMachine {
     for (Datum d : ds) {
       renderDatum(d);
     }
+    fill(color(0, 0, 0));
+    textAlign(CENTER, CENTER);
+    text("High Dimensional Flowers", (width - 2*W_PADDING)/ 2, axes[0].PADDING / 2);
   } 
   
   private void renderDatum(Datum d) { 
@@ -40,6 +43,8 @@ class RenderMachine {
      Point end = endAxis.getPoint(d);
      
      // draw the line
+     stroke(color(0, 0, 200, 120));
      line(start.x, start.y, end.x, end.y);
+     stroke(color(0, 0, 0));
   }
 }

@@ -6,7 +6,7 @@ class Axis {
   private float maxVal;
   private float minVal;
   private final int numTicks = 10;
-  //private float PERCENT_PADDING = .1;
+  public final int PADDING = 50;
   
   public Axis(ArrayList<Datum> ds, String dim, float xVal){
     this.datums = ds;
@@ -32,15 +32,17 @@ class Axis {
   
   Point getPoint(Datum d){
     float val = d.getValue(dimension) - minVal;
-    //float padding = height * PERCENT_PADDING;
     float range = maxVal - minVal;
-    float yCoord = val * height / range;
+    float yCoord = val * (height - 2*PADDING) / range + PADDING;
     return new Point(xCoordinate, yCoord);
   }
   
   
   void render(){
-    line(xCoordinate, 0, xCoordinate, height);
+    line(xCoordinate, PADDING, xCoordinate, height - PADDING);
+    fill(color(200, 0, 0));
+    textAlign(CENTER, BOTTOM);
+    text(dimension, xCoordinate, height - PADDING / 2);
    /* for(Datum d : datums){
       fill(color(0,0,0));
       ellipseMode(RADIUS);
