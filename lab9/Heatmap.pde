@@ -7,25 +7,17 @@ class Heatmap extends AbstractView {
 	private static final int PADDING_BOTTOM = 60;
 	private static final int FONT_SIZE = 12;
 
-	private final String xProperty;
-	private final String yProperty;
+        private final Datum datum;
 
-	private final Bucketizer bucketizer; 
 	private final GridLayout gridLayout;
 
 	// layouts that chop up the space available for axis labeling
 	private final GridLayout xLabelLayout;
 	private final GridLayout yLabelLayout;
 
-	public Heatmap(ArrayList<Datum> data, String xProperty, String yProperty) {
-		super(data);
-		this.xProperty = xProperty;
-		this.yProperty = yProperty; 
-
-		bucketizer = new Bucketizer(data, xProperty, yProperty);
-
-		int cols = bucketizer.getXValues().size();
-		int rows = bucketizer.getYValues().size();
+	public Heatmap(Datum datum) {
+		super(null);
+                this.datum = datum;
 
 		gridLayout = new GridLayout(cols, rows);
 		xLabelLayout = new GridLayout(cols, 1);
@@ -45,6 +37,13 @@ class Heatmap extends AbstractView {
 			bounds.x + PADDING_LEFT, bounds.y + bounds.h - PADDING_BOTTOM, bounds.w - PADDING_LEFT, PADDING_BOTTOM));
 	}
 
+        // returns the center of the label for the given value
+        public Point getLabel(String value) {
+          int index = getValues().indexOf(value);
+          
+          return yLabelLayout.getCellBounds(0, index).getCenter();
+        }
+
 	public void render() {
 		renderGrid();
 		labelCells();
@@ -56,9 +55,13 @@ class Heatmap extends AbstractView {
 		labelY();
 	}
 
+        private ArrayList<String> getValues() {
+                return new ArrayList<String>(datum.authors);
+        }
+
 	private void renderGrid() {
-		ArrayList<String> xLabels = bucketizer.getXValues();
-		ArrayList<String> yLabels = bucketizer.getYValues();
+		ArrayList<String> xLabels = getValues();
+		ArrayList<String> yLabels = getValues();
 
 		// gotta set the weight 
 		strokeWeight(1);
@@ -99,7 +102,7 @@ class Heatmap extends AbstractView {
 	}
 
 	private void labelX() {
-		ArrayList<String> labels = bucketizer.getXValues();
+		ArrayList<String> labels = getValues();
 		for (int col = 0; col < labels.size(); col++) {
 			Point center = xLabelLayout.getCellBounds(col, 0).getCenter();
 			renderLabel(labels.get(col), center, true);
@@ -107,7 +110,7 @@ class Heatmap extends AbstractView {
 	}
 
 	private void labelY() {
-		ArrayList<String> labels = bucketizer.getYValues();
+		ArrayList<String> labels = getValues();
 		for (int row = 0; row < labels.size(); row++) {
 			Point center = yLabelLayout.getCellBounds(0, row).getCenter();
 			renderLabel(labels.get(row), center, false);
@@ -132,10 +135,12 @@ class Heatmap extends AbstractView {
 	}
 
 	private void renderCells() {
-		for (int col = 0; col < bucketizer.getXValues().size(); col++) {
-			for (int row = 0; row < bucketizer.getYValues().size(); row++) {
+                ArrayList<String> authors = getValues();
+                
+		for (int col = 0; col < authors.size(); col++) {
+			for (int row = 0; row < authors.size(); row++) {
 
-				int count = bucketizer.getCount(col, row);
+                                int count = datum.getLink(authors.get(col), authors.get(row));
 				Rect bounds = gridLayout.getCellBounds(col, row);
 				int fillColor = getColor(col, row, count);
 
@@ -166,30 +171,15 @@ class Heatmap extends AbstractView {
 		}
 
 		// return interpolated, non-selected color
-		float p = (float)count / bucketizer.getMaxCount();
+		float p = (float)count / 5;
 		return color(255, 0, 0, p * 255);
 	}
 
 	private boolean isSelected(int col, int row) {
-		ArrayList<Datum> ds = bucketizer.getDatums(col, row);
-
-		for (Datum d : ds) {
-			if (d.isSelected()) {
-				return true;
-			}
-		}
 		return false;
 	}
 
 	public ArrayList<Datum> getHoveredDatums() {
-		// find which cell (port range + time bucket) is under the mouse
-		Point cellHit = gridLayout.getCellCoords(mouseX, mouseY);
-
-		// return the datums from that cell
-		if (cellHit == null) {
-			return new ArrayList<Datum>();	
-		} else {
-			return bucketizer.getDatums((int)cellHit.x, (int)cellHit.y);
-		}
+		return new ArrayList<Datum>();
 	}
 }
