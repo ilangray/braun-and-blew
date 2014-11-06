@@ -14,18 +14,30 @@ class Link {
      return authorA.equals(a1) && authorB.equals(a2) || 
             authorA.equals(a2) && authorB.equals(a1); 
   }
+
+  public String toString() {
+    return "AuthorA = " + authorA + ", AuthorB = " + authorB + ", weight = " + weight;
+  }
 }
 
 class Datum {
   
   private int id;
-  private String[] authors;
-  private Link[] links;
+  private ArrayList<String> authors;
+  private ArrayList<Link> links;
   
-  public Datum(int id, String[] authors, Link[] links) {
+  public Datum(int id, ArrayList<String> authors, ArrayList<Link> links) {
     this.id = id;
     this.authors = authors;
     this.links = links;
+  }
+
+  public ArrayList<String> getAllAuthors() {
+    return authors;
+  }
+
+  public ArrayList<Link> getAllLinks() {
+    return links;
   }
   
   // defaults to zero if no such link exists

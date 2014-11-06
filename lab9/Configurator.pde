@@ -1,6 +1,9 @@
 // Reads in the file
 class Configurator {
   public final String fileName;
+  public final int MASS = 10;
+  public final int EXTERNAL_LINK_WEIGHT = 1;
+  public final float SPRING_REST_LEN = 100.0;;
 
   public Configurator(String fileName) {
     this.fileName = fileName;
@@ -23,39 +26,132 @@ class Configurator {
     }
   }
 
-  // Initializes the nodes and springs from the info from the file.
-  // Creates an ArrayList of Zaps and an ArrayList of Dampers, but these
-  // last two are independent on the input file.
-  // Returns Die Welt.
+  // New initWorld
   private DieWelt initWorld(ArrayList<String> al) {
     ArrayList<Node> nodes = new ArrayList<Node>();
     ArrayList<Spring> springs = new ArrayList<Spring>();
     ArrayList<Zap> zaps = new ArrayList<Zap>();
     ArrayList<Damper> dampers = new ArrayList<Damper>();
-    boolean inNodes = false;
+    ArrayList<Link> externalLinks = new ArrayList<Link>();
 
-    for (int i = 0; i < al.size (); i++) {
-      // If no commas - they are list sizes and we don't need those
-      if (al.get(i).indexOf(',') == -1) {
-        inNodes = !inNodes;
-        continue;
+    boolean newNode = false;
+    boolean inLinks = false;
+
+    int count = -1;
+    int nodeID = -1;
+    int numPeeps = -1;
+    int numLinks = -1;
+    ArrayList<String> newAuthors = null;
+    ArrayList<Link> newLinks = null;
+    for (int i = 0; i < al.size(); i++) {
+      if (i == 0) { continue; };  // Num nodes I already know this
+
+      // Does the line start with a number? -- if so it is a new node
+      if (Character.isDigit(al.get(i).charAt(0))) {
+          newNode = true;
+          count = 0;
+          int[] nums = int(split(al.get(i), ','));
+          nodeID = nums[0];
+          numPeeps = nums[1];
+          numLinks = nums[2];
+
+          newAuthors = new ArrayList<String>();
+          newLinks = new ArrayList<Link>();
+      } else if (newNode) {
+          if (count  >= numPeeps + numLinks) {  // Don't count descriptor line
+          Datum newDatum = new Datum(nodeID ,newAuthors, newLinks);
+          nodes.add(new Node(newDatum, MASS, nodeID));
+          newNode = false;
+          inLinks = false;
+          }   else {
+          // Reading in the links
+            if (inLinks) {
+              String[] listL = split(al.get(i), ',');
+              newLinks.add(new Link(listL[0], listL[1], Integer.parseInt(listL[2])));
+            } else {  // Reading in the peoples
+              newAuthors.add(al.get(i));
+            }
+
+            if (count >= numPeeps) {   // Now I'll be in links
+              inLinks = true;
+            }
+          } 
+      } else if (!Character.isDigit(al.get(i).charAt(0)) && !newNode) {
+        // This happens when you have external connections
+        // Make the external link
+
+        String[] listL = split(al.get(i), ',');
+        externalLinks.add(new Link(listL[0], listL[2], EXTERNAL_LINK_WEIGHT));
+
+        // Make the spring connecting these
+        springs.add(new Spring(getNodeAtIndex(Integer.parseInt(listL[1]), nodes), getNodeAtIndex(Integer.parseInt(listL[3]), nodes), SPRING_REST_LEN));
+        }
+      count++;
+        
       }
-
-      // Split on commas
-      String[] listL = split(al.get(i), ',');
-
-      // If get to this point, not in first line or nodes -- definitely in Springs
-      if (!inNodes) {
-        Spring newSpring = new Spring(getCorrectNode(int(listL[0]), nodes), getCorrectNode(int(listL[1]), nodes), int(listL[2]));
-        springs.add(newSpring);
-      } else {  // We are in Nodes
-        Node newNode = new Node(int(listL[0]), float(listL[1]));
-        nodes.add(newNode);
-      }
+      return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes), externalLinks);
     }
+
+
+    // Returns null if index not found
+    private Node getNodeAtIndex(int ind, ArrayList<Node> nodes) {
+      for (Node n : nodes) {
+        if (n.id == ind) {
+          return n;
+        }
+      }
+
+      return null;
+    }
+
+    // Node n =  nodes.get(3);
+    // println("Authors:");
+    // ArrayList<String> a = n.datum.getAllAuthors();
+    // ArrayList<Link> l = n.datum.getAllLinks();
+    // for (String s : a) {
+    //   println(s);
+    // }
+
+    // println("Linkz");
+    // for (Link zzz : l) {
+    //   println(zzz);
+    // }
+
     
-    return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes));
-  }
+
+  // Initializes the nodes and springs from the info from the file.
+  // Creates an ArrayList of Zaps and an ArrayList of Dampers, but these
+  // last two are independent on the input file.
+  // Returns Die Welt.
+  // private DieWelt initWorld(ArrayList<String> al) {
+  //   ArrayList<Node> nodes = new ArrayList<Node>();
+  //   ArrayList<Spring> springs = new ArrayList<Spring>();
+  //   ArrayList<Zap> zaps = new ArrayList<Zap>();
+  //   ArrayList<Damper> dampers = new ArrayList<Damper>();
+  //   boolean inNodes = false;
+
+  //   for (int i = 0; i < al.size (); i++) {
+  //     // If no commas - they are list sizes and we don't need those
+  //     if (al.get(i).indexOf(',') == -1) {
+  //       inNodes = !inNodes;
+  //       continue;
+  //     }
+
+  //     // Split on commas
+  //     String[] listL = split(al.get(i), ',');
+
+  //     // If get to this point, not in first line or nodes -- definitely in Springs
+  //     if (!inNodes) {
+  //       Spring newSpring = new Spring(getCorrectNode(int(listL[0]), nodes), getCorrectNode(int(listL[1]), nodes), int(listL[2]));
+  //       springs.add(newSpring);
+  //     } else {  // We are in Nodes
+  //       Node newNode = new Node(int(listL[0]), float(listL[1]));
+  //       nodes.add(newNode);
+  //     }
+  //   }
+    
+  //   return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes));
+  // }
 
   // Returns the node with the id
   // If no node exists with that id, than null is returned

@@ -21,6 +21,7 @@ void setup() {
   // read data
   DieWelt w = new Configurator("data1.csv").configure();
   
+  // System.exit(1);
   // configur renderer and simulator
   rm = new RenderMachine(w.nodes, w.springs);
   rm.setAllBounds(halfBounds);

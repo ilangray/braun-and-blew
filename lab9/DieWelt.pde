@@ -4,11 +4,14 @@ class DieWelt {
   public final ArrayList<Spring> springs;
   public final ArrayList<Zap> zaps;
   public final ArrayList<Damper> dampers;
+  public final ArrayList<Link> externalLinks;
   
-  public DieWelt(ArrayList<Node> nodes, ArrayList<Spring> springs, ArrayList<Zap> zaps, ArrayList<Damper> dampers) {
+  public DieWelt(ArrayList<Node> nodes, ArrayList<Spring> springs, 
+    ArrayList<Zap> zaps, ArrayList<Damper> dampers, ArrayList<Link> externalLinks) {
     this.nodes = nodes;
     this.springs = springs;
     this.zaps = zaps;
     this.dampers = dampers;
+    this.externalLinks = externalLinks;
   }
 }

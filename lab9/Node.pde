@@ -9,6 +9,7 @@ class Node {
  
   public final float mass;
   public final float radius;
+  public final int id;
   
   public final Datum datum;
   
@@ -16,9 +17,10 @@ class Node {
 
   public Rect bounds;
   
-  public Node(Datum datum, float mass) {
+  public Node(Datum datum, float mass, int id) {
     this.datum = datum;
     this.mass = mass;
+    this.id = id;
     this.radius = sqrt(mass / PI) * 10;
 
     this.bounds = new Rect(0, 0, width, height);
