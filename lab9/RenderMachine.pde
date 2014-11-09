@@ -31,14 +31,15 @@ class RenderMachine {
     Point endA = getLinkEnd(link.authorA, heatmaps);
     Point endB = getLinkEnd(link.authorB, heatmaps);
    
-    fill(color(0,0,0));
-    stroke(color(0,0,0));
+    fill(color(0,0,255, 50));
+    stroke(color(0,0,255, 50));
     line(endA.x, endA.y, endB.x, endB.y); 
   }
   
   private Point getLinkEnd(String author, ArrayList<Heatmap> heatmaps) {
     // find the node containing that author
     int index = getNodeByAuthor(author);
+    
     Heatmap hm = heatmaps.get(index);
     return hm.getLabel(author);
   }
@@ -61,7 +62,7 @@ class RenderMachine {
   }
   
   public void render() {
-    renderSprings();
+//    renderSprings();
     ArrayList<Heatmap> hms = renderNodes();
     renderExternalLinks(hms);
     renderLabels();
@@ -109,11 +110,11 @@ class RenderMachine {
   
   // this now uses a heatmap
   private Heatmap renderNode(Node n, int c) {
-    Heatmap map = new Heatmap(n.data);
+    Heatmap map = new Heatmap(n.datum);
     
     float r = n.radius;
-    float x = n.center.x;
-    float y = n.center.y;
+    float x = n.pos.x;
+    float y = n.pos.y;
     
     map.setBounds(new Rect(x - r, y - r, 2*r, 2*r));
     map.render();

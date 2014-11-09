@@ -1,10 +1,10 @@
 
-// this is awesome. lets do some physics yolo swag
+// this is less awesome but were still doin physics, ya'll
 
 Simulator sm;
 RenderMachine rm;
 CenterPusher cp;
-Rect halfBounds;
+
 
 boolean done = false;
 boolean first = true;
@@ -19,12 +19,11 @@ void setup() {
   frame.setResizable(true);
  
   // read data
-  DieWelt w = new Configurator("data1.csv").configure();
+  DieWelt w = new Configurator("data3.csv").configure();
   
   // System.exit(1);
   // configur renderer and simulator
-  rm = new RenderMachine(w.nodes, w.springs);
-  rm.setAllBounds(halfBounds);
+  rm = new RenderMachine(w.nodes, w.springs, w.externalLinks);
   sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
   cp = new CenterPusher(w.nodes);
 }

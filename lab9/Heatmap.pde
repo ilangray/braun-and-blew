@@ -2,8 +2,8 @@ import java.util.*;
 
 class Heatmap extends AbstractView {
 
-	private static final int PADDING_LEFT = 90;
-	private static final int PADDING_BOTTOM = 60;
+	private static final int PADDING_LEFT = 20;
+	private static final int PADDING_BOTTOM = 10;
 	private static final int FONT_SIZE = 12;
 
         private final Datum datum;
@@ -17,6 +17,9 @@ class Heatmap extends AbstractView {
 	public Heatmap(Datum datum) {
 		super(null);
                 this.datum = datum;
+
+                int cols, rows;
+                cols = rows = datum.authors.size();
 
 		gridLayout = new GridLayout(cols, rows);
 		xLabelLayout = new GridLayout(cols, 1);
@@ -116,14 +119,30 @@ class Heatmap extends AbstractView {
 		}
 	}
 
-	private void renderLabel(String letters, Point center, boolean vertical) {
+	private void _renderLabel(String letters, Point center, boolean vertical) {
 		textSize(FONT_SIZE);
 		textAlign(CENTER, CENTER);
 		fill(color(0,0,0));
-		text(letters, 0,0);
-
-		popMatrix();
+		text(letters, center.x,center.y);
 	}
+
+    private void renderLabel(String letters, Point center, boolean vertical) {
+            textSize(FONT_SIZE);
+            
+            fill(color(0,0,0));
+            pushMatrix();
+            translate(center.x, center.y);
+            textAlign(RIGHT, CENTER);
+
+            if (vertical) {
+                    rotate(-HALF_PI);
+            }
+
+            text(letters, 0,0);
+
+            popMatrix();
+    }
+
 
 	private void renderCells() {
                 ArrayList<String> authors = getValues();
