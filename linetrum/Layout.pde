@@ -67,8 +67,6 @@ class Layout {
 
         sharedLong += areaCurrent;
         sharedLong /= canvShort;
-//        println("Shared Long");
-//        println(sharedLong);
 
         ArrayList<Rect> tempRects = new ArrayList();
         ArrayList<Datum> tempDatums = new ArrayList();
@@ -81,14 +79,7 @@ class Layout {
         }
         addNewRectToTemp(tempRects, areaCurrent, tempDatums, nodeToConsider, sharedLong, shortAreaUsedUp); 
         float newWorstAR = getWorstAR(tempRects);
-//        println("TEMPARR");
-//        testPrintRectArray(tempRects);
-//        println("END");
-        
-//        print("New Worst AR: ");
-//        println(newWorstAR);
-//        print("Old Worst AR: ");
-//        println(oldWorstAR);
+
         // If next rectangle makes things worse, then GTFO
         if (newWorstAR >= oldWorstAR) {
           break;
@@ -103,12 +94,10 @@ class Layout {
       // Update pointUL and longSide of the canvas
       // Update canvas dims
       if (shortIsWidth) {
-//        println("shortIsWidth");
         float longShared = currentRects.get(0).h;
         realUL = realUL.offset(new Point(0, longShared));
         canvLong -= longShared;
       } else {
-//        println("Long is width");
         float longShared = currentRects.get(0).w;
         realUL = realUL.offset(new Point(longShared, 0));
         canvLong -= longShared;
@@ -121,11 +110,6 @@ class Layout {
         canvLong = canvShort;
         canvShort = temp;
       } 
-//      print("New UL: (");
-//      print(realUL.x);
-//      print(", ");
-//      print(realUL.y);
-//      println(")");
 
       // Recurse!
       addViews();
@@ -198,12 +182,6 @@ class Layout {
 
       return shortSideRect;
     }
-    
-//    private void testPrintRectArray(ArrayList<Rect> a) {
-//      for (int i = 0; i < a.size(); i++) {
-//        println(a.get(i).toString());
-//      }
-//    }
 
     private Datum getLargestRemaining() {
       Datum max = remRects.get(0);
