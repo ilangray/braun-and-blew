@@ -18,12 +18,12 @@ import java.io.IOException;
 public class lab9 extends PApplet {
 
 
-// this is awesome. lets do some physics yolo swag
+// this is less awesome but were still doin physics, ya'll
 
 Simulator sm;
 RenderMachine rm;
 CenterPusher cp;
-Rect halfBounds;
+
 
 boolean done = false;
 boolean first = true;
@@ -38,12 +38,11 @@ public void setup() {
   frame.setResizable(true);
  
   // read data
-  DieWelt w = new Configurator("data1.csv").configure();
+  DieWelt w = new Configurator("data3.csv").configure();
   
   // System.exit(1);
   // configur renderer and simulator
-  rm = new RenderMachine(w.nodes, w.springs);
-  rm.setAllBounds(halfBounds);
+  rm = new RenderMachine(w.nodes, w.springs, w.externalLinks);
   sm = new Simulator(w.nodes, w.springs, w.zaps, w.dampers);
   cp = new CenterPusher(w.nodes);
 }
@@ -119,9 +118,9 @@ abstract class AbstractView {
 // Reads in the file
 class Configurator {
   public final String fileName;
-  public final int MASS = 10;
+  public final int MASS = 100;
   public final int EXTERNAL_LINK_WEIGHT = 1;
-  public final float SPRING_REST_LEN = 100.0f;;
+  public final float SPRING_REST_LEN = 600.0f;;
 
   public Configurator(String fileName) {
     this.fileName = fileName;
@@ -176,13 +175,16 @@ class Configurator {
           newAuthors = new ArrayList<String>();
           newLinks = new ArrayList<Link>();
       } else if (newNode) {
+          if (numPeeps == 1) {  // I give up -- here's a ridiculous hack
+            newAuthors.add(al.get(i));
+          }
           if (count  >= numPeeps + numLinks) {  // Don't count descriptor line
-          Datum newDatum = new Datum(nodeID ,newAuthors, newLinks);
-          nodes.add(new Node(newDatum, MASS, nodeID));
-          newNode = false;
-          inLinks = false;
-          }   else {
-          // Reading in the links
+            Datum newDatum = new Datum(nodeID ,newAuthors, newLinks);
+            nodes.add(new Node(newDatum, MASS, nodeID));
+            newNode = false;
+            inLinks = false;
+          } else {
+            // Reading in the links
             if (inLinks) {
               String[] listL = split(al.get(i), ',');
               newLinks.add(new Link(listL[0], listL[1], Integer.parseInt(listL[2])));
@@ -203,12 +205,12 @@ class Configurator {
 
         // Make the spring connecting these
         springs.add(new Spring(getNodeAtIndex(Integer.parseInt(listL[1]), nodes), getNodeAtIndex(Integer.parseInt(listL[3]), nodes), SPRING_REST_LEN));
-        }
+      }
       count++;
         
-      }
-      return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes), externalLinks);
     }
+    return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes), externalLinks);
+  }
 
 
     // Returns null if index not found
@@ -264,14 +266,13 @@ class Configurator {
   }
 }
 
-
 /**
  * A Damper applies a force proportional to a 
  * node's velocity, in the opposite direction.
  */
 class Damper implements ForceSource {
 
-  private static final float K = 0.5f;
+  private static final float K = 0.8f;
 
   private final Node node;
 
@@ -652,6 +653,13 @@ class Rect {
   public Rect inset(int amount) {
    return new Rect(x + amount, y + amount, w - 2 * amount, h - 2 * amount);
   }
+  
+  public Rect inset(int left, int top, int right, int bottom) {
+    float newWidth = w - left - right;
+    float newHeight = h - top - bottom;
+
+    return new Rect(x + left, y + top, newWidth, newHeight);
+  }
 }
   
 <T> ArrayList<T> makeList(T... values) {
@@ -738,8 +746,8 @@ class GridLayout {
 
 class Heatmap extends AbstractView {
 
-	private static final int PADDING_LEFT = 90;
-	private static final int PADDING_BOTTOM = 60;
+	private static final int PADDING_LEFT = 20;
+	private static final int PADDING_BOTTOM = 10;
 	private static final int FONT_SIZE = 12;
 
         private final Datum datum;
@@ -753,6 +761,9 @@ class Heatmap extends AbstractView {
 	public Heatmap(Datum datum) {
 		super(null);
                 this.datum = datum;
+
+                int cols, rows;
+                cols = rows = datum.authors.size();
 
 		gridLayout = new GridLayout(cols, rows);
 		xLabelLayout = new GridLayout(cols, 1);
@@ -852,14 +863,30 @@ class Heatmap extends AbstractView {
 		}
 	}
 
-	private void renderLabel(String letters, Point center, boolean vertical) {
+	private void _renderLabel(String letters, Point center, boolean vertical) {
 		textSize(FONT_SIZE);
 		textAlign(CENTER, CENTER);
 		fill(color(0,0,0));
-		text(letters, 0,0);
-
-		popMatrix();
+		text(letters, center.x,center.y);
 	}
+
+    private void renderLabel(String letters, Point center, boolean vertical) {
+            textSize(FONT_SIZE);
+            
+            fill(color(0,0,0));
+            pushMatrix();
+            translate(center.x, center.y);
+            textAlign(RIGHT, CENTER);
+
+            if (vertical) {
+                    rotate(-HALF_PI);
+            }
+
+            text(letters, 0,0);
+
+            popMatrix();
+    }
+
 
 	private void renderCells() {
                 ArrayList<String> authors = getValues();
@@ -922,6 +949,7 @@ class Node {
   public final float mass;
   public final float radius;
   public final int id;
+  public static final int PADDING = 75;
   
   public final Datum datum;
   
@@ -931,11 +959,11 @@ class Node {
   
   public Node(Datum datum, float mass, int id) {
     this.datum = datum;
-    this.mass = mass;
+    this.mass = mass / 100;
     this.id = id;
     this.radius = sqrt(mass / PI) * 10;
 
-    this.bounds = new Rect(0, 0, width, height);
+    this.bounds = new Rect(PADDING, 0, width - PADDING, height - PADDING);
   }
 
   public Rect getBounds() {
@@ -1084,14 +1112,15 @@ class RenderMachine {
     Point endA = getLinkEnd(link.authorA, heatmaps);
     Point endB = getLinkEnd(link.authorB, heatmaps);
    
-    fill(color(0,0,0));
-    stroke(color(0,0,0));
+    fill(color(0,0,255, 50));
+    stroke(color(0,0,255, 50));
     line(endA.x, endA.y, endB.x, endB.y); 
   }
   
   private Point getLinkEnd(String author, ArrayList<Heatmap> heatmaps) {
     // find the node containing that author
     int index = getNodeByAuthor(author);
+    
     Heatmap hm = heatmaps.get(index);
     return hm.getLabel(author);
   }
@@ -1114,7 +1143,7 @@ class RenderMachine {
   }
   
   public void render() {
-    renderSprings();
+//    renderSprings();
     ArrayList<Heatmap> hms = renderNodes();
     renderExternalLinks(hms);
     renderLabels();
@@ -1162,11 +1191,11 @@ class RenderMachine {
   
   // this now uses a heatmap
   private Heatmap renderNode(Node n, int c) {
-    Heatmap map = new Heatmap(n.data);
+    Heatmap map = new Heatmap(n.datum);
     
     float r = n.radius;
-    float x = n.center.x;
-    float y = n.center.y;
+    float x = n.pos.x;
+    float y = n.pos.y;
     
     map.setBounds(new Rect(x - r, y - r, 2*r, 2*r));
     map.render();
@@ -1323,7 +1352,7 @@ class Spring extends InterNodeForce {
 // Instances of Coluomb laws
 class Zap extends InterNodeForce {
 
-  private static final float K = 100000f;
+  private static final float K = 700000f;
   
   public Zap(Node endA, Node endB) {
     super(endA, endB);

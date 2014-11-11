@@ -173,6 +173,13 @@ class Rect {
   public Rect inset(int amount) {
    return new Rect(x + amount, y + amount, w - 2 * amount, h - 2 * amount);
   }
+  
+  public Rect inset(int left, int top, int right, int bottom) {
+    float newWidth = w - left - right;
+    float newHeight = h - top - bottom;
+
+    return new Rect(x + left, y + top, newWidth, newHeight);
+  }
 }
   
 <T> ArrayList<T> makeList(T... values) {

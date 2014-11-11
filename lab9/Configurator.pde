@@ -1,9 +1,9 @@
 // Reads in the file
 class Configurator {
   public final String fileName;
-  public final int MASS = 10;
+  public final int MASS = 100;
   public final int EXTERNAL_LINK_WEIGHT = 1;
-  public final float SPRING_REST_LEN = 100.0;;
+  public final float SPRING_REST_LEN = 600.0;;
 
   public Configurator(String fileName) {
     this.fileName = fileName;
@@ -58,13 +58,16 @@ class Configurator {
           newAuthors = new ArrayList<String>();
           newLinks = new ArrayList<Link>();
       } else if (newNode) {
+          if (numPeeps == 1) {  // I give up -- here's a ridiculous hack
+            newAuthors.add(al.get(i));
+          }
           if (count  >= numPeeps + numLinks) {  // Don't count descriptor line
-          Datum newDatum = new Datum(nodeID ,newAuthors, newLinks);
-          nodes.add(new Node(newDatum, MASS, nodeID));
-          newNode = false;
-          inLinks = false;
-          }   else {
-          // Reading in the links
+            Datum newDatum = new Datum(nodeID ,newAuthors, newLinks);
+            nodes.add(new Node(newDatum, MASS, nodeID));
+            newNode = false;
+            inLinks = false;
+          } else {
+            // Reading in the links
             if (inLinks) {
               String[] listL = split(al.get(i), ',');
               newLinks.add(new Link(listL[0], listL[1], Integer.parseInt(listL[2])));
@@ -85,12 +88,12 @@ class Configurator {
 
         // Make the spring connecting these
         springs.add(new Spring(getNodeAtIndex(Integer.parseInt(listL[1]), nodes), getNodeAtIndex(Integer.parseInt(listL[3]), nodes), SPRING_REST_LEN));
-        }
+      }
       count++;
         
-      }
-      return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes), externalLinks);
     }
+    return new DieWelt(nodes, springs, createZaps(nodes), createDampers(nodes), externalLinks);
+  }
 
 
     // Returns null if index not found
