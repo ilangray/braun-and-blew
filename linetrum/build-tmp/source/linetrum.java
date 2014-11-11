@@ -19,7 +19,7 @@ public class linetrum extends PApplet {
 // main
 
 // constants 
-String FILENAME = "hierarchy2.shf";
+String FILENAME = "hierarchy4.shf";
 
 // globals
 SQTM tm;
