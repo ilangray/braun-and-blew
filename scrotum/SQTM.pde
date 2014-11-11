@@ -24,15 +24,12 @@ class SQTM {
   // p determines which rectangle to zoom in on
   // NOTE: what happens if p is not inside the bounds of the receiving SQTM
   public void zoomIn(Point p) {
-    View temp = currentView.viewSelected(p);
-    if(temp != null){
-      zoomOutStack.push(currentDatum);
-      currentDatum = temp.datum;
-    //  currentView = new Layout(temp.datum).solve();
-    //  println(current.datum);
-  //    println(current.bounds);
-     //urrent = temp;
-    }
+    return;
+    // View temp = currentView.viewSelected(p);
+    // if(temp != null){
+    //   zoomOutStack.push(currentDatum);
+    //   currentDatum = temp.datum;
+    // }
   }
    
   public void zoomOut() {
