@@ -198,12 +198,6 @@ class Layout {
 
       return shortSideRect;
     }
-    
-//    private void testPrintRectArray(ArrayList<Rect> a) {
-//      for (int i = 0; i < a.size(); i++) {
-//        println(a.get(i).toString());
-//      }
-//    }
 
     private Datum getLargestRemaining() {
       Datum max = remRects.get(0);
@@ -218,7 +212,6 @@ class Layout {
     }
 
     // Cannot be called on empty remRects array
-    // NOTE: remRects is an ArrayList of Numbers
     private int getIndexLargestRemaining() {
       float max = remRects.get(0).getValueF();
       int maxInd = 0;
@@ -297,33 +290,6 @@ class Layout {
   public void testPrintNumArray(ArrayList<Number> arr) {
     for (int i = 0; i < arr.size (); i++) {
       println(arr.get(i).floatValue());
-    }
-  }
-
-
-  // Gets all children whose parents are level 
-  private ArrayList<Datum> getChildren(int level) {
-    ArrayList<Datum> saveList = new ArrayList();
-    recurGetChildren(root, 0, level + 1, saveList);
-    return saveList;
-  }
-
-  // Cannot be called on null pointer
-  // 10Q: http://stackoverflow.com/questions/13349853/find-all-nodes-in-a-binary-tree-on-a-specific-level-interview-query
-  private void recurGetChildren(Datum node, int currentLev, int targetLev, ArrayList<Datum> saveList) {
-    // Target case
-    if (currentLev == targetLev) {
-      saveList.add(node);
-    }
-
-    // Base case
-    if (node.children == null) {
-      return;
-    }
-
-    // Recursion case
-    for (int i = 0; i < node.children.size(); i++) {
-      recurGetChildren(node.children.get(i), currentLev + 1, targetLev, saveList);
     }
   }
 }

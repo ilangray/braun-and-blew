@@ -5,7 +5,7 @@ class View {
   private final color STROKE_COLOR = color(0, 0, 0);
   private final color REGULAR_FILL = color(255, 255, 255);
   private final color HIGHLIGHTED_FILL = color(0, 0, 255);
-  private final Datum datum;
+  public final Datum datum;
   private final Rect bounds;
   private final ArrayList<View> subviews;
   

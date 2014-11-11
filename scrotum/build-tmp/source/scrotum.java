@@ -534,31 +534,31 @@ class Layout {
   }
 
 
-  // Gets all children whose parents are level 
-  private ArrayList<Datum> getChildren(int level) {
-    ArrayList<Datum> saveList = new ArrayList();
-    recurGetChildren(root, 0, level + 1, saveList);
-    return saveList;
-  }
+  // // Gets all children whose parents are level 
+  // private ArrayList<Datum> getChildren(int level) {
+  //   ArrayList<Datum> saveList = new ArrayList();
+  //   recurGetChildren(root, 0, level + 1, saveList);
+  //   return saveList;
+  // }
 
-  // Cannot be called on null pointer
-  // 10Q: http://stackoverflow.com/questions/13349853/find-all-nodes-in-a-binary-tree-on-a-specific-level-interview-query
-  private void recurGetChildren(Datum node, int currentLev, int targetLev, ArrayList<Datum> saveList) {
-    // Target case
-    if (currentLev == targetLev) {
-      saveList.add(node);
-    }
+  // // Cannot be called on null pointer
+  // // 10Q: http://stackoverflow.com/questions/13349853/find-all-nodes-in-a-binary-tree-on-a-specific-level-interview-query
+  // private void recurGetChildren(Datum node, int currentLev, int targetLev, ArrayList<Datum> saveList) {
+  //   // Target case
+  //   if (currentLev == targetLev) {
+  //     saveList.add(node);
+  //   }
 
-    // Base case
-    if (node.children == null) {
-      return;
-    }
+  //   // Base case
+  //   if (node.children == null) {
+  //     return;
+  //   }
 
-    // Recursion case
-    for (int i = 0; i < node.children.size(); i++) {
-      recurGetChildren(node.children.get(i), currentLev + 1, targetLev, saveList);
-    }
-  }
+  //   // Recursion case
+  //   for (int i = 0; i < node.children.size(); i++) {
+  //     recurGetChildren(node.children.get(i), currentLev + 1, targetLev, saveList);
+  //   }
+  // }
 }
 
 
