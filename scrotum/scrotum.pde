@@ -1,7 +1,7 @@
 // main
 
 // constants 
-String FILENAME = "hierarchy2.shf";
+String FILENAME = "hierarchy.shf";
 
 // globals
 SQTM tm;
