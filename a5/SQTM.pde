@@ -12,9 +12,7 @@ class SQTM {
 
   public SQTM(Rect bounds, SQTMDatum root) {
     this.bounds = bounds;
-//    this.root = root;
     this.currentDatum = root;
-    //println("datum after layout" + current.datum);
   }
   
   public void setBounds(Rect newBounds) {

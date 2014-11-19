@@ -13,6 +13,7 @@ int NUMBER_OF_CHARTS = 2;
 void getNextChart() {
     d = new Data();
     chartType = (int)random(NUMBER_OF_CHARTS);
+    println("Chart type = " + chartType);
 }
 
 ArrayList<Datum> getMarkedDatums() {
@@ -88,6 +89,7 @@ void draw() {
   
     // what are we displaying?
     ArrayList<Datum> realDatums = getDatumFromData(d.data);
+    SQTMDatum root = makeSQTMDatums(realDatums);
     
     /**
      ** add more: you may need to draw more stuff on your screen
@@ -109,8 +111,10 @@ void draw() {
 
         switch (chartType) {
             case 0:
+                TM tm = new TM(bounds, root);
+                tm.render();
+                break;
             case 1:
-                SQTMDatum root = makeSQTMDatums(realDatums);
                 SQTM sqtm = new SQTM(bounds, root);
                 sqtm.render();
                 break;
