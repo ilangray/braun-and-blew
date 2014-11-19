@@ -22,8 +22,9 @@ class SQTMDatum {
   public final String id;
   public final ArrayList<SQTMDatum> children;
   public final boolean isLeaf;
-  public final boolean marked;
   
+  // the actual data of the SQTMDatum
+  public boolean marked;
   public float value;
   
   /**

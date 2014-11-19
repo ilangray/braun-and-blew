@@ -8,9 +8,11 @@ final int DECIDE_YOURSELF = -1; // This is a placeholder for variables you will 
 Data d = null;
 int chartType = 5;
 
+int NUMBER_OF_CHARTS = 2;
+
 void getNextChart() {
     d = new Data();
-    chartType = (int)random(3);
+    chartType = (int)random(NUMBER_OF_CHARTS);
 }
 
 ArrayList<Datum> getMarkedDatums() {
@@ -82,8 +84,13 @@ ArrayList<Datum> getDatumFromData(Data.DataPoint[] input) {
 
 void draw() {
     textSize(fontSize);
-    ArrayList<Datum> realDatums = getDatumFromData(d.data);
+    
+    // figure out where the graph should be
     Rect bounds = new Rect(chartLeftX, chartLeftY, chartSize, chartSize);
+  
+    // what are we displaying?
+    ArrayList<Datum> realDatums = getDatumFromData(d.data);
+    
     /**
      ** add more: you may need to draw more stuff on your screen
      **/
@@ -104,23 +111,7 @@ void draw() {
 
         switch (chartType) {
             case 0:
-                Bar b = new Bar(realDatums, "", "");
-                b.setBounds(bounds);
-                b.render();
-            
-                /**
-                 ** finish this: 1st visualization
-                 **/
-                break;
             case 1:
-              PieChart p = new PieChart(realDatums, "", "");
-              p.setBounds(bounds);
-              p.render();
-                /**
-                 ** finish this: 2nd visualization
-                 **/
-                break;
-            case 2:
                 SQTMDatum root = makeSQTMDatums(realDatums);
                 SQTM sqtm = new SQTM(bounds, root);
                 sqtm.render();

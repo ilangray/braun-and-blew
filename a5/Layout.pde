@@ -2,7 +2,7 @@
 // owned by phil
 class Layout {
   private class Algorithm {
-    private final int INSET_AMOUNT = 2;
+    private final int INSET_AMOUNT = 0;
     View parent;  // Parent view
     private Point realUL;  // The actual coordinate of the UL point of canvas
     private float canvLong;  // Length of long side of canvas
@@ -16,7 +16,6 @@ class Layout {
     private ArrayList<Rect> currentRects;  // Rectangles in current row
     private ArrayList<SQTMDatum> currentDatums;  // Parallel arrays with currentRects corresponding Datums
     private ArrayList<View> finalViews;  // Final view for the level -- exported by class
-
 
     public Algorithm(View parent, float canvLong, float canvShort, ArrayList<SQTMDatum> startingVals, Point realUL, boolean shortIsWidth) {
       this.parent = parent;
