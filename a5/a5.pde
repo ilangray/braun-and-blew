@@ -75,11 +75,9 @@ ArrayList<Datum> getDatumFromData(Data.DataPoint[] input) {
   
   for (int i = 0; i < NUM; i++) {
     toReturn.add(new Datum(input[i]));
-//    println(toReturn.get(i).value);
   }
   
-  return toReturn;
-  
+  return toReturn; 
 }
 
 void draw() {
