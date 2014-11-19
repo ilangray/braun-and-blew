@@ -12,7 +12,7 @@ int NUMBER_OF_CHARTS = 2;
 
 void getNextChart() {
     d = new Data();
-    chartType = (int)random(NUMBER_OF_CHARTS);
+    chartType = (int)random(100) < 50 ? 1 : 0;
     println("Chart type = " + chartType);
 }
 
