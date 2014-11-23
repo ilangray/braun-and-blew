@@ -1,5 +1,5 @@
 import controlP5.*;
-
+final int NUM_TIMES_TO_RUN = 15;
 final int DECIDE_YOURSELF = -1; // This is a placeholder for variables you will replace.
 
 /**
@@ -97,7 +97,7 @@ void draw() {
     if (index < 0 && page1) {
         drawIntro();
         page1 = false;
-    } else if (index >= 0 && index < vis.length) {
+    } else if (index >= 0 && index < NUM_TIMES_TO_RUN) {
         if (index == 0 && page2) {
             clearIntro();
             drawTextField();
@@ -125,7 +125,7 @@ void draw() {
 
         drawWarning();
 
-    } else if (index > vis.length - 1 && pagelast) {
+    } else if (index > NUM_TIMES_TO_RUN - 1 && pagelast) {
         drawThanks();
         drawClose();
         pagelast = false;
@@ -149,7 +149,7 @@ public void next() {
     } else if (num > 100) {
         warning = "Please input a number between 0 - 100!";
     } else {
-        if (index >= 0 && index < vis.length) {
+        if (index >= 0 && index < NUM_TIMES_TO_RUN) {
             float ans = parseFloat(cp5.get(Textfield.class, "answer").getText());
 
             /**
@@ -164,7 +164,7 @@ public void next() {
             /**
              ** Finish this: decide how to compute the log error from Cleveland and McGill (see the handout for details)
              **/
-            error = log2(Math.abs(reportPerc - truePerc) + 1/8.0);
+            error = log2(Math.abs(reportPerc - truePerc) + 1/8.0) * 100;
 
             saveJudgement();
         }
@@ -177,7 +177,7 @@ public void next() {
         cp5.get(Textfield.class, "answer").clear();
         index++;
 
-        if (index == vis.length - 1) {
+        if (index == NUM_TIMES_TO_RUN - 1) {
             pagelast = true;
         }
     }
