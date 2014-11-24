@@ -54,8 +54,10 @@ sqtmNormal <- shapiro.test(sqtmVals)
 
 cat("TM VALS:\n")
 print(tmNormal[2])
+print(tmNormal[1])
 cat("SQTM VALS:\n")
 print(sqtmNormal[2])
+print(sqtmNormal[1])
 
 t.test(tmVals, sqtmVals)
 
