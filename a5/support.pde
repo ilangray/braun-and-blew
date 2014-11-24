@@ -41,7 +41,7 @@ void drawInstruction() {
     fill(0);
     textAlign(CENTER);
     textSize(fontSize);
-    text("Two values are marked hilighted. \n " 
+    text("Two values are hi-lighted. \n " 
       + "What percentage is the smaller of the larger? \n" 
       + "Please put your answer below. \n" 
       + "e.g. If you think the smaller is exactly a half of the larger, \n" 
