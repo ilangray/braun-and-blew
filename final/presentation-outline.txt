@@ -1,0 +1,22 @@
+=================
+Outline of In-class Presentation for Final Project Idea Proposal
+=================
+
+Intro (ilan):
+  we love oceans. oceans are important. woo! save the world.
+
+1) Data (ilan):
+  <insert example row from dataset>
+  columns of interest: [lat/long, date/time, class (HR vs TS), max wind speed]
+
+2) Viz Design (ben):
+  two components: MAP + FILTER.
+
+3) System Architecture (phil):
+  d3, javascript. Why? cause maps + web
+
+4) Usage Scenario (ilan):
+    a) find correlations!
+    b) get a sense for scale and magnitude
+    c) understand that on a global scale there are local issues, aka dont
+          live in florida without understanding the risks
