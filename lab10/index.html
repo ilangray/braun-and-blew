@@ -64,7 +64,7 @@ var sw = 400;
 var sh = 300;
 var text1 = "Tippen Sie mir!";
 var text2 = "Tehehe!";
-var col1 = "DeepSkyBlue";
+var col1 = "deepskyblue";
 var col2 = "pink";
 var ORIG_COLOR = true;
 
@@ -92,24 +92,34 @@ var button = dieserIstDerKnopf.append("rect")
 
 button.on("click", function(d) {
                                   if (ORIG_COLOR) {
-                                    button.attr("x", sw / 3)
+                                    button.attr("fill", col1)
+                                          .transition()
+                                          .duration(1000)
+                                          .attr("x", sw / 3)
                                           .attr("y", sh / 3)
                                           .attr("width", sw / 3)
                                           .attr("height", sh / 3)
                                           .attr("fill", col2);
 
                                     dieserIstDerKnopf.selectAll("text")
+                                                     .transition()
+                                                     .duration(1000)
                                                      .attr("x", sw / 3 + sw / 9)
                                                      .attr("y", sh / 3 + sh / 6 )
                                                      .text(text2);
                                   } else {
-                                       button.attr("x", sw / 4)
+                                       button.attr("fill", col2)
+                                             .transition()
+                                             .duration(1000)
+                                             .attr("x", sw / 4)
                                              .attr("y", sh / 4)
                                              .attr("width", sw / 2)
                                              .attr("height", sh / 2)
                                              .attr("fill", col1);
 
                                         dieserIstDerKnopf.selectAll("text")
+                                                         .transition()
+                                                         .duration(1000)
                                                          .attr("x", sw / 2 - sw /8)
                                                          .attr("y", sh / 2)
                                                          .text(text1);
