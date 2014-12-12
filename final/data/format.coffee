@@ -30,6 +30,30 @@ parseDate = (date, time) ->
 
     new Date year, month, day, hours, mins
 
+# parses a pair of lat/long coords
+parseLatLng = (lat, lng) ->
+    # 
+    sign = ([num..., dir]) ->
+        # console.log "-- num = ", num
+        # console.log "-- dir = ", dir
+        mult = if dir is "S" or dir is "W" then -1 else 1
+
+        val = parseFloat(num.join(""))
+        # console.log "-- val = ", val
+
+        return mult * val
+
+    obj = {
+        lat:  sign lat
+        long: sign lng
+    }
+
+    # console.log "lat,lng = #{lat},#{lng} ====> ", obj
+
+    return obj
+
+
+
 # parses a header line
 parseHeader = ([id, name, count]) ->
     return {
@@ -43,7 +67,7 @@ parseDataPoint = ([date, time, recordType, stormType, lat, long, maxWind, minPre
     return {
         date: parseDate date, time
         stormType
-        location: { lat, long }
+        location: parseLatLng lat, long
         maxWind: parseInt maxWind
         minPressure: parseInt minPressure
     }
