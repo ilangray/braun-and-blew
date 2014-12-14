@@ -1,13 +1,3 @@
-// set up sliders
-// $('#year-slider').slider({
-//     formatter: function(value) {
-//         return 'Current value: ' + value;
-//     }
-// });
-
-var slider = new Slider('#year-slider', {});
-
-var slider = new Slider('#speed-slider', {});
 
 var width = 960,
     height = 960;
