@@ -60,7 +60,10 @@ function drawHurricane(hurricane) {
         .append("path")
         .attr("d", renderLine(hurricane.data))
         .attr("fill", "transparent")
-        .attr("stroke", "blue");
+        // .attr("stroke", "blue");
+        .attr("stroke", function() {
+            return "hsl(" + Math.random() * 360 + ",100%,50%)";
+        })
 }
 
 // draws the given hurricane
