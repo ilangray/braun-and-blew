@@ -55,14 +55,16 @@ function refreshFilter() {
 	// var speedPredicate = generateSpeedPredicate();
 
 	// filter the dataset
-	var filtered = applyFilter(yearPredicate)
+	var filtered = DATA
+
+	//_.drop(applyFilter(yearPredicate), 300)
 
 	console.log("Filtered the dataset down to " + filtered.length + " elements.")
 
 	// redraw
 	_.each(filtered, function (storm, i) {
-		console.log("drawing storm at index = " + i)
-		console.log(" -- storm = ", storm.data)
-		drawHurricane(storm.data);
+		console.log("drawing storm[" + i + "] w/ name = " + storm.name)
+		// console.log(" -- storm = ", storm.data)
+		drawHurricane(storm);
 	})
 }

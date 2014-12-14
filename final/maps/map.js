@@ -5,7 +5,8 @@ var width = 960,
 var projection = 
     //d3.geo.kavrayskiy7()
     d3.geo.mercator()
-    // d3.geo.albers().precision(.1);
+    // d3.geo.albers()
+    .precision(.1);
 
 var path = d3.geo.path()
     .projection(projection);
@@ -375,11 +376,12 @@ d3.json("world-110m.json", function(error, world) {
 d3.select(self.frameElement).style("height", height + "px");
 
 function drawHurricane(hurricane) {
-    var point = svg.selectAll("circle").data(hurricane)
+    var point = svg.append("g").attr("name", hurricane.name).selectAll("circle")
+        .data(hurricane.data)
         .enter()
         .append("circle")
         .attr("r", function (datum) {
-            return datum.maxWind / 3
+            return 3; //datum.maxWind / 50
         })
         .attr("fill", "transparent")
         .attr("stroke", "green")
