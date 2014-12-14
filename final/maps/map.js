@@ -34,8 +34,37 @@ function clearHurricanes() {
     svg.selectAll("g").remove()
 }
 
-// draws the given hurricane
+var getPixels = function (location) {
+    var latlng = [location.long, location.lat]
+    var pxls = projection(latlng);
+    
+    return {
+        x: pxls[0], y: pxls[1]
+    }
+};
+
+// draws a hurricane as a line through all of the data pts
 function drawHurricane(hurricane) {
+    var renderLine = d3.svg.line()
+        .x(function(d) { 
+            return getPixels(d.location).x; 
+        })
+        .y(function(d) { 
+            return getPixels(d.location).y;
+        })
+        .interpolate("cardinal");
+
+    var point = svg
+        // wrap each hurricane in a 'g' tag with the name set
+        .append("g").attr("name", hurricane.name)
+        .append("path")
+        .attr("d", renderLine(hurricane.data))
+        .attr("fill", "transparent")
+        .attr("stroke", "blue");
+}
+
+// draws the given hurricane
+function _drawHurricane(hurricane) {
     var point = svg.append("g").attr("name", hurricane.name).selectAll("circle")
         .data(hurricane.data)
         .enter()
