@@ -5,14 +5,22 @@
     <meta charset="utf-8">
     <title>Hurricanes</title>
     <link rel="stylesheet" type="text/css" href="libs/bootstrap.css">
+    
+    <link rel="stylesheet" type="text/css" href="bower_components/seiyria-bootstrap-slider/dist/css/bootstrap-slider.css">
+    <script type="text/javascript" src="bower_components/seiyria-bootstrap-slider/dist/bootstrap-slider.min.js"></script>
+
     <link rel="stylesheet" type="text/css" href="map.css">
 
 </head>
 
 <body>
+    
+
+    
+    <div class="container">
+<!-- navbar -->
     <nav class="navbar navbar-default" role="navigation">
         <div class="container-fluid">
-            <!-- Brand and toggle get grouped for better mobile display -->
             <div class="navbar-header">
                 <a class="navbar-brand" href="#">Hurricanes Across Time</a>
                 <p class="navbar-text">By Phil Braunstein, Ilan Gray, and Ben Lewin</p>
@@ -20,19 +28,43 @@
         </div>
     </nav>
 
-    
-    <div class="container">
         <!-- filtering -->
-        <div class="row"> Hello </div>
+        <div class="row">
+            <span class='col-md-12'>
+                <form id="filter-form" class="form-horizontal" role="form">
+                    <legend>Filtering</legend>
+                    
+                    <!-- year -->
+                    <div class="form-group">
+                        <label for="year-slider" class="col-sm-2 control-label">Filter by year</label>
+                           <div class="col-sm-10">
+                            <input id="year-slider" type="text" class="span2" value="" data-slider-min="1800" data-slider-max="2014" data-slider-step="1" data-slider-value="[1800,2014]"/>
+                        </div>
+                    </div>
 
+                    <!-- speed -->
+                    <div class="form-group">
+                        <label for="speed-slider" class="col-sm-2 control-label">Filter by wind speed</label>
+                           <div class="col-sm-10">
+                            <input id="speed-slider" type="text" class="span2" value="" data-slider-min="250" data-slider-max="450" data-slider-step="1" data-slider-value="[250,450]"/>
+                        </div>
+                    </div>
+                </form>
+
+            </span>
+        </div>
+
+        <legend>Map</legend>
         <!-- map -->
     </div>
 
+    <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="libs/bootstrap.js"></script>
     <script type="text/javascript" src="libs/d3.js"></script>
     <script type="text/javascript" src="libs/topojson.js"></script>
     <script type="text/javascript" src="libs/lodash.js"></script>
-    <script src="map.js"></script>
+    
+    <script type="text/javascript" src="map.js"></script>
 </body>
 
 </html>

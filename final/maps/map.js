@@ -1,3 +1,14 @@
+// set up sliders
+// $('#year-slider').slider({
+//     formatter: function(value) {
+//         return 'Current value: ' + value;
+//     }
+// });
+
+var slider = new Slider('#year-slider', {});
+
+var slider = new Slider('#speed-slider', {});
+
 var width = 960,
     height = 960;
 
@@ -11,7 +22,8 @@ var graticule = d3.geo.graticule();
 
 var svg = d3.select(".container").append("svg")
     .attr("width", width)
-    .attr("height", height);
+    .attr("height", height)
+    .attr("class", "map");
 
 d3.json("us.json", function(error, world) {
     // renders the actual states
