@@ -1,0 +1,25 @@
+
+
+
+.graticule {
+  fill: none;
+  stroke: green;
+  stroke-opacity: .5;
+  stroke-width: .5px;
+  pointer-events: none;
+}
+
+.land {
+  fill: #D3D3D3;
+  stroke: black;
+}
+
+.border {
+  fill: none;
+  stroke: #FFF;
+  stroke-width: .5px;
+}
+
+.point {
+	fill: orange;
+}
