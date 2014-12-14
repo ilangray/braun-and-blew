@@ -2,8 +2,10 @@
 var width = 960,
     height = 960;
 
-var projection = d3.geo.albers()
-    .precision(.1);
+var projection = 
+    //d3.geo.kavrayskiy7()
+    d3.geo.mercator()
+    // d3.geo.albers().precision(.1);
 
 var path = d3.geo.path()
     .projection(projection);
@@ -15,14 +17,16 @@ var svg = d3.select(".container").append("svg")
     .attr("height", height)
     .attr("class", "map");
 
-d3.json("us.json", function(error, world) {
+d3.json("world-110m.json", function(error, world) {
     // renders the actual states
 	svg.insert("path", ".graticule")
-		.datum(topojson.merge(world, world.objects.states.geometries))
+		// .datum(topojson.merge(world, world.objects.states.geometries))
+        .datum(topojson.merge(world, world.objects.countries.geometries))
 		.attr("class", "land")
 		.attr("d", path);
 
 	// draw the first hurricane
+    /*
     drawHurricane([
             {
                 "date": "2005-09-23T22:00:00.000Z",
@@ -365,6 +369,7 @@ d3.json("us.json", function(error, world) {
                 "minPressure": 996
             }
         ])
+*/
 });
 
 d3.select(self.frameElement).style("height", height + "px");
@@ -379,11 +384,8 @@ function drawHurricane(hurricane) {
         .attr("fill", "transparent")
         .attr("stroke", "green")
         .attr("cx", function (datum, i) {
-            console.log("datum[" + i + "] = ", datum);
             var latlng = [datum.location.long, datum.location.lat]
             var pxls = projection(latlng);
-
-            console.log("pixels = ", pxls)
             return pxls[0]
         })
         .attr("cy", function (datum, i) {

@@ -38,7 +38,7 @@
                     <div class="form-group">
                         <label for="year-slider" class="col-sm-2 control-label">Filter by year</label>
                            <div class="col-sm-10">
-                            <input id="year-slider" type="text" class="span2" value="" data-slider-min="1800" data-slider-max="2014" data-slider-step="1" data-slider-value="[1800,2014]"/>
+                            <input id="year-slider" type="text" class="span2" value="" data-slider-min="1985" data-slider-max="2014" data-slider-step="1" data-slider-value="[1985,2014]"/>
                         </div>
                     </div>
 
@@ -58,6 +58,11 @@
         <!-- map -->
     </div>
 
+
+    <!-- ?? -->
+    <script src="http://d3js.org/d3.geo.projection.v0.min.js"></script>
+
+
     <script type="text/javascript" src="bower_components/jquery/dist/jquery.js"></script>
     <script type="text/javascript" src="libs/bootstrap.js"></script>
     <script type="text/javascript" src="libs/d3.js"></script>
@@ -67,6 +72,17 @@
     <!-- load maps, then load filtering so it can immediately draw hurricanes -->
     <script type="text/javascript" src="map.js"></script>
     <script type="text/javascript" src="filtering.js"></script>
+    <script type="text/javascript" src="loader.js"></script>
+
+    <script>
+        load(function (err) {
+            if (err) {
+                console.log("Error in loading data = ", err);
+            } else {
+                refreshFilter()
+            }
+        })
+    </script>
 </body>
 
 </html>
