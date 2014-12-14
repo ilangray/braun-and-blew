@@ -36,11 +36,21 @@ var generateYearPredicate = function () {
 	})
 }
 
+var generateSpeedPredicate = function () {
+	var speedRange = $speedSlider.getValue();
+
+	console.log("speed range = ", speedRange);
+
+	return generateRangePredicate("maxWind", speedRange);
+}
+
 /// FILTERING
 
-var applyFilter = function (predicate) {
+var applyFilter = function (p1, p2) {
 	return _.filter(DATA, function (storm) {
-		return _.any(storm.data, predicate);
+		return _.any(storm.data, function (d) {
+			return p1(d) && p2(d);
+		});
 	});
 }
 
@@ -56,17 +66,16 @@ function refreshFilter() {
 
 	// make predicates
 	var yearPredicate = generateYearPredicate();
-	// var speedPredicate = generateSpeedPredicate();
+	var speedPredicate = generateSpeedPredicate();
 
 	// filter the dataset
-	var filtered = applyFilter(yearPredicate);
+	var filtered = applyFilter(yearPredicate, speedPredicate);
 
 	console.log("Filtered the dataset down to " + filtered.length + " elements.")
 
 	// redraw
 	_.each(filtered, function (storm, i) {
 		console.log("drawing storm[" + i + "] w/ name = " + storm.name)
-		// console.log(" -- storm = ", storm.data)
 		drawHurricane(storm);
 	})
 
