@@ -1,12 +1,14 @@
 
 var width = 960,
-    height = 960;
+    height = 620;
 
 var projection = 
     //d3.geo.kavrayskiy7()
     d3.geo.mercator()
     // d3.geo.albers()
-    .precision(.1);
+    .precision(.1)
+    .scale(400)
+    .center([-40, 50]);
 
 var path = d3.geo.path()
     .projection(projection);
