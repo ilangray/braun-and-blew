@@ -75,7 +75,7 @@ function refreshFilter() {
 
 	// redraw
 	_.each(filtered, function (storm, i) {
-		console.log("drawing storm[" + i + "] w/ name = " + storm.name)
+		// console.log("drawing storm[" + i + "] w/ name = " + storm.name)
 		drawHurricane(storm);
 	})
 

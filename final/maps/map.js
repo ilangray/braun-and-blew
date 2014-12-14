@@ -15,6 +15,11 @@ var path = d3.geo.path()
 
 var graticule = d3.geo.graticule();
 
+// interpolate from green to red for the wind speed scale
+var low = d3.rgb(0, 255, 0),
+    high = d3.rgb(255, 0, 0),
+    interp = d3.interpolateRgb(low, high);
+
 var svg = d3.select(".container").append("svg")
     .attr("width", width)
     .attr("height", height)
@@ -45,6 +50,9 @@ var getPixels = function (location) {
     }
 };
 
+var MAX_WIND = 160;
+var MIN_WIND = 10;
+
 // draws a hurricane as a line through all of the data pts
 function drawHurricane(hurricane) {
     var renderLine = d3.svg.line()
@@ -56,16 +64,39 @@ function drawHurricane(hurricane) {
         })
         .interpolate("cardinal");
 
-    var point = svg
-        // wrap each hurricane in a 'g' tag with the name set
-        .append("g").attr("name", hurricane.name)
-        .append("path")
+    // wrap each hurricane in a 'g' tag with the name set
+    var g = svg.append("g").attr("name", hurricane.name)
+
+    // draw a line through all datapoints
+    g.append("path")
         .attr("d", renderLine(hurricane.data))
         .attr("fill", "transparent")
         // .attr("stroke", "blue");
         .attr("stroke", function() {
             return "hsl(" + Math.random() * 360 + ",100%,50%)";
         })
+
+    // draw circles for each datapoint
+    g.selectAll("circle")
+        .data(hurricane.data)
+        .enter()
+        .append("circle")
+        .attr("r", function (datum) {
+            return 1.5;
+        })
+        .attr("fill", function (d) {
+            return interp(d.maxWind / MAX_WIND);
+        })
+        .attr("stroke", "transparent")
+        .attr("cx", function (datum, i) {
+            var latlng = [datum.location.long, datum.location.lat]
+            var pxls = projection(latlng);
+            return pxls[0]
+        })
+        .attr("cy", function (datum, i) {
+            var latlng = [datum.location.long, datum.location.lat]
+            return projection(latlng)[1];
+        });
 }
 
 // draws the given hurricane
