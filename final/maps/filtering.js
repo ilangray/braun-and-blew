@@ -46,18 +46,20 @@ var applyFilter = function (predicate) {
 
 /// REFRESHING / REDRAWING
 
+var refreshed = false
+
 // invoked whenever the sliders change
 function refreshFilter() {	
 	console.log("refreshing filter");
+
+	clearHurricanes();
 
 	// make predicates
 	var yearPredicate = generateYearPredicate();
 	// var speedPredicate = generateSpeedPredicate();
 
 	// filter the dataset
-	var filtered = DATA
-
-	//_.drop(applyFilter(yearPredicate), 300)
+	var filtered = applyFilter(yearPredicate);
 
 	console.log("Filtered the dataset down to " + filtered.length + " elements.")
 
@@ -67,4 +69,6 @@ function refreshFilter() {
 		// console.log(" -- storm = ", storm.data)
 		drawHurricane(storm);
 	})
+
+	refreshed = true
 }

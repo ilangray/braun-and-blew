@@ -375,6 +375,12 @@ d3.json("world-110m.json", function(error, world) {
 
 d3.select(self.frameElement).style("height", height + "px");
 
+// clears all hurricanes
+function clearHurricanes() {
+    svg.selectAll("g").remove()
+}
+
+// draws the given hurricane
 function drawHurricane(hurricane) {
     var point = svg.append("g").attr("name", hurricane.name).selectAll("circle")
         .data(hurricane.data)
