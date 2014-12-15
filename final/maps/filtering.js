@@ -16,6 +16,21 @@ $("#mode-btn-group").on('click', function (e) {
 	}, 5);
 });
 
+/// SLIDERS
+
+var Sliders = {
+	// returns the range of years from the current values of the year slider
+	getYearRange: function getYearRange() {
+		var sliderRange = $yearSlider.getValue();
+		return [new Date(+sliderRange[0], 0), new Date(+sliderRange[1], 0)]
+	},
+
+	// returns the range of speeds from the current values of the speeds slider
+	getSpeedRange: function getSpeedRange() {
+		return $speedSlider.getValue();
+	}
+}
+
 /// PREDICATES
 
 var inRange = function(val, min, max) {
@@ -26,6 +41,8 @@ var generateRangePredicate = function (property, range, fn) {
 	if (!fn) {
 		fn = _.identity
 	}
+
+	console.log("range = ", range)
 
 	var isDataPointInRange = function (obj) {
 		var val = fn(obj[property]),
@@ -40,24 +57,13 @@ var generateRangePredicate = function (property, range, fn) {
 	}
 }
 
-var generateYearPredicate = function () {
-	var sliderRange = $yearSlider.getValue();
-
-	var yearRange = [new Date(+sliderRange[0], 0), new Date(+sliderRange[1], 0)]
-
-	console.log("slider range = ", sliderRange);
-	console.log("year range = ", yearRange);
-
+var generateYearPredicate = function (yearRange) {
 	return generateRangePredicate("date", yearRange, function (dateString) {
 		return new Date(dateString);
 	})
 }
 
-var generateSpeedPredicate = function () {
-	var speedRange = $speedSlider.getValue();
-
-	console.log("speed range = ", speedRange);
-
+var generateSpeedPredicate = function (speedRange) {
 	// computes the max windspeed of a storm
 	var getMaxWindSpeed = function (storm) {
 		return _.max(storm.data, "maxWind").maxWind;
@@ -72,22 +78,20 @@ var generateSpeedPredicate = function () {
 
 /// FILTERING
 
-var applyFilter = function (p1, p2) {
+var applyFilter = function (properties) {
+	var windRange = properties.wind;
+	var yearRange = properties.years;
+
+	console.assert(windRange, "Need a range of wind speeds");
+	console.assert(yearRange, "Need a range of years");
+
+	var windPredicate = generateSpeedPredicate(windRange);
+	var yearPredicate = generateYearPredicate(yearRange);
+
 	return _.filter(DATA, function (storm) {
 		// do both predicates like the storm?
-		return p1(storm) && p2(storm);
+		return yearPredicate(storm) && windPredicate(storm);
 	});
-}
-
-// returns the current dataset, which is the result
-// of the current filters applies to DATA
-var getCurrentDataset = function () {
-	// make predicates
-	var yearPredicate = generateYearPredicate();
-	var speedPredicate = generateSpeedPredicate();
-
-	// filter the dataset
-	return applyFilter(yearPredicate, speedPredicate);
 }
 
 /// MODE
@@ -118,8 +122,11 @@ function refreshFilter() {
 	var mode = getCurrentMode();
 	console.log("mode = ", mode);
 
-	// get storms
-	var storms = getCurrentDataset();
+	// filter
+	var storms = applyFilter({
+		wind: Sliders.getSpeedRange(),
+		years: Sliders.getYearRange()
+	});
 	console.log("storms.length = " + storms.length);
 
 	// redraw
