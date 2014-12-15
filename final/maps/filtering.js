@@ -73,7 +73,7 @@ var getCurrentDataset = function () {
 	// filter the dataset
 	var filtered = applyFilter(yearPredicate, speedPredicate);
 
-	console.log("Filtered the dataset down to " + filtered.length + " elements.")
+	
 
 	return filtered;
 }
@@ -104,10 +104,11 @@ function refreshFilter() {
 
 	// get mode, which determines how we render
 	var mode = getCurrentMode();
-	console.log("mode = ", mode)
+	console.log("mode = ", mode);
 
 	// get storms
 	var storms = getCurrentDataset();
+	console.log("storms.length = " + storms.length);
 
 	// redraw
 	Map.drawStorms(mode, storms);
