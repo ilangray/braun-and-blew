@@ -30,6 +30,10 @@ var FILTERS = {
 		applyFilter()
 	},
 
+	"Movement": function () {
+		applyFilter()
+	},
+
 	"Explore": refreshFilter,
 }
 
