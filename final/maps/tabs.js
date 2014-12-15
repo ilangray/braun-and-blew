@@ -27,7 +27,7 @@ var FILTERS = {
 	},
 
 	"Birth": function () {
-
+		applyFilter()
 	},
 
 	"Explore": refreshFilter,

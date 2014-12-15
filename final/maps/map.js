@@ -75,22 +75,19 @@ var Map = (function() {
 
     // clears all hurricanes
     function clearStorms(mode) {
-        if (mode == Modes.Path) {
-            svg.selectAll("g").remove();
-        } else {
-            // dont clear the first path, because
-            // it is the outline of the land
-            svg.selectAll("path").filter(function (d, i) {
-                return i > 0
-            }).remove()
-        }
+        svg.selectAll("g").remove();
+        
+        // dont clear the first path, because
+        // it is the outline of the land
+        svg.selectAll("path").filter(function (d, i) {
+            return i > 0
+        }).remove()
     }
 
     /// DRAW
 
     function drawCountries(world) {
         svg.insert("path", ".graticule")
-            // .datum(topojson.merge(world, world.objects.states.geometries))
             .datum(topojson.merge(world, world.objects.countries.geometries))
             .attr("class", "land")
             .attr("d", path);
