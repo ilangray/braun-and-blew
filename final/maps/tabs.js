@@ -23,7 +23,7 @@ var FILTERS = {
 
 		console.log("welcome page is drawing " + katrinas.length + " katrina storms");
 
-		Map.render(Map.Modes.Path, katrinas)
+		Map.render(Map.Modes.Heat, katrinas)
 	},
 
 	"Birth": function () {
