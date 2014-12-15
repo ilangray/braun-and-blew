@@ -33,7 +33,7 @@ var Map = (function() {
 
     // load data and render the countries
     d3.json(JSON_DATA, function(error, world) {
-    	drawCountries(world);
+    	_drawCountries(world);
     });
 
     d3.select(self.frameElement).style("height", height + "px");
@@ -86,7 +86,7 @@ var Map = (function() {
 
     /// DRAW
 
-    function drawCountries(world) {
+    function _drawCountries(world) {
         svg.insert("path", ".graticule")
             .datum(topojson.merge(world, world.objects.countries.geometries))
             .attr("class", "land")
@@ -94,7 +94,7 @@ var Map = (function() {
     }
 
     // draws the storm in the given mode
-    function drawStorm(mode, storm) {
+    function _drawStorm(mode, storm) {
         if (mode === Modes.Path) {
             _drawPath(storm);
         } else if (mode === Modes.Heat) {
@@ -182,6 +182,25 @@ var Map = (function() {
             });
     }
 
+    function _drawAnnotations(annotations) {
+        console.log("is array ? ", _.isArray(annotations))
+        console.log("drawing annotations = ", annotations.length)
+
+        svg.append("g").attr("id", "annotations")
+            .selectAll("circle")
+            .data(annotations)
+            .enter()
+            .append("circle")
+            .attr("cx", function (d) { 
+                console.log("getting cx prop of datum = ", d)
+                return d.cx; 
+            })
+            .attr("cy", function (d) { return d.cy; })
+            .attr("r", function (d) { return d.r; })
+            .attr("stroke", function (d) { return d.stroke; })
+            .attr('fill', 'none')
+    }
+
     function renderTooltip(storm) {
         svg.append("rect")
            .attr("x", 20)
@@ -204,19 +223,24 @@ var Map = (function() {
     }
 
     // draws a list of storms in a given mode
-    function drawStorms(mode, storms) {
+    function render(mode, storms, annotations) {
         // clear current storms
         clearStorms(mode);
 
         // draw new ones in the current mode
         _.each(storms, function (s) {
-            drawStorm(mode, s);
+            _drawStorm(mode, s);
         })
+
+        // draw annotations
+        if (annotations) {
+            _drawAnnotations(annotations)
+        }
     }
 
     // export a draw function and the modes
     return {
-        drawStorms: drawStorms,
+        render: render,
         Modes: Modes
     }
 })();

@@ -130,5 +130,10 @@ function refreshFilter() {
 	console.log("storms.length = " + storms.length);
 
 	// redraw
-	Map.drawStorms(mode, storms);
+	Map.render(mode, storms, [{
+		cx: 100,
+		cy: 100,
+		r: 100,
+		stroke: "green"
+	}]);
 }
