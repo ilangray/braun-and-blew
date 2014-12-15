@@ -86,11 +86,31 @@ function drawStorm(storm) {
     point.on("mouseover", function(d, i) {
             point.attr("stroke", "red")
                  .attr("stroke-width", 10);
+            svg.append("rect")
+               .attr("x", 20)
+               .attr("y", 20)
+               .attr("width", 120)
+               .attr("height", 20)
+               .attr("fill", "blue");  // MAKE THIS FILL THE SAME COLOR AS THE OCEAN BLUE
+
+            svg.append("text")
+               .attr("x", 25)
+               .attr("y", 35)
+               .attr("stroke", "black")
+               .attr("fill", "black")
+               .text(storm.name + ", " + getYear(storm));
         })
         .on("mouseout", function(d, i) {
             point.attr("stroke", origColor)
                  .attr("stroke-width", LITTLE_STROKE);
+            svg.selectAll("rect").remove();
+            svg.selectAll("text").remove();
         });
+
+    function getYear(storm) {
+        var date = new Date(storm.data[0].date);
+        return date.getFullYear();
+    }
 
 /*
     // draw circles for each datapoint
