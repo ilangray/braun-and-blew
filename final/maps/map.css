@@ -9,7 +9,7 @@
 /* d3 styles */
 
 svg {
-  background-color: rgb(30, 59, 228);
+  background-color: #74BECB;
 }
 
 .graticule {
@@ -21,7 +21,7 @@ svg {
 }
 
 .land {
-  fill: rgb(6, 86, 57);
+  fill: #72B554;
   stroke: lightgray;
 }
 

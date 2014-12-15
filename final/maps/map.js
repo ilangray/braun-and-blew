@@ -20,7 +20,7 @@ var Map = (function() {
     var graticule = d3.geo.graticule();
 
     // interpolate from green to red for the wind speed scale
-    var low = d3.rgb(255, 249, 100),
+    var low = d3.rgb(255, 255, 0),
         high = d3.rgb(255, 0, 0),
         interp = d3.interpolateRgb(low, high);
 
@@ -35,6 +35,8 @@ var Map = (function() {
     });
 
     d3.select(self.frameElement).style("height", height + "px");
+
+    /// UTIL
 
     // returns the pixels corresponding to the given latlng location
     function getPixels(location) {
