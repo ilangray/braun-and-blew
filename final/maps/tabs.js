@@ -17,9 +17,9 @@ $('#tabs a').click(function (e) {
 // to render the date appropriate for that tab
 var FILTERS = {
 	"Welcome": function () {
-		var katrinas = _.filter(DATA, function (s) {
-			return s.name === "KATRINA";
-		});
+		var katrinas = filterStorms([{
+			name: "KATRINA", year: 2005
+		}]);
 
 		console.log("welcome page is drawing " + katrinas.length + " katrina storms");
 
