@@ -136,7 +136,7 @@ var Map = (function() {
                    .attr("y", 20)
                    .attr("width", 120)
                    .attr("height", 20)
-                   .attr("fill", "blue");  // MAKE THIS FILL THE SAME COLOR AS THE OCEAN BLUE
+                   .attr("fill", "#74BECB");  // MAKE THIS FILL THE SAME COLOR AS THE OCEAN BLUE
 
                 svg.append("text")
                    .attr("x", 25)
