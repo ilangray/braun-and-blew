@@ -1,5 +1,7 @@
 
 var Map = (function() {
+    var JSON_DATA = "world-110m.json";
+
     var width = 960,
         height = 620;
 
@@ -28,7 +30,7 @@ var Map = (function() {
         .attr("class", "map");
 
     // load data and render the countries
-    d3.json("world-110m.json", function(error, world) {
+    d3.json(JSON_DATA, function(error, world) {
     	drawCountries(world);
     });
 
