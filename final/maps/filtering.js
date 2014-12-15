@@ -4,8 +4,12 @@ $speedSlider = new Slider('#speed-slider', {});
 
 console.log("year slider = ", $yearSlider)
 
+// when sliders change, refresh filter
 $yearSlider.on("slideStop", refreshFilter)
 $speedSlider.on("slideStop", refreshFilter)
+
+// when mode changes, refresh filter
+$("#mode-btn-group").on('click', delayedRefresh(10));
 
 /// PREDICATES
 
@@ -15,11 +19,11 @@ var generateRangePredicate = function (property, range, fn) {
 	}
 
 	return function (obj) {
-		var value = fn(obj[property]),
+		var val = fn(obj[property]),
 			min = range[0],
 			max = range[1];
 
-		return value >= min && value <= max;
+		return val >= min && val <= max;
 	}
 }
 
@@ -48,36 +52,72 @@ var generateSpeedPredicate = function () {
 
 var applyFilter = function (p1, p2) {
 	return _.filter(DATA, function (storm) {
-		return _.any(storm.data, function (d) {
-			return p1(d) && p2(d);
-		});
+		// does there exist datapts d1, d2 s.t. p1(d1) == true && p2(d2) == true
+		return _.any(storm.data, p1)
+			&& _.any(storm.data, p2);
 	});
 }
 
-/// REFRESHING / REDRAWING
-
-var refreshed = false
-
-// invoked whenever the sliders change
-function refreshFilter() {	
-	console.log("refreshing filter");
-
-	clearHurricanes();
-
+// returns the current dataset, which is the result
+// of the current filters applies to DATA
+var getCurrentDataset = function () {
 	// make predicates
 	var yearPredicate = generateYearPredicate();
 	var speedPredicate = generateSpeedPredicate();
 
 	// filter the dataset
-	var filtered = applyFilter(yearPredicate, speedPredicate);
+	return applyFilter(yearPredicate, speedPredicate);
+}
 
-	console.log("Filtered the dataset down to " + filtered.length + " elements.")
+/// MODE
+
+var MODES = {
+	Heat: 'heat',
+	Path: 'path'
+}
+
+var getCurrentMode = function() {
+	// get refs to both buttons
+	var $heatMode = $('#heat-mode').attr('id');
+	var $pathMode = $('#path-mode').attr('id');
+
+	// find current selected button
+	var $selected = $('#mode-btn-group .active').attr('id');
+
+	// figure out which one the selected is
+	if ($selected === $heatMode) {
+		return MODES.Heat;
+	} else {
+		return MODES.Path;
+	}
+}
+
+/// REFRESHING / REDRAWING
+
+// refreshes after a delay
+function delayedRefresh(delay) {
+	if (!delay) {
+		delay = 0
+	}
+	return function () {
+		setTimeout(delay, refreshFilter);	
+	}
+}
+
+// redraws everything according to the current filter values
+function refreshFilter() 
+{	
+	console.log("refreshing filter");
+
+	// get mode, which determines how we render
+	var mode = getCurrentMode();
+
+	// remove old hurricanes
+	clearStorms();
+
+	var storms = getCurrentDataset();
+	console.log("Filtered the dataset down to " + storms.length + " elements.")
 
 	// redraw
-	_.each(filtered, function (storm, i) {
-		// console.log("drawing storm[" + i + "] w/ name = " + storm.name)
-		drawHurricane(storm);
-	})
-
-	refreshed = true
+	_.each(storms, drawStorm);
 }

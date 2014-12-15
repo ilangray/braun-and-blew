@@ -37,7 +37,7 @@ d3.json("world-110m.json", function(error, world) {
 d3.select(self.frameElement).style("height", height + "px");
 
 // clears all hurricanes
-function clearHurricanes() {
+function clearStorms() {
     svg.selectAll("g").remove()
 }
 
@@ -55,23 +55,14 @@ var MIN_WIND = 10;
 
 // chunks into adjacent pairs
 function chunk(datapoints) {
-    var chunks = []
+    var orig = _.initial(datapoints);  // drop last
+    var shifted = _.rest(datapoints);  // drop first
 
-    _.each(datapoints, function (d, i) {
-        if (i == datapoints.length - 1) {
-            return;
-        }
-
-        chunks.push([d, datapoints[i+1]])
-    });
-
-    // console.log("chunks = ", chunks)
-
-    return chunks;
+    return _.zip(orig, shifted);
 }
 
 // draws a hurricane as a line through all of the data pts
-function drawHurricane(hurricane) {
+function drawStorm(storm) {
     var renderLine = d3.svg.line()
         .x(function (d) { 
             // console.log("d = ", d)
@@ -82,11 +73,11 @@ function drawHurricane(hurricane) {
         })
         .interpolate("cardinal");
 
-    // wrap each hurricane in a 'g' tag with the name set
-    var g = svg.append("g").attr("name", hurricane.name)
+    // wrap each storm in a 'g' tag with the name set
+    var g = svg.append("g").attr("name", storm.name)
 
     g.selectAll("path")
-        .data(chunk(hurricane.data))
+        .data(chunk(storm.data))
         .enter()
         .append("path")
         .attr("d", function (d) {
