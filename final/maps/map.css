@@ -8,6 +8,10 @@
 
 /* d3 styles */
 
+svg {
+  background-color: rgb(30, 59, 228);
+}
+
 .graticule {
   fill: none;
   stroke: green;
@@ -17,8 +21,8 @@
 }
 
 .land {
-  fill: #D3D3D3;
-  stroke: black;
+  fill: rgb(6, 86, 57);
+  stroke: lightgray;
 }
 
 .border {
