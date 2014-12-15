@@ -75,19 +75,18 @@ var Map = (function() {
 
     // clears all hurricanes
     function clearStorms(mode) {
-        svg.selectAll("g").remove();
+        // remove storms
+        svg.selectAll("g.storm").remove();
         
-        // dont clear the first path, because
-        // it is the outline of the land
-        svg.selectAll("path").filter(function (d, i) {
-            return i > 0
-        }).remove()
+        // remove annotations
+        svg.select('#annotations').remove();
     }
 
     /// DRAW
 
     function _drawCountries(world) {
-        svg.insert("path", ".graticule")
+        var g = svg.append('g').attr('id', 'countries')
+            .insert("path", ".graticule")
             .datum(topojson.merge(world, world.objects.countries.geometries))
             .attr("class", "land")
             .attr("d", path);
@@ -120,8 +119,10 @@ var Map = (function() {
         var BIG_STROKE = 10
         var LITTLE_STROKE = 1
 
+        var g = svg.append("g").attr("name", storm.name).attr("class", 'storm')
+
         // draw a line through all datapoints
-        var point = svg.append("path")
+        var point = g.append("path")
             .attr("d", renderLine(storm.data))
             .attr("fill", "none")
             .attr("stroke", origColor);
@@ -152,7 +153,7 @@ var Map = (function() {
             .interpolate("cardinal")
 
         // wrap each storm in a 'g' tag with the name set
-        var g = svg.append("g").attr("name", storm.name)
+        var g = svg.append("g").attr("name", storm.name).attr("class", "storm")
 
         g.selectAll("path")
             .data(chunk(storm.data))
