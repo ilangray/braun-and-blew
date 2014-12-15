@@ -80,7 +80,7 @@ function drawStorm(storm) {
     // draw a line through all datapoints
     var point = svg.append("path")
         .attr("d", renderLine(storm.data))
-        .attr("fill", "transparent")
+        .attr("fill", "none")
         .attr("stroke", origColor);
 
     point.on("mouseover", function(d, i) {
