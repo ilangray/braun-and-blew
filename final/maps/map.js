@@ -90,7 +90,6 @@ var Map = (function() {
 
     function drawCountries(world) {
         svg.insert("path", ".graticule")
-            // .datum(topojson.merge(world, world.objects.states.geometries))
             .datum(topojson.merge(world, world.objects.countries.geometries))
             .attr("class", "land")
             .attr("d", path);
