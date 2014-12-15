@@ -23,6 +23,8 @@ var Map = (function() {
     var low = d3.rgb(255, 255, 0),
         high = d3.rgb(255, 0, 0),
         interp = d3.interpolateRgb(low, high);
+        interpOther = d3.interpolateRgb(d3.rgb(255, 255, 255),
+                                        d3.rgb(0, 0, 0));
 
     var svg = d3.select(".container").append("svg")
         .attr("width", width)
@@ -170,8 +172,16 @@ var Map = (function() {
                 return d[0].maxWind / MAX_WIND * 5
             }).on("mouseover", function(d) {
                 renderTooltip(storm);
+                g.selectAll("path")
+                 .attr("stroke", function(d) {
+                    return interpOther(d[0].maxWind / MAX_WIND);
+                 })
             }).on("mouseout", function(d) {
                 clearTooltip();
+                g.selectAll("path")
+                 .attr("stroke", function(d) {
+                    return interp(d[0].maxWind / MAX_WIND);
+                 })
             });
     }
 
