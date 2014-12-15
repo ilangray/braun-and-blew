@@ -8,8 +8,13 @@ console.log("year slider = ", $yearSlider)
 $yearSlider.on("slideStop", refreshFilter)
 $speedSlider.on("slideStop", refreshFilter)
 
-// when mode changes, refresh filter
-$("#mode-btn-group").on('click', delayedRefresh(10));
+// when mode changes, refresh filter after a delay,
+// which gives the buttons time to update
+$("#mode-btn-group").on('click', function (e) {
+	setTimeout(function () {
+		refreshFilter();
+	}, 5)
+});
 
 /// PREDICATES
 
@@ -52,7 +57,7 @@ var generateSpeedPredicate = function () {
 
 var applyFilter = function (p1, p2) {
 	return _.filter(DATA, function (storm) {
-		// does there exist datapts d1, d2 s.t. p1(d1) == true && p2(d2) == true
+		// do there exist datapts d1, d2 s.t. p1(d1) == true && p2(d2) == true
 		return _.any(storm.data, p1)
 			&& _.any(storm.data, p2);
 	});
@@ -66,15 +71,14 @@ var getCurrentDataset = function () {
 	var speedPredicate = generateSpeedPredicate();
 
 	// filter the dataset
-	return applyFilter(yearPredicate, speedPredicate);
+	var filtered = applyFilter(yearPredicate, speedPredicate);
+
+	console.log("Filtered the dataset down to " + filtered.length + " elements.")
+
+	return filtered;
 }
 
 /// MODE
-
-var MODES = {
-	Heat: 'heat',
-	Path: 'path'
-}
 
 var getCurrentMode = function() {
 	// get refs to both buttons
@@ -86,23 +90,13 @@ var getCurrentMode = function() {
 
 	// figure out which one the selected is
 	if ($selected === $heatMode) {
-		return MODES.Heat;
+		return Map.Modes.Heat;
 	} else {
-		return MODES.Path;
+		return Map.Modes.Path;
 	}
 }
 
 /// REFRESHING / REDRAWING
-
-// refreshes after a delay
-function delayedRefresh(delay) {
-	if (!delay) {
-		delay = 0
-	}
-	return function () {
-		setTimeout(delay, refreshFilter);	
-	}
-}
 
 // redraws everything according to the current filter values
 function refreshFilter() { 
@@ -110,13 +104,11 @@ function refreshFilter() {
 
 	// get mode, which determines how we render
 	var mode = getCurrentMode();
+	console.log("mode = ", mode)
 
-	// remove old hurricanes
-	clearStorms();
-
+	// get storms
 	var storms = getCurrentDataset();
-	console.log("Filtered the dataset down to " + storms.length + " elements.")
 
 	// redraw
-	_.each(storms, drawStorm);
+	Map.drawStorms(mode, storms);
 }
