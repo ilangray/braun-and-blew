@@ -3,6 +3,9 @@ var Map = (function() {
     var width = 960,
         height = 620;
 
+    var MAX_WIND = 160,
+        MIN_WIND = 10;
+
     var projection = 
         d3.geo.mercator()
         .precision(.1)
@@ -24,19 +27,15 @@ var Map = (function() {
         .attr("height", height)
         .attr("class", "map");
 
+    // load data and render the countries
     d3.json("world-110m.json", function(error, world) {
-        // renders the actual states
-    	svg.insert("path", ".graticule")
-    		// .datum(topojson.merge(world, world.objects.states.geometries))
-            .datum(topojson.merge(world, world.objects.countries.geometries))
-    		.attr("class", "land")
-    		.attr("d", path);
+    	drawCountries(world);
     });
 
     d3.select(self.frameElement).style("height", height + "px");
 
     // returns the pixels corresponding to the given latlng location
-    var getPixels = function (location) {
+    function getPixels(location) {
         var latlng = [location.long, location.lat]
         var pxls = projection(latlng);
         
@@ -50,9 +49,6 @@ var Map = (function() {
         var date = new Date(storm.data[0].date);
         return date.getFullYear();
     }
-
-    var MAX_WIND = 160;
-    var MIN_WIND = 10;
 
     // chunks into adjacent pairs
     function chunk(datapoints) {
@@ -85,6 +81,14 @@ var Map = (function() {
     }
 
     /// DRAW
+
+    function drawCountries(world) {
+        svg.insert("path", ".graticule")
+            // .datum(topojson.merge(world, world.objects.states.geometries))
+            .datum(topojson.merge(world, world.objects.countries.geometries))
+            .attr("class", "land")
+            .attr("d", path);
+    }
 
     // draws the storm in the given mode
     function drawStorm(mode, storm) {
