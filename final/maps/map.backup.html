@@ -1,0 +1,80 @@
+<!-- filtering -->
+        <div class="row">
+            <!-- Tabs -->
+            <span class='col-md-12'>
+                <ul id="tabs" class="nav nav-tabs">
+                  <li role="presentation" class="active"><a href="#welcome" role="tab" data-toggle="tab">Welcome</a></li>
+                  <li role="presentation"><a href="#birth" role="tab" data-toggle="tab">Birth</a></li>
+                  <li role="presentation"><a href="#movement" role="tab" data-toggle="tab">Movement</a></li>
+                  <li role="presentation"><a href="#movement" role="tab" data-toggle="tab">Death</a></li>
+                  <li role="presentation"><a href="#movement" role="tab" data-toggle="tab">Strength</a></li>
+                  <li role="presentation"><a href="#explore" role="tab" data-toggle="tab">Explore</a></li>
+                </ul>
+            </span>
+
+            <!-- Content -->
+            <div class='tab-content'>
+                <!-- Welcome -->
+                <div role='tabpanel' class="tab-pane active" id="welcome">
+                    <p>In 2005, Hurricane Katrina (below) devastated the city of New Orleans. Over eighteen hundred people died and more than one hundred billion dollars worth of damage was inflicted on the city due to failing infrastructure and the raw power of the oceans.</p>
+
+                    <p>This visualization will teach you about the lifecycle of hurricanes and the idiosyncratic features of the natural world that cause hurricanes live the way they do. You will also be able to filter and explore past hurricanes in order to discover your own trends.</p>
+                </div>
+
+
+                <div role='tabpanel' class="tab-pane" id="birth">
+                    <p>Many hurricanes that reach North America are born off the coast of West Africa (red circle). Two factors make these waters ideal for hurricane formation: the warmth of the water and the distance from the equator.</p>
+
+                    <p>The rotation of hurricanes is ultimately generated from the force of the earth spinning - also known as the Coriolis effect. This effect does not exist at the equator, and consequently, hurricanes never traverse the equator. The coast of West Africa is far enough above the equator to foster hurricane formation.</p>
+                </div>
+
+                <div role='tabpanel' class="tab-pane" id="movement">
+                    <p>Hurricanes follow the southern boundary current of the North American Gyre that sends them across the Atlantic Ocean. Ocean gyres are systems of currents that rotate in the ocean. This warm current preserves a hurricane’s strength during its passage.</p>
+                </div>
+
+                <div role='tabpanel' class="tab-pane" id="death">
+                    <p>There are two ways that hurricanes die. Hurricanes that slam into North America are weakened by the lack of water and morph into lesser storms (purple circle). Otherwise, hurricanes follow the western and northern boundaries of the North Atlantic Gyre and lose strength as they move into the colder waters of the North Atlantic (yellow circle).</p>
+                </div>
+
+                <div role='tabpanel' class="tab-pane" id="strength">
+                    <p>Hurricanes are at the peak of their strength after traveling through the warm waters of the southern boundary current so that they are strongest when they crash into North America. Their strength diminishes as move over land or through the cold waters of the North Atlantic.</p>
+                </div>
+
+                <!-- Explore -->
+                <div role='tabpanel' class="tab-pane" id="explore">
+                    <form id="filter-form" class="form-horizontal" role="form">
+                    <legend>Filtering</legend>
+                    
+                    <!-- year -->
+                    <div class="form-group">
+                        <label for="year-slider" class="col-sm-2 control-label">Years</label>
+                           <div class="col-sm-10">
+                            <input id="year-slider" type="text" class="span2" value="" data-slider-min="1985" data-slider-max="2014" data-slider-step="1" data-slider-value="[1985,2014]"/>
+                        </div>
+                    </div>
+
+                    <!-- speed -->
+                    <div class="form-group">
+                        <label for="speed-slider" class="col-sm-2 control-label">Max Wind Speed</label>
+                           <div class="col-sm-10">
+                            <input id="speed-slider" type="text" class="span2" data-slider-min="10" data-slider-max="160" data-slider-step="1" data-slider-value="[0,160]"/>
+                        </div>
+                    </div>
+
+                    <!-- mode -->
+                    <div class="form-group">
+                        <label for="speed-slider" class="col-sm-2 control-label">Mode</label>
+                        <div id="mode-btn-group" class="btn-group" role="group" aria-label="..." data-toggle="buttons">
+                            <label id="heat-mode" class="btn btn-primary active">
+                                <input type="radio" name="options" autocomplete="off" checked> Heat
+                            </label>
+
+                            <label id="path-mode" class="btn btn-primary">
+                                <input type="radio" name="options" autocomplete="off"> Path
+                            </label>
+                        </div>
+                    </div>
+                </form>
+                </div>
+            </div>
+        </div>

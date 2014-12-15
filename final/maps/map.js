@@ -26,7 +26,7 @@ var Map = (function() {
         interpOther = d3.interpolateRgb(d3.rgb(255, 255, 255),
                                         d3.rgb(0, 0, 0));
 
-    var svg = d3.select(".container").append("svg")
+    var svg = d3.select("#map").append("svg")
         .attr("width", width)
         .attr("height", height)
         .attr("class", "map");

@@ -5,11 +5,27 @@
   padding-bottom: 20px;
 }
 
+.root-container {
+  max-width: 95%;
+  margin: auto;
+}
+
+.slider {
+  margin-top: 30px;
+}
+
+#sidebar p {
+  padding-top: 10px;
+}
 
 /* d3 styles */
 
 svg {
   background-color: #74BECB;
+}
+
+#sidebar row {
+  display: inline-block;
 }
 
 .graticule {
