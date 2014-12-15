@@ -23,6 +23,8 @@ var Map = (function() {
     var low = d3.rgb(255, 255, 0),
         high = d3.rgb(255, 0, 0),
         interp = d3.interpolateRgb(low, high);
+        interpOther = d3.interpolateRgb(d3.rgb(255, 255, 255),
+                                        d3.rgb(0, 0, 0));
 
     var svg = d3.select(".container").append("svg")
         .attr("width", width)
@@ -131,25 +133,12 @@ var Map = (function() {
             .on("mouseover", function(d, i) {
                 point.attr("stroke", "red")
                      .attr("stroke-width", 10);
-                svg.append("rect")
-                   .attr("x", 20)
-                   .attr("y", 20)
-                   .attr("width", 120)
-                   .attr("height", 20)
-                   .attr("fill", "#74BECB");  // MAKE THIS FILL THE SAME COLOR AS THE OCEAN BLUE
-
-                svg.append("text")
-                   .attr("x", 25)
-                   .attr("y", 35)
-                   .attr("stroke", "black")
-                   .attr("fill", "black")
-                   .text(storm.name + ", " + getYear(storm));
+                renderTooltip(storm);
             })
             .on("mouseout", function(d, i) {
                 point.attr("stroke", origColor)
                      .attr("stroke-width", LITTLE_STROKE);
-                svg.selectAll("rect").remove();
-                svg.selectAll("text").remove();
+                clearTooltip();
             });
     }
 
@@ -181,7 +170,40 @@ var Map = (function() {
             })
             .attr("stroke-width", function (d) {
                 return d[0].maxWind / MAX_WIND * 5
-            })
+            }).on("mouseover", function(d) {
+                renderTooltip(storm);
+                g.selectAll("path")
+                 .attr("stroke", function(d) {
+                    return interpOther(d[0].maxWind / MAX_WIND);
+                 })
+            }).on("mouseout", function(d) {
+                clearTooltip();
+                g.selectAll("path")
+                 .attr("stroke", function(d) {
+                    return interp(d[0].maxWind / MAX_WIND);
+                 })
+            });
+    }
+
+    function renderTooltip(storm) {
+        svg.append("rect")
+           .attr("x", 20)
+           .attr("y", 20)
+           .attr("width", 120)
+           .attr("height", 20)
+           .attr("fill", "#74BECB");
+
+        svg.append("text")
+           .attr("x", 25)
+           .attr("y", 35)
+           .attr("stroke", "black")
+           .attr("fill", "black")
+           .text(storm.name + ", " + getYear(storm));
+    }
+
+    function clearTooltip() {
+        svg.selectAll("rect").remove();
+        svg.selectAll("text").remove();
     }
 
     // draws a list of storms in a given mode

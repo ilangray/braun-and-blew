@@ -104,11 +104,11 @@ function refreshFilter() {
 
 	// get mode, which determines how we render
 	var mode = getCurrentMode();
-	console.log("mode = ", mode);
+	// console.log("mode = ", mode);
 
 	// get storms
 	var storms = getCurrentDataset();
-	console.log("storms.length = " + storms.length);
+	// console.log("storms.length = " + storms.length);
 
 	// redraw
 	Map.drawStorms(mode, storms);

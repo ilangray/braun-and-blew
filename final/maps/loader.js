@@ -32,8 +32,8 @@ function load(cb) {
 		// save data
 		DATA = data;
 
-		console.log("max wind = " + maxStormSpeed(DATA));
-		console.log("min wind = " + minStormSpeed(DATA));
+		// console.log("max wind = " + maxStormSpeed(DATA));
+		// console.log("min wind = " + minStormSpeed(DATA));
 
 		// invoke cb
 		cb(error);
