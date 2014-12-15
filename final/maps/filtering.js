@@ -13,22 +13,30 @@ $speedSlider.on("slideStop", refreshFilter)
 $("#mode-btn-group").on('click', function (e) {
 	setTimeout(function () {
 		refreshFilter();
-	}, 5)
+	}, 5);
 });
 
 /// PREDICATES
+
+var inRange = function(val, min, max) {
+	return val >= min && val <= max;
+}
 
 var generateRangePredicate = function (property, range, fn) {
 	if (!fn) {
 		fn = _.identity
 	}
 
-	return function (obj) {
+	var isDataPointInRange = function (obj) {
 		var val = fn(obj[property]),
 			min = range[0],
 			max = range[1];
 
-		return val >= min && val <= max;
+		return inRange(val, min, max);
+	}
+
+	return function (storm) {
+		return _.any(storm.data, isDataPointInRange);
 	}
 }
 
@@ -50,16 +58,24 @@ var generateSpeedPredicate = function () {
 
 	console.log("speed range = ", speedRange);
 
-	return generateRangePredicate("maxWind", speedRange);
+	// computes the max windspeed of a storm
+	var getMaxWindSpeed = function (storm) {
+		return _.max(storm.data, "maxWind").maxWind;
+	}
+
+	return function (storm) {
+		var maxWind = getMaxWindSpeed(storm);
+		// console.log("storm = " + storm.name + ", max wind speed = " + maxWind);
+		return inRange(maxWind, speedRange[0], speedRange[1]);
+	}
 }
 
 /// FILTERING
 
 var applyFilter = function (p1, p2) {
 	return _.filter(DATA, function (storm) {
-		// do there exist datapts d1, d2 s.t. p1(d1) == true && p2(d2) == true
-		return _.any(storm.data, p1)
-			&& _.any(storm.data, p2);
+		// do both predicates like the storm?
+		return p1(storm) && p2(storm);
 	});
 }
 
@@ -71,11 +87,7 @@ var getCurrentDataset = function () {
 	var speedPredicate = generateSpeedPredicate();
 
 	// filter the dataset
-	var filtered = applyFilter(yearPredicate, speedPredicate);
-
-	
-
-	return filtered;
+	return applyFilter(yearPredicate, speedPredicate);
 }
 
 /// MODE
@@ -104,11 +116,11 @@ function refreshFilter() {
 
 	// get mode, which determines how we render
 	var mode = getCurrentMode();
-	// console.log("mode = ", mode);
+	console.log("mode = ", mode);
 
 	// get storms
 	var storms = getCurrentDataset();
-	// console.log("storms.length = " + storms.length);
+	console.log("storms.length = " + storms.length);
 
 	// redraw
 	Map.drawStorms(mode, storms);
