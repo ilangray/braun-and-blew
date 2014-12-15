@@ -4,9 +4,7 @@ var Map = (function() {
         height = 620;
 
     var projection = 
-        //d3.geo.kavrayskiy7()
         d3.geo.mercator()
-        // d3.geo.albers()
         .precision(.1)
         .scale(400)
         .center([-40, 50]);
@@ -37,6 +35,7 @@ var Map = (function() {
 
     d3.select(self.frameElement).style("height", height + "px");
 
+    // returns the pixels corresponding to the given latlng location
     var getPixels = function (location) {
         var latlng = [location.long, location.lat]
         var pxls = projection(latlng);
@@ -45,6 +44,12 @@ var Map = (function() {
             x: pxls[0], y: pxls[1]
         }
     };
+
+    // returns a YYYY string representing the storm's year
+    function getYear(storm) {
+        var date = new Date(storm.data[0].date);
+        return date.getFullYear();
+    }
 
     var MAX_WIND = 160;
     var MIN_WIND = 10;
@@ -114,13 +119,29 @@ var Map = (function() {
             .attr("fill", "transparent")
             .attr("stroke", origColor);
 
-        point.on("mouseover", function(d, i) {
+        point
+            .on("mouseover", function(d, i) {
                 point.attr("stroke", "red")
                      .attr("stroke-width", 10);
+                svg.append("rect")
+                   .attr("x", 20)
+                   .attr("y", 20)
+                   .attr("width", 120)
+                   .attr("height", 20)
+                   .attr("fill", "blue");  // MAKE THIS FILL THE SAME COLOR AS THE OCEAN BLUE
+
+                svg.append("text")
+                   .attr("x", 25)
+                   .attr("y", 35)
+                   .attr("stroke", "black")
+                   .attr("fill", "black")
+                   .text(storm.name + ", " + getYear(storm));
             })
             .on("mouseout", function(d, i) {
                 point.attr("stroke", origColor)
                      .attr("stroke-width", LITTLE_STROKE);
+                svg.selectAll("rect").remove();
+                svg.selectAll("text").remove();
             });
     }
 
@@ -155,6 +176,7 @@ var Map = (function() {
             })
     }
 
+    // draws a list of storms in a given mode
     function drawStorms(mode, storms) {
         // clear current storms
         clearStorms(mode);
