@@ -54,7 +54,11 @@ function drawHurricane(hurricane) {
         .y(function(d) { 
             return getPixels(d.location).y;
         })
-        .interpolate("cardinal");
+        .interpolate("cardinal")
+
+    var origColor = "hsl(" + Math.random() * 360 + ",100%,50%)";
+    var BIG_STROKE = 10
+    var LITTLE_STROKE = 1
 
     var point = svg
         // wrap each hurricane in a 'g' tag with the name set
@@ -62,9 +66,14 @@ function drawHurricane(hurricane) {
         .append("path")
         .attr("d", renderLine(hurricane.data))
         .attr("fill", "transparent")
-        // .attr("stroke", "blue");
-        .attr("stroke", function() {
-            return "hsl(" + Math.random() * 360 + ",100%,50%)";
+        .attr("stroke", origColor);
+    point.on("mouseover", function(d, i) {
+            point.attr("stroke", "red")
+                 .attr("stroke-width", 10);
+        })
+        .on("mouseout", function(d, i) {
+            point.attr("stroke", origColor)
+                 .attr("stroke-width", LITTLE_STROKE);
         })
 }
 

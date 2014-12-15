@@ -49,7 +49,7 @@ var applyFilter = function (predicate) {
 var refreshed = false
 
 // invoked whenever the sliders change
-function refreshFilter() {	
+function refreshFilter() {
 	console.log("refreshing filter");
 
 	clearHurricanes();
@@ -65,7 +65,7 @@ function refreshFilter() {
 
 	// redraw
 	_.each(filtered, function (storm, i) {
-		console.log("drawing storm[" + i + "] w/ name = " + storm.name)
+		// console.log("drawing storm[" + i + "] w/ name = " + storm.name)
 		// console.log(" -- storm = ", storm.data)
 		drawHurricane(storm);
 	})
