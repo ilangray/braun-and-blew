@@ -16,7 +16,7 @@ var path = d3.geo.path()
 var graticule = d3.geo.graticule();
 
 // interpolate from green to red for the wind speed scale
-var low = d3.rgb(0, 255, 0),
+var low = d3.rgb(255, 249, 100),
     high = d3.rgb(255, 0, 0),
     interp = d3.interpolateRgb(low, high);
 
@@ -53,13 +53,31 @@ var getPixels = function (location) {
 var MAX_WIND = 160;
 var MIN_WIND = 10;
 
+// chunks into adjacent pairs
+function chunk(datapoints) {
+    var chunks = []
+
+    _.each(datapoints, function (d, i) {
+        if (i == datapoints.length - 1) {
+            return;
+        }
+
+        chunks.push([d, datapoints[i+1]])
+    });
+
+    // console.log("chunks = ", chunks)
+
+    return chunks;
+}
+
 // draws a hurricane as a line through all of the data pts
 function drawHurricane(hurricane) {
     var renderLine = d3.svg.line()
-        .x(function(d) { 
+        .x(function (d) { 
+            // console.log("d = ", d)
             return getPixels(d.location).x; 
         })
-        .y(function(d) { 
+        .y(function (d) { 
             return getPixels(d.location).y;
         })
         .interpolate("cardinal");
@@ -67,6 +85,23 @@ function drawHurricane(hurricane) {
     // wrap each hurricane in a 'g' tag with the name set
     var g = svg.append("g").attr("name", hurricane.name)
 
+    g.selectAll("path")
+        .data(chunk(hurricane.data))
+        .enter()
+        .append("path")
+        .attr("d", function (d) {
+            // console.log("drawing a line for datum d = ", d)
+            return renderLine(d);
+        })
+        .attr("stroke", function (d) {
+            return interp(d[0].maxWind / MAX_WIND);
+        })
+        .attr("stroke-width", function (d) {
+            return d[0].maxWind / MAX_WIND * 5
+        })
+
+
+/*
     // draw a line through all datapoints
     g.append("path")
         .attr("d", renderLine(hurricane.data))
@@ -97,6 +132,7 @@ function drawHurricane(hurricane) {
             var latlng = [datum.location.long, datum.location.lat]
             return projection(latlng)[1];
         });
+*/
 }
 
 // draws the given hurricane
@@ -119,4 +155,4 @@ function _drawHurricane(hurricane) {
             var latlng = [datum.location.long, datum.location.lat]
             return projection(latlng)[1];
         });
-}
+}   
