@@ -131,25 +131,12 @@ var Map = (function() {
             .on("mouseover", function(d, i) {
                 point.attr("stroke", "red")
                      .attr("stroke-width", 10);
-                svg.append("rect")
-                   .attr("x", 20)
-                   .attr("y", 20)
-                   .attr("width", 120)
-                   .attr("height", 20)
-                   .attr("fill", "#74BECB");  // MAKE THIS FILL THE SAME COLOR AS THE OCEAN BLUE
-
-                svg.append("text")
-                   .attr("x", 25)
-                   .attr("y", 35)
-                   .attr("stroke", "black")
-                   .attr("fill", "black")
-                   .text(storm.name + ", " + getYear(storm));
+                renderTooltip(storm);
             })
             .on("mouseout", function(d, i) {
                 point.attr("stroke", origColor)
                      .attr("stroke-width", LITTLE_STROKE);
-                svg.selectAll("rect").remove();
-                svg.selectAll("text").remove();
+                clearTooltip();
             });
     }
 
@@ -181,7 +168,32 @@ var Map = (function() {
             })
             .attr("stroke-width", function (d) {
                 return d[0].maxWind / MAX_WIND * 5
-            })
+            }).on("mouseover", function(d) {
+                renderTooltip(storm);
+            }).on("mouseout", function(d) {
+                clearTooltip();
+            });
+    }
+
+    function renderTooltip(storm) {
+        svg.append("rect")
+           .attr("x", 20)
+           .attr("y", 20)
+           .attr("width", 120)
+           .attr("height", 20)
+           .attr("fill", "#74BECB");
+
+        svg.append("text")
+           .attr("x", 25)
+           .attr("y", 35)
+           .attr("stroke", "black")
+           .attr("fill", "black")
+           .text(storm.name + ", " + getYear(storm));
+    }
+
+    function clearTooltip() {
+        svg.selectAll("rect").remove();
+        svg.selectAll("text").remove();
     }
 
     // draws a list of storms in a given mode
