@@ -31,7 +31,12 @@ var FILTERS = {
 			wind: [111, 160],
 			years: [new Date(2000,0), new Date(2008,0)]
 		})
-		Map.drawStorms(Map.Modes.Path, storms)
+		Map.render(Map.Modes.Path, storms, [{
+			cx: 550,
+			cy: 550,
+			r: 60,
+			stroke: "red"
+		}])
 	},
 
 	"Movement": function () {
@@ -39,29 +44,33 @@ var FILTERS = {
 			wind: [118, 158],
 			years: [new Date(1993,0), new Date(2000,0)]
 		})
-		Map.drawStorms(Map.Modes.Path, storms)
+		Map.render(Map.Modes.Path, storms)
 	},
 
 	"Death": function () {
 
 		var toInclude = [
-						{name: "KARL", year: 2004}
-						{name: "OPHELIA", year: 2005}
-						{name: "ALBERTO", year: 2000}
-						{name: "CHARLEY", year: 1986}
-						{name: "KATIA", year: 2011}
-						{name: "LILI", year: 1996}
-						{name: "ISABEL", year: 2003}
-						{name: "GLIBERT", year: 1988}
-						{name: "IKE", year: 2008}
-						{name: "ISAAC", year: 2012}
-						{name: "LILI", year: 2002}
-						{name: "FRANCES", year: 2004}
+						{name: "MITCH", year: 1998},
+						{name: "OPHELIA", year: 2005},
+						{name: "CHARLEY", year: 1986},
+						{name: "KATIA", year: 2011},
+						{name: "ISABEL", year: 2003},
+						{name: "GLIBERT", year: 1988},
+						{name: "ISAAC", year: 2012},
+						{name: "LILI", year: 2002},
 						];
 
-
-
-		Map.drawStorms(Map.Modes.Heat, storms)
+		Map.render(Map.Modes.Heat, filterStorms(toInclude), [{
+			cx: 150,
+			cy: 350,
+			r: 120,
+			stroke: "purple"
+		},{
+			cx: 750,
+			cy: 130,
+			r: 120,
+			stroke: "yellow"
+		}]);
 	},
 
 	"Strength": function () {
@@ -69,7 +78,7 @@ var FILTERS = {
 			wind: [125, 160],
 			years: [new Date(1985,0), new Date(2000,0)]
 		})
-		Map.drawStorms(Map.Modes.Heat, storms)
+		Map.render(Map.Modes.Heat, storms)
 	},
 
 	"Explore": refreshFilter,

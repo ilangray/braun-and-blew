@@ -198,6 +198,7 @@ var Map = (function() {
             .attr("cy", function (d) { return d.cy; })
             .attr("r", function (d) { return d.r; })
             .attr("stroke", function (d) { return d.stroke; })
+            .attr("stroke-width", 5)
             .attr('fill', 'none')
     }
 
