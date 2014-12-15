@@ -14,24 +14,37 @@
 </head>
 
 <body>
-    
-
-    
     <div class="container">
-<!-- navbar -->
-    <nav class="navbar navbar-default" role="navigation">
-        <div class="container-fluid">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">Hurricanes</a>
-                <p class="navbar-text">By Phil Braunstein, Ilan Gray, and Ben Lewin</p>
+        <!-- navbar -->
+        <nav class="navbar navbar-default" role="navigation">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="#">Hurricanes</a>
+                    <p class="navbar-text">By Phil Braunstein, Ilan Gray, and Ben Lewin</p>
+                </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
         <!-- filtering -->
         <div class="row">
+            <!-- Tabs -->
             <span class='col-md-12'>
-                <form id="filter-form" class="form-horizontal" role="form">
+                <ul id="tabs" class="nav nav-tabs">
+                  <li role="presentation" class="active"><a href="#welcome" role="tab" data-toggle="tab">Welcome</a></li>
+                  <li role="presentation"><a href="#explore" id="link-welcome" role="tab" data-toggle="tab">Explore</a></li>
+                </ul>
+            </span>
+
+            <!-- Content -->
+            <div class='tab-content'>
+                <!-- Welcome -->
+                <div role='tabpanel' class="tab-pane active" id="welcome">
+                    <p>Welcome to learning about hurricanes! This is gonna be sweet.</p>
+                </div>
+
+                <!-- Explore -->
+                <div role='tabpanel' class="tab-pane" id="explore">
+                    <form id="filter-form" class="form-horizontal" role="form">
                     <legend>Filtering</legend>
                     
                     <!-- year -->
@@ -64,8 +77,10 @@
                         </div>
                     </div>
                 </form>
-            </span>
+                </div>
+            </div>
         </div>
+
 
         <legend>Map</legend>
         <!-- map -->
@@ -80,6 +95,7 @@
     <!-- load maps, then load filtering so it can immediately draw hurricanes -->
     <script type="text/javascript" src="map.js"></script>
     <script type="text/javascript" src="filtering.js"></script>
+    <script type="text/javascript" src="tabs.js"></script>
     <script type="text/javascript" src="loader.js"></script>
 
     <script>
@@ -87,7 +103,7 @@
             if (err) {
                 console.log("Error in loading data = ", err);
             } else {
-                refreshFilter()
+                onTabChange("Welcome");
             }
         })
     </script>
