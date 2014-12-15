@@ -71,37 +71,28 @@ function drawStorm(storm) {
         .y(function (d) { 
             return getPixels(d.location).y;
         })
-        .interpolate("cardinal");
+        .interpolate("cardinal")
 
-    // wrap each storm in a 'g' tag with the name set
-    var g = svg.append("g").attr("name", storm.name)
+    var origColor = "hsl(" + Math.random() * 360 + ",100%,50%)";
+    var BIG_STROKE = 10
+    var LITTLE_STROKE = 1
 
-    g.selectAll("path")
-        .data(chunk(storm.data))
-        .enter()
-        .append("path")
-        .attr("d", function (d) {
-            // console.log("drawing a line for datum d = ", d)
-            return renderLine(d);
-        })
-        .attr("stroke", function (d) {
-            return interp(d[0].maxWind / MAX_WIND);
-        })
-        .attr("stroke-width", function (d) {
-            return d[0].maxWind / MAX_WIND * 5
-        })
+    // draw a line through all datapoints
+    var point = svg.append("path")
+        .attr("d", renderLine(storm.data))
+        .attr("fill", "transparent")
+        .attr("stroke", origColor);
 
+    point.on("mouseover", function(d, i) {
+            point.attr("stroke", "red")
+                 .attr("stroke-width", 10);
+        })
+        .on("mouseout", function(d, i) {
+            point.attr("stroke", origColor)
+                 .attr("stroke-width", LITTLE_STROKE);
+        });
 
 /*
-    // draw a line through all datapoints
-    g.append("path")
-        .attr("d", renderLine(hurricane.data))
-        .attr("fill", "transparent")
-        // .attr("stroke", "blue");
-        .attr("stroke", function() {
-            return "hsl(" + Math.random() * 360 + ",100%,50%)";
-        })
-
     // draw circles for each datapoint
     g.selectAll("circle")
         .data(hurricane.data)
@@ -124,6 +115,27 @@ function drawStorm(storm) {
             return projection(latlng)[1];
         });
 */
+}
+
+// private function to render a storm in MODE.Heatmap
+function _drawHeatmap(storm) {
+    // wrap each storm in a 'g' tag with the name set
+    var g = svg.append("g").attr("name", storm.name)
+
+    g.selectAll("path")
+        .data(chunk(storm.data))
+        .enter()
+        .append("path")
+        .attr("d", function (d) {
+            // console.log("drawing a line for datum d = ", d)
+            return renderLine(d);
+        })
+        .attr("stroke", function (d) {
+            return interp(d[0].maxWind / MAX_WIND);
+        })
+        .attr("stroke-width", function (d) {
+            return d[0].maxWind / MAX_WIND * 5
+        })
 }
 
 // draws the given hurricane

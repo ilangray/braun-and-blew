@@ -105,8 +105,7 @@ function delayedRefresh(delay) {
 }
 
 // redraws everything according to the current filter values
-function refreshFilter() 
-{	
+function refreshFilter() { 
 	console.log("refreshing filter");
 
 	// get mode, which determines how we render
