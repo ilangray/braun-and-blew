@@ -208,7 +208,7 @@ var Map = (function() {
            .attr("x", 20)
            .attr("y", 20)
            .attr("width", 120)
-           .attr("height", 20)
+           .attr("height", 40)
            .attr("fill", "#74BECB");
 
         svg.append("text")
@@ -217,6 +217,12 @@ var Map = (function() {
            .attr("stroke", "black")
            .attr("fill", "black")
            .text(storm.name + ", " + getYear(storm));
+        svg.append("text")
+           .attr("x", 25)
+           .attr("y", 55)
+           .attr("stroke", "black")
+           .attr("fill", "black")
+           .text(getMaxWind(storm) + " knots");
     }
 
     function clearTooltip() {

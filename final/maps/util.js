@@ -4,6 +4,12 @@ function getYear(storm) {
     return date.getFullYear();
 }
 
+function getMaxWind(storm) {
+	return d3.max(storm.data, function(d) {
+		return d.maxWind;
+	})
+}
+
 function getName(storm) {
 	return storm.name;
 }
