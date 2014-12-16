@@ -22,7 +22,14 @@ var Sliders = {
 	// returns the range of years from the current values of the year slider
 	getYearRange: function getYearRange() {
 		var sliderRange = $yearSlider.getValue();
-		return [new Date(+sliderRange[0], 0), new Date(+sliderRange[1], 0)]
+
+		var minDate = new Date(+sliderRange[0], 0),
+			maxDate = new Date(+sliderRange[1], 11, 30);
+
+		console.log("min date = ", minDate);
+		console.log("max date = ", maxDate);
+
+		return [minDate, maxDate];
 	},
 
 	// returns the range of speeds from the current values of the speeds slider
